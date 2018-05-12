@@ -1,3 +1,4 @@
 # AlgoRhythmics
 
-* add description
+This is to try stuff out
+
