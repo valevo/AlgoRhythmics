@@ -5,4 +5,3 @@
 * TensorFlow (requires `numpy`, `dev`, `pip`, `wheel`)
 * Keras
 * Music21
-* 
