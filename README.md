@@ -24,5 +24,5 @@ First, create a file that permanently stores the user settings.
 (`us.getSettingsPath()` holds the location of the created user settings file.)
 
 
-Then, set the path, replacing my_path with your local path to MuseScore (Unix shell `which musescore`).
+Then, set the path, replacing `my_path` with your local path to MuseScore (Unix shell `which musescore`).
 `us["musescoreDirectPNGPath"] = "my_path"`
