@@ -20,7 +20,9 @@ First, create a file that permanently stores the user settings.
 
 `from music21 import environment`  
 `us = environment.UserSettings()`  
-`us.create()`
+`us.create()`  
+(`us.getSettingsPath()` holds the location of the created user settings file.)
+
 
 Then, set the path, replacing my_path with your local path to MuseScore (Unix shell `which musescore`).
 `us["musescoreDirectPNGPath"] = "my_path"`
