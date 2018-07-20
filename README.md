@@ -18,8 +18,8 @@ One needs to manually set the path to MuseScore for Music21.
 
 First, create a file that permanently stores the user settings.
 
-`from music21 import environment
-us = environment.UserSettings()
+`from music21 import environment  
+us = environment.UserSettings()  
 us.create()`
 
 Then, set the path, replacing my_path with your local path to MuseScore (Unix shell `which musescore`).
