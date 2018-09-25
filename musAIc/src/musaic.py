@@ -6,14 +6,26 @@ import queue
 import time
 from collections import deque
 
-from guielements import VScrollFrame, InstrumentPanel
+from guielements import VScrollFrame, InstrumentPanel, PlayerControls
 from networkEngine import Network
 from pythonosc import udp_client, osc_server, dispatcher
 
 import numpy as np
 
-ADDR = '145.107.37.248'
-PORT = 57120
+# Address and port of host machine to send messages to OSC-MIDI bridge:
+# ON WINDOWS:
+#   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
+#   - run NetAddr.localAddr; in SuperCollider to get port number
+#CLIENT_ADDR = '100.75.0.230'
+#CLIENT_PORT = 57120
+CLIENT_ADDR = '145.109.6.217'
+CLIENT_PORT = 57120
+
+# Address and port of guest machine to listen for incoming messages:
+#   - run ifconfig and use Host-Only IP (same as listed on Windows ipconfig)
+#   - port can be arbitrary, but SuperCollider must know!
+SERVER_ADDR = '192.168.56.103'
+SERVER_PORT = 7121
 
 class MessageListener(threading.Thread):
     """Listens to incoming OSC messages"""
@@ -45,6 +57,7 @@ class Engine(threading.Thread):
         self.bar = 0
         self.start_playing = True
         self.record = False
+        self.stop = False
 
     def run(self):
         while not self.stop_request.isSet():
@@ -81,7 +94,17 @@ class Engine(threading.Thread):
                     self.app.sendCC(1, 0)
                     self.app.sendCC(2, 127)
                     self.record = False
-                self.start_playing = True
+
+                    if self.stop:
+                        print('reseting positions')
+                        self.stop = False
+                        for ins in self.ins_manager.get_instruments():
+                            ins.bar_num = -1
+                        self.bar = 0
+                        self.ins_manager.load_nextbar()
+
+                    self.app.controls.update_buttons()
+                    self.start_playing = True
 
             # update instruments if they have requested new bars...
             for ins in self.ins_manager.get_instruments():
@@ -101,13 +124,13 @@ class Engine(threading.Thread):
         else:
             self.play_request.set()
 
-    def stop(self):
-        self.play_request.clear()
-        for ins in self.ins_manager.get_instruments():
-            ins.bar_num = -1
-        self.record = False
-        self.bar = 0
-        self.ins_manager.load_nextbar()
+    def toggle_stop(self, stop_button):
+        if not self.stop:
+            self.stop = True
+            self.play_request.clear()
+        else:
+            self.stop = False
+            self.play_request.set()
 
 
 PAUSED = 2
@@ -264,6 +287,11 @@ class Instrument():
             start = self.bar_num
             self.record_bars = list(range(start, start+num))
 
+            # set up loop for when finished...
+            self.loopLevel = len(self.record_bars)
+            self.loopEnd = self.record_bars[0]
+
+
     def toggle_paused(self):
         if self.status == PAUSED or self.status == PAUSE_WAIT:
             self.status = PLAY_WAIT
@@ -405,7 +433,7 @@ class MusaicApp():
         self.root.geometry('1000x600+0+%d'%(hs/2))
         self.root.resizable(0, 0)
 
-        self.client = udp_client.SimpleUDPClient(ADDR, PORT)
+        self.client = udp_client.SimpleUDPClient(CLIENT_ADDR, CLIENT_PORT)
 
         self.queue_manager = multiprocessing.Manager()
         self.request_queue = self.queue_manager.Queue()
@@ -422,17 +450,6 @@ class MusaicApp():
         # main control panel...
         self.maincontrols = tk.Frame(self.mainframe)
 
-        self.playButtonMain = tk.Button(self.maincontrols, text='P',
-                                        command=self.toggle_playback)
-
-        self.recButton = tk.Button(self.maincontrols, text='R',
-                                   command=self.toggle_record)
-
-        self.stopButtonMain = tk.Button(self.maincontrols, text='S',
-                                        command=self.stop)
-
-        self.addInsButton = tk.Button(self.maincontrols, text='+')
-
         timeFont = font.Font(family='Courier', size=12, weight='bold')
         self.timeLabel = tk.Label(self.maincontrols, text='00:00', bg='#303030', fg='yellow',
                              width=10, relief='sunken', bd=2,
@@ -446,15 +463,10 @@ class MusaicApp():
         self.panicButton = tk.Button(self.maincontrols, text='Panic',
                                      command=self.panic)
         # pack main controls...
-        self.playButtonMain.grid(row=0, column=0, rowspan=2, sticky='ew')
-        self.recButton.grid(row=0, column=1, rowspan=2, sticky='ew')
-        self.stopButtonMain.grid(row=0, column=2, rowspan=2, sticky='ew')
-        self.addInsButton.grid(row=0, column=3, rowspan=2, sticky='ew')
         self.timeLabel.grid(row=0, column=4, rowspan=2, padx=5)
         tk.Label(self.maincontrols, text='Tempo:').grid(row=0, column=5, sticky='e')
         self.bpmBox.grid(row=0, column=6)
         self.panicButton.grid(row=1, column=5, columnspan=2, sticky='ew')
-        
 
         # add instrument button and panels...
 
@@ -468,15 +480,17 @@ class MusaicApp():
                                              self.queue_manager)
         self.ins_manager.addInstrument()
 
-        self.addInsButton['command'] = self.ins_manager.addInstrument
-
         # add engine...
         self.engine = Engine(self, self.ins_manager, self.BPM)
+
+        # add controls...
+        self.controls = PlayerControls(self.maincontrols, self.engine)
+        self.controls.grid(row=0, column=0, rowspan=2)
 
         # add status bar
         self.statusBar = tk.Frame(self.mainframe, relief='sunken', bd=2)
         self.statusLabel = tk.Label(self.statusBar, 
-                                    text='Connecting too: {}, Port: {}'.format(ADDR, PORT))
+                                    text='Connecting too: {}, Port: {}'.format(CLIENT_ADDR, CLIENT_PORT))
         self.statusLabel.pack(side='right')
         self.statusBar.pack(side='bottom', fill='x')
 
@@ -487,7 +501,7 @@ class MusaicApp():
         self.disp.map('/noteOn', self.noteOn)
         self.joystick_moved = False
 
-        self.server = osc_server.BlockingOSCUDPServer(('192.168.56.103', 7101), self.disp)
+        self.server = osc_server.BlockingOSCUDPServer((SERVER_ADDR, SERVER_PORT), self.disp)
         self.listener = MessageListener(self.server)
 
         # start the loops...
@@ -514,12 +528,12 @@ class MusaicApp():
         text = '{:2}:{}'.format(bar, int(min(4, beat+1)))
         self.timeLabel.configure(text=text)
 
-        if self.engine.record:
-            self.recButton['relief'] = 'sunken'
-            self.recButton['fg'] = 'red'
-        else:
-            self.recButton['relief'] = 'raised'
-            self.recButton['fg'] = 'black'
+        #if self.engine.record:
+        #    self.recButton['relief'] = 'sunken'
+        #    self.recButton['fg'] = 'red'
+        #else:
+        #    self.recButton['relief'] = 'raised'
+        #    self.recButton['fg'] = 'black'
 
         for ins in self.ins_manager.instrumentPanels.values():
             ins.update_display(beat)
@@ -540,14 +554,11 @@ class MusaicApp():
 
     def pingReply(self, msg, statusLabel, val):
         #print('connected!')
-        statusLabel[0].configure(text='Sending to {}, Port {}'.format(ADDR, PORT))
+        statusLabel[0].configure(text='Sending to {}, Port {}'.format(CLIENT_ADDR,
+                                                                      CLIENT_PORT))
 
     def ccRecieve(self, *msg):
-        # recieved a CC message
-        print('CC: {}'.format(msg))
-
-    def ccRecieve(self, *msg):
-        #print(msg)
+        print(msg)
         val = msg[1]
         num = msg[2]
         # here process CC messages (value, number)
@@ -580,10 +591,12 @@ class MusaicApp():
             func(val, num)
 
     def CC_play(self, val, num):
-        self.toggle_playback()
+        #self.toggle_playback()
+        self.controls.play(None)
 
     def CC_rec(self, val, num):
-        self.toggle_record()
+        #self.toggle_record()
+        self.controls.record(None)
 
     def CC_stop(self, val, num):
         self.stop()
@@ -634,18 +647,8 @@ class MusaicApp():
             self.ins_manager.armed_ins.noteOn = msg[1]
         print('NoteOn: {}'.format(msg))
 
-    def toggle_playback(self):
-        self.engine.toggle_playback()
-        if self.engine.play_request.isSet():
-            self.playButtonMain.configure(text='p')
-        else:
-            self.playButtonMain.configure(text='P')
-
-    def toggle_record(self):
-        self.engine.record = not self.engine.record
-
     def stop(self):
-        self.engine.stop()
+        self.engine.toggle_stop()
 
     def panic(self):
         '''Send MIDI all off message to all channels'''

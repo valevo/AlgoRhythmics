@@ -47,6 +47,12 @@ class Network(multiprocessing.Process):
                 bar = self.create_bar(_id, req[2])
                 self.return_queues[_id].put(bar)
 
+            elif req[0] == 2:
+                # instrument wants to regenerate data (e.g. after recording)
+                _id = req[1]
+
+                pass
+
             elif req[0] == -1:
                 # remove the model and data
                 _id = req[1]

@@ -4,7 +4,7 @@ from tkinter import font
 #              BG       Text
 COLOURS = [('#ff0011', 'white'),
            ('yellow',  'black'),
-           ('#22ff22', 'white'),
+           ('#22ff22', 'black'),
            ('#1100ff', 'white'),
            ('#eeeeee', 'black'),
            ('#222222', 'white')]
@@ -98,6 +98,91 @@ class SelectionGrid(tk.Frame):
             except:
                 # none valid setting
                 pass
+
+class PlayerControls(tk.Frame):
+
+    def __init__(self, master, engine, **kwargs):
+        tk.Frame.__init__(self, master, **kwargs)
+
+        self.engine = engine
+
+        size = 25
+        self.col_gray = col_gray = '#aaaaaa'
+        self.dark_gray = dark_gray = '#101010'
+
+        self.play_button = tk.Canvas(self, width=size, height=size,
+                                     bg=col_gray, highlightthickness=1,
+                                     highlightbackground=dark_gray)
+        self.rec_button = tk.Canvas(self, width=size, height=size,
+                                     bg=col_gray, highlightthickness=1,
+                                     highlightbackground=dark_gray)
+        self.stop_button = tk.Canvas(self, width=size, height=size,
+                                     bg=col_gray, highlightthickness=1,
+                                     highlightbackground=dark_gray)
+        self.add_button = tk.Canvas(self, width=size, height=size,
+                                     bg=col_gray, highlightthickness=1,
+                                     highlightbackground=dark_gray)
+
+        self.play_button.grid(row=0, column=0, padx=1, pady=1)
+        self.rec_button.grid(row=0, column=1, padx=1, pady=1)
+        self.stop_button.grid(row=0, column=2, padx=1, pady=1)
+        self.add_button.grid(row=0, column=3, padx=1, pady=1)
+
+        # draw icons...
+        to = 6
+        self.play_icon = self.play_button.create_polygon(to, to, to, size-to+1,
+                                        size-to+1, size//2+1,
+                                        fill=dark_gray, outline='')
+        self.rec_icon = self.rec_button.create_oval(to, to, size-to+1, size-to+1,
+                                        fill=dark_gray, outline='')
+        self.stop_icon = self.stop_button.create_rectangle(to, to, size-to+1,
+                                        size-to+1, fill=dark_gray, outline='')
+        self.add_button.create_rectangle(size//2-2, to, size//2+4, size-to+1,
+                                         fill=dark_gray, outline='')
+        self.add_button.create_rectangle(to, size//2-2, size-to+1, size//2+4,
+                                         fill=dark_gray, outline='')
+
+        self.play_button.bind('<Button-1>', self.play)
+        self.rec_button.bind('<Button-1>', self.record)
+        self.stop_button.bind('<Button-1>', self.stop)
+        self.add_button.bind('<Button-1>', self.add)
+
+    def update_buttons(self):
+        # PLAY button...
+        if self.engine.play_request.isSet():
+            self.play_button.configure(bg='yellow')
+        else:
+            self.play_button.configure(bg=self.col_gray)
+
+        # REC button...
+        if self.engine.record:
+            self.rec_button.itemconfig(self.rec_icon, fill='red')
+            self.rec_button.configure(bg='yellow')
+        else:
+            self.rec_button.itemconfig(self.rec_icon, fill=self.dark_gray)
+            self.rec_button.configure(bg=self.col_gray)
+
+        # STOP button...
+        if self.engine.stop and self.engine.play_request.isSet():
+            self.stop_button.configure(bg='yellow')
+        else:
+            self.stop_button.configure(bg=self.col_gray)
+
+    def play(self, event):
+        self.engine.toggle_playback()
+        self.update_buttons()
+
+    def record(self, event):
+        self.engine.record = not self.engine.record
+        self.update_buttons()
+
+    def stop(self, event):
+        self.engine.toggle_stop(self.stop_button)
+        self.stop_button.configure(bg='yellow')
+
+    def add(self, event):
+        self.engine.ins_manager.addInstrument()
+
 
 
 #class BarCanvas(tk.Canvas):
@@ -219,6 +304,7 @@ class InstrumentPanel(tk.Frame):
         # draw bars
         for i, bar in zip(list(bar_nums), bars):
             offset = (2 + i - cb - beat/4) * self.beat_width * 4
+            note_col = '#aaaaaa'
 
             if self.instrument.loopLevel > 0:
                 loop_end = self.instrument.loopEnd
@@ -228,7 +314,9 @@ class InstrumentPanel(tk.Frame):
                     self.barCanvas.create_rectangle(offset, 0,
                                                     offset+(4*self.beat_width),
                                                     self.canvasHeight,
-                                                    fill='#525100')
+                                                    fill='#605500')
+                else:
+                    note_col = '#555555'
 
             if i in self.instrument.record_bars:
                 self.barCanvas.create_rectangle(offset, 0,
@@ -245,7 +333,7 @@ class InstrumentPanel(tk.Frame):
                 x = offset + t * self.beat_width
                 l = (noteOn_times[j+1] - t) * self.beat_width
                 y = scale * (bar[t] - noteRange[1])
-                self.barCanvas.create_line(x, y, x+l, y, fill='#cccccc',
+                self.barCanvas.create_line(x, y, x+l-2, y, fill=note_col,
                                            width=2)
 
         # draw cursor
