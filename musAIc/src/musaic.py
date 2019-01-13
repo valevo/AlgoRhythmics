@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import font
+from tkinter.ttk import Style
 import threading
 import multiprocessing
 import queue
@@ -7,7 +8,8 @@ import time
 from collections import deque
 
 from guielements import VScrollFrame, InstrumentPanel, PlayerControls
-from networkEngine import Network
+from simpleDialog import Dialog
+from networkEngine import NetworkManager
 from pythonosc import udp_client, osc_server, dispatcher
 
 import numpy as np
@@ -18,13 +20,15 @@ import numpy as np
 #   - run NetAddr.localAddr; in SuperCollider to get port number
 #CLIENT_ADDR = '100.75.0.230'
 #CLIENT_PORT = 57120
-CLIENT_ADDR = '145.109.6.217'
+#CLIENT_ADDR = '145.109.6.217'
+CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
 # Address and port of guest machine to listen for incoming messages:
-#   - run ifconfig and use Host-Only IP (same as listed on Windows ipconfig)
+#   - run ifconfig (or `ip addr` in Arch) and use Host-Only IP (same as listed on Windows ipconfig)
 #   - port can be arbitrary, but SuperCollider must know!
-SERVER_ADDR = '192.168.56.103'
+#SERVER_ADDR = '192.168.56.102'
+SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
 
 class MessageListener(threading.Thread):
@@ -430,18 +434,27 @@ class MusaicApp():
         self.root = tk.Tk()
         self.root.title(APP_NAME)
         hs = self.root.winfo_screenheight()
-        self.root.geometry('1000x600+0+%d'%(hs/2))
-        self.root.resizable(0, 0)
+        self.root.geometry('1200x600+0+%d'%(hs/2))
+        #self.root.resizable(0, 0)
 
-        self.client = udp_client.SimpleUDPClient(CLIENT_ADDR, CLIENT_PORT)
+        self.style = Style()
+        self.style.theme_use('alt')
+
+        self.cl_ip = CLIENT_ADDR
+        self.cl_port = CLIENT_PORT
+        self.sv_ip = SERVER_ADDR
+        self.sv_port = SERVER_PORT
+
+        self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
 
         self.queue_manager = multiprocessing.Manager()
         self.request_queue = self.queue_manager.Queue()
-        self.network = Network(self.request_queue)
+        self.network_manager = NetworkManager(self.request_queue)
 
-        self.network.start()
+        self.network_manager.start()
 
         self.mainframe = tk.Frame(self.root)
+        self.mainframe['bg'] = 'gray'
         self.mainframe.pack_propagate(False)
         self.mainframe.pack(fill='both', expand=True)
         self.mainframe.columnconfigure(0, weight=1)
@@ -469,7 +482,6 @@ class MusaicApp():
         self.panicButton.grid(row=1, column=5, columnspan=2, sticky='ew')
 
         # add instrument button and panels...
-
         self.maincontrols.pack(padx=5, pady=5)
 
         self.instrumentsBox = tk.Frame(self.mainframe, relief='sunken', bd=2)
@@ -478,7 +490,7 @@ class MusaicApp():
         self.ins_manager = InstrumentManager(self.instrumentsBox, self.client,
                                              self.request_queue,
                                              self.queue_manager)
-        self.ins_manager.addInstrument()
+        #self.ins_manager.addInstrument()
 
         # add engine...
         self.engine = Engine(self, self.ins_manager, self.BPM)
@@ -489,8 +501,9 @@ class MusaicApp():
 
         # add status bar
         self.statusBar = tk.Frame(self.mainframe, relief='sunken', bd=2)
-        self.statusLabel = tk.Label(self.statusBar, 
-                                    text='Connecting too: {}, Port: {}'.format(CLIENT_ADDR, CLIENT_PORT))
+        self.statusLabel = tk.Label(self.statusBar,
+            text='Connecting too: {}, Port:{}'.format(self.cl_ip, self.cl_port))
+        self.statusLabel.bind('<Button-1>', self.editConnection)
         self.statusLabel.pack(side='right')
         self.statusBar.pack(side='bottom', fill='x')
 
@@ -501,7 +514,7 @@ class MusaicApp():
         self.disp.map('/noteOn', self.noteOn)
         self.joystick_moved = False
 
-        self.server = osc_server.BlockingOSCUDPServer((SERVER_ADDR, SERVER_PORT), self.disp)
+        self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
         self.listener = MessageListener(self.server)
 
         # start the loops...
@@ -517,8 +530,8 @@ class MusaicApp():
         self.ins_manager.send_message('/allOff', 0)
         self.engine.join(timeout=1)
         self.listener.join(timeout=1)
-        self.network.terminate()
-        self.network.join(timeout=1)
+        self.network_manager.terminate()
+        self.network_manager.join(timeout=1)
 
 
     def updateGUI(self):
@@ -554,8 +567,21 @@ class MusaicApp():
 
     def pingReply(self, msg, statusLabel, val):
         #print('connected!')
-        statusLabel[0].configure(text='Sending to {}, Port {}'.format(CLIENT_ADDR,
-                                                                      CLIENT_PORT))
+        statusLabel[0].configure(text='Sending to {}, Port {}'.format(self.cl_ip,
+                                                                      self.cl_port))
+
+    def editConnection(self, event):
+        current = {'cl_ip': self.cl_ip, 'cl_port': self.cl_port,
+                   'sv_ip': self.sv_ip, 'sv_port': self.sv_port}
+        d = DialogOSCParams(self.root, title='Edit OSC connection...', defualts=current)
+        if d.result:
+            self.cl_ip = d.result['cl_ip']
+            self.cl_port = d.result['cl_port']
+            self.sv_ip = d.result['sv_ip']
+            self.sv_port = d.result['sv_port']
+
+            #... change listeners etc
+
 
     def ccRecieve(self, *msg):
         print(msg)
@@ -657,6 +683,48 @@ class MusaicApp():
     def sendCC(self, num, val):
         self.client.send_message('/midiCC', (num, val))
 
+class DialogOSCParams(Dialog):
+    def body(self, root):
+        try:
+            current = self.kwargs['defaults']
+        except:
+            current = {'cl_ip': '127.0.0.1', 'cl_port': 57120,
+                       'sv_ip': '127.0.0.1', 'sv_port': 7121}
+
+        print(current)
+
+        tk.Label(root, text='Client Address:').grid(row=0, columnspan=2)
+        tk.Label(root, text='IP:').grid(row=1)
+        tk.Label(root, text='Port:').grid(row=2)
+
+        tk.Label(root, text='Server Address:').grid(row=0, column=2, columnspan=2)
+        tk.Label(root, text='IP:').grid(row=1, column=2)
+        tk.Label(root, text='Port:').grid(row=2, column=2)
+
+        self.cl_ip = tk.Entry(root)
+        self.cl_ip.insert(0, current['cl_ip'])
+        self.cl_port = tk.Entry(root)
+        self.cl_port.insert(0, current['cl_port'])
+        self.sv_ip = tk.Entry(root)
+        self.sv_ip.insert(0, current['sv_ip'])
+        self.sv_port = tk.Entry(root)
+        self.sv_port.insert(0, current['sv_port'])
+
+        self.cl_ip.grid(row=1, column=1)
+        self.cl_port.grid(row=2, column=1)
+        self.sv_ip.grid(row=1, column=3)
+        self.sv_port.grid(row=2, column=3)
+
+        return self.cl_ip
+
+    def validate(self):
+        return 1
+
+    def apply(self):
+        self.result = {'cl_ip':   str(self.cl_ip.get()),
+                       'cl_port': int(self.cl_port.get()),
+                       'sv_ip':   str(self.sv_ip.get()),
+                       'sv_port': str(self.sv_port.get())}
 
 
 if __name__ == '__main__':
