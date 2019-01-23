@@ -31,6 +31,15 @@ CLIENT_PORT = 57120
 SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
 
+# Colours for the widgets to use
+#COLOURS = {
+#    'darkGrey':     '#101010',
+#    'grey':         '#484848',
+#    'textLight':    '#F0F0F0',
+#    'textDark':     '#000000',
+#    'active':       'orange'
+#}
+
 class MessageListener(threading.Thread):
     """Listens to incoming OSC messages"""
     def __init__(self, server):
@@ -257,8 +266,8 @@ class Instrument():
     def check_new_bar(self):
         '''Checks if a new bar from network is ready'''
         try:
-            bar = self.network_queue.get(block=False)
-            self.bars.append(bar)
+            new_bar = self.network_queue.get(block=False)
+            self.bars.append(new_bar)
         except:
             # no new bars...
             return
@@ -315,15 +324,15 @@ class InstrumentManager():
     Midi player and GUI threads use this
     """
     def __init__(self, ins_box, client, request_queue, queue_manager):
-        self.instruments = {}
-        self.instrumentPanels = {}
-        self.ins_box = ins_box
-        self.client = client
-        self.request_queue = request_queue
-        self.queue_manager = queue_manager
-        self.ins_counter = 0
-        self.armed_ins = None
-        self.selected_ins = None
+        self.instruments = {}               # contains the instruments by ID
+        self.instrumentPanels = {}          # the GUI display panels
+        self.ins_box = ins_box              # where the panels are displayed
+        self.client = client                # the client that sends the played notes
+        self.request_queue = request_queue  # requests to network Engine
+        self.queue_manager = queue_manager  # holds the instrument specific queues
+        self.ins_counter = 0                # last instrument ID
+        self.armed_ins = None               # if any instruments set to record
+        self.selected_ins = None            # the currently selected instrument
 
     def addInstrument(self):
         print('adding instrument {}...'.format(self.ins_counter))
@@ -425,11 +434,16 @@ class InstrumentManager():
         try:
             self.client.send_message(add, msg)
         except OSError:
+            print('[OS Error] Instrument manager cannot send message {}:{}'.format(
+                      add, msg))
             return
 
 APP_NAME = 'musAIc LIVE (v0.3)'
 
 class MusaicApp():
+    client = None
+    server = None
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.title(APP_NAME)
@@ -438,14 +452,15 @@ class MusaicApp():
         #self.root.resizable(0, 0)
 
         self.style = Style()
-        self.style.theme_use('alt')
+        self.style.theme_use('clam')
 
         self.cl_ip = CLIENT_ADDR
         self.cl_port = CLIENT_PORT
         self.sv_ip = SERVER_ADDR
         self.sv_port = SERVER_PORT
 
-        self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
+        #self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
+        self.updateClient()
 
         self.queue_manager = multiprocessing.Manager()
         self.request_queue = self.queue_manager.Queue()
@@ -454,7 +469,7 @@ class MusaicApp():
         self.network_manager.start()
 
         self.mainframe = tk.Frame(self.root)
-        self.mainframe['bg'] = 'gray'
+        self.mainframe['bg'] = '#101010'
         self.mainframe.pack_propagate(False)
         self.mainframe.pack(fill='both', expand=True)
         self.mainframe.columnconfigure(0, weight=1)
@@ -514,7 +529,7 @@ class MusaicApp():
         self.disp.map('/noteOn', self.noteOn)
         self.joystick_moved = False
 
-        self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
+        self.updateServer()
         self.listener = MessageListener(self.server)
 
         # start the loops...
@@ -561,7 +576,8 @@ class MusaicApp():
         except:
             self.statusLabel.configure(text='NO INTERNET')
         else:
-            self.statusLabel.configure(text='Checking connection...')
+            self.statusLabel.configure(text='Checking connection to {}:{}'.format(
+                                           self.sv_ip, self.sv_port))
 
         self.root.after(2000, self.checkConnection)
 
@@ -571,17 +587,21 @@ class MusaicApp():
                                                                       self.cl_port))
 
     def editConnection(self, event):
-        current = {'cl_ip': self.cl_ip, 'cl_port': self.cl_port,
-                   'sv_ip': self.sv_ip, 'sv_port': self.sv_port}
-        d = DialogOSCParams(self.root, title='Edit OSC connection...', defualts=current)
-        if d.result:
-            self.cl_ip = d.result['cl_ip']
-            self.cl_port = d.result['cl_port']
-            self.sv_ip = d.result['sv_ip']
-            self.sv_port = d.result['sv_port']
+        d = DialogOSCParams(self.root, title='Edit OSC connection...', baseApp=self)
 
-            #... change listeners etc
+    def updateClient(self):
+        if self.client:
+            del self.client
+        self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
+        print('Client updated')
 
+    def updateServer(self):
+        if self.server:
+            self.server.server_address = (self.sv_ip, self.sv_port)
+        else:
+            self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
+
+        print('Server updated')
 
     def ccRecieve(self, *msg):
         print(msg)
@@ -685,13 +705,12 @@ class MusaicApp():
 
 class DialogOSCParams(Dialog):
     def body(self, root):
-        try:
-            current = self.kwargs['defaults']
-        except:
-            current = {'cl_ip': '127.0.0.1', 'cl_port': 57120,
-                       'sv_ip': '127.0.0.1', 'sv_port': 7121}
 
-        print(current)
+        try:
+            self.baseApp = self.kwargs['baseApp']
+        except:
+            print('Error: BaseApp not supplied')
+            self.cancel()
 
         tk.Label(root, text='Client Address:').grid(row=0, columnspan=2)
         tk.Label(root, text='IP:').grid(row=1)
@@ -702,13 +721,13 @@ class DialogOSCParams(Dialog):
         tk.Label(root, text='Port:').grid(row=2, column=2)
 
         self.cl_ip = tk.Entry(root)
-        self.cl_ip.insert(0, current['cl_ip'])
+        self.cl_ip.insert(0, self.baseApp.cl_ip)
         self.cl_port = tk.Entry(root)
-        self.cl_port.insert(0, current['cl_port'])
+        self.cl_port.insert(0, self.baseApp.cl_port)
         self.sv_ip = tk.Entry(root)
-        self.sv_ip.insert(0, current['sv_ip'])
+        self.sv_ip.insert(0, self.baseApp.sv_ip)
         self.sv_port = tk.Entry(root)
-        self.sv_port.insert(0, current['sv_port'])
+        self.sv_port.insert(0, self.baseApp.sv_port)
 
         self.cl_ip.grid(row=1, column=1)
         self.cl_port.grid(row=2, column=1)
@@ -721,13 +740,18 @@ class DialogOSCParams(Dialog):
         return 1
 
     def apply(self):
-        self.result = {'cl_ip':   str(self.cl_ip.get()),
-                       'cl_port': int(self.cl_port.get()),
-                       'sv_ip':   str(self.sv_ip.get()),
-                       'sv_port': str(self.sv_port.get())}
+        self.baseApp.cl_ip = str(self.cl_ip.get())
+        self.baseApp.cl_port = int(self.cl_port.get())
+        self.baseApp.updateClient()
+
+        self.baseApp.sv_ip = str(self.sv_ip.get())
+        self.baseApp.sv_port = int(self.sv_port.get())
+        self.baseApp.updateServer()
+        print('Connection updated')
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     print('Starting {}'.format(APP_NAME))
 
     app = MusaicApp()
