@@ -1,6 +1,8 @@
 import music21 as m21
 import pickle as pkl
 
+import logging
+
 from core import *
 
 '''
@@ -44,7 +46,7 @@ def getSongData(i, song):
 
     instruments = []
     for j, part in enumerate(cSong.parts):
-        print(f'   - part {j}')
+        #print(f'   - part {j}')
 
         partData = dict()
 
@@ -79,39 +81,63 @@ def getSongData(i, song):
     songData['instruments'] = instruments
     return songData
 
+def saveProgress(data, name, path='./data/'):
+    logging.info(f'--- Saving progress at {path}{name}')
 
+    with open(f'{path}{name}', 'wb') as f:
+        pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
+
+
+logging.basicConfig(filename='./createData.log', level=logging.INFO,
+                   format='%(asctime)s %(message)s')
 
 musicData = []
 
 corpusPath = m21.corpus.getCorePaths()
 
-print(f'Core corpus has {len(corpusPath)} works')
+logging.info(f'Core corpus has {len(corpusPath)} works')
 
 i = 0
 
 for path in corpusPath:
-    if i > 1: break
-
     ps = str(path)
     if 'demos' in ps or 'theoryExercises' in ps:
         continue
 
-    print(f'Parsing {ps}...')
+    logging.info(f'Parsing {ps}...[{i}]')
 
-    song = m21.converter.parse(path)
+    try:
+        song = m21.converter.parse(path)
 
-    if isinstance(song, m21.stream.Opus):
-        for s in song.scores:
-            songData = getSongData(i, s)
+        if isinstance(song, m21.stream.Opus):
+            logging.info(f'(OPUS of size {len(song.scores)})')
+            for s in song.scores:
+                songData = getSongData(i, s)
+                musicData.append(songData)
+                i += 1
+
+                if i%100 == 0:
+                    name = 'music_data_{:04d}.pkl'.format(i//100)
+                    saveProgress(musicData, name)
+                    musicData = []
+        else:
+            songData = getSongData(i, song)
             musicData.append(songData)
             i += 1
-    else:
-        songData = getSongData(i, song)
-        musicData.append(songData)
-        i += 1
 
+            if i%100 == 0:
+                name = 'music_data_{:04d}.pkl'.format(i//100)
+                saveProgress(musicData, name)
+                musicData = []
 
-print('DONE')
+    except:
+        logging.exception('')
+
+name = 'music_data_{:04d}.pkl'.format(i//100 + 1)
+saveProgress(musicData, name)
+
+logging.info('DONE')
+
 
 
 

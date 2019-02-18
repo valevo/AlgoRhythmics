@@ -263,6 +263,10 @@ def metaAnalysis(stream):
 
         notes = part.flat.notes
 
+        if len(notes) == 0:
+            # have a score in Chord notation? skip it...
+            continue
+
         timeSig = part.flat.timeSignature
         if timeSig:
             ts = timeSig.ratioString
