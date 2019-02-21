@@ -117,11 +117,11 @@ class ParseData(object):
                 if isinstance(song, m21.stream.Opus):
                     logging.info(f'(OPUS of size {len(song.scores)})')
                     for s in song.scores:
-                        songData = getSongData(s)
+                        songData = getSongData(s, corpus='music21')
                         self.returnQ.put(songData)
 
                 else:
-                    songData = getSongData(song)
+                    songData = getSongData(song, corpus='music21')
                     self.returnQ.put(songData)
 
             except:

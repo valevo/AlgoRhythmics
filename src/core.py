@@ -6,7 +6,7 @@ from fractions import Fraction
 NOTES = [str(x) for x in range(12)]
 
 
-def getSongData(song):
+def getSongData(song, corpus=None):
     '''
     Loads and analyzes the music21 corpus and saves data as a tree:
 
@@ -23,6 +23,7 @@ def getSongData(song):
                 - avgInt:           anverage note jump
                 - avgChord:         percentage of chords used
                 - tonalCenter:      average note value
+                - expressive:       1 if human player, 0 otherwise
 
             - rhythm:               nested list of all beats and their divisions
 
@@ -34,7 +35,7 @@ def getSongData(song):
 
     songData = dict()
 
-    songData['corpus'] = 'music21 Core Corpus'
+    songData['corpus'] = corpus
 
     cSong = cleanScore(song)
 
@@ -43,34 +44,18 @@ def getSongData(song):
         partData = dict()
 
         rhythmData = parseRhythmData(part)
-        melodyData = parseNoteData(part)
         metaData   = metaAnalysis(part)
-
-        strengths = []
-        durations = []
-        pClass    = []
-        octaves   = []
-
-        for note in melodyData:
-            strengths.append(note[0])
-            durations.append(note[1])
-            pClass.append(note[2])
-            octaves.append(note[3])
-
-        melodyDict = dict()
-        melodyDict['strengths'] = strengths
-        melodyDict['durations'] = durations
-        melodyDict['pClass']    = pClass
-        melodyDict['octaves']   = octaves
+        melodyData = parseMelodyData(part, metaData[0])
 
         partData['id']       = j
         partData['metaData'] = metaData[0]
         partData['rhythm']   = rhythmData
-        partData['melody']   = melodyDict
+        partData['melody']   = melodyData
 
         instruments.append(partData)
 
     songData['instruments'] = instruments
+
     return songData
 
 
