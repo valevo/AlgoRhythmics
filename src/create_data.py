@@ -1,158 +1,144 @@
 import music21 as m21
 import pickle as pkl
 
+import os
 import logging
+
+from multiprocessing import Pool, Queue, Process, current_process, cpu_count
 
 from core import *
 
-'''
-Loads and analyzes the music21 corpus and saves data as a tree:
+MAX_WORKERS = cpu_count()
 
-- musicData (list):
-
-    - id:                       an identifying index for this song
-
-    - corpus:                   the corpus name
-
-    - instruments:              list of instruments
-        - id:                   index of instrument
-
-        - metaData:
-            - ts:               the (initial) time signature
-            - length:           number of measures
-            - span:             range of notes
-            - avgInt:           anverage note jump
-            - avgChord:         percentage of chords used
-            - tonalCenter:      average note value
-
-        - rhythm:               nested list of all beats and their divisions
-
-        - melody:
-            - strengths:        notes beat strength ([0, 1])
-            - durations:        quarter note length of note
-            - pClass:           pitch class ([0, 11])
-            - octave:           ocatave ([-2, 6]?)
-
-
-'''
-
-def getSongData(i, song):
-    songData = dict()
-
-    songData['id'] = i
-    songData['corpus'] = 'music21 Core Corpus'
-
-    cSong = cleanScore(song)
-
-    instruments = []
-    for j, part in enumerate(cSong.parts):
-        #print(f'   - part {j}')
-
-        partData = dict()
-
-        rhythmData = parseRhythmData(part)
-        melodyData = parseNoteData(part)
-        metaData   = metaAnalysis(part)
-
-        strengths = []
-        durations = []
-        pClass    = []
-        octaves   = []
-
-        for note in melodyData:
-            strengths.append(note[0])
-            durations.append(note[1])
-            pClass.append(note[2])
-            octaves.append(note[3])
-
-        melodyDict = dict()
-        melodyDict['strengths'] = strengths
-        melodyDict['durations'] = durations
-        melodyDict['pClass']    = pClass
-        melodyDict['octaves']   = octaves
-
-        partData['id']       = j
-        partData['metaData'] = metaData
-        partData['rhythm']   = rhythmData
-        partData['melody']   = melodyDict
-
-        instruments.append(partData)
-
-    songData['instruments'] = instruments
-    return songData
-
-def saveProgress(data, name, path='./data/'):
+def saveProgress(data, name, path='../Data/'):
     logging.info(f'--- Saving progress at {path}{name}')
 
     with open(f'{path}{name}', 'wb') as f:
         pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
 
 
-logging.basicConfig(filename='./createData.log', level=logging.INFO,
-                   format='%(asctime)s %(message)s')
 
-musicData = []
+class ParseData(object):
+    def __init__(self, corpus='music21'):
+        self.jobQ = Queue()
+        self.returnQ = Queue()
 
-corpusPath = m21.corpus.getCorePaths()
+        self.corpusFunctions = {
+            'music21': (self.m21Worker, self.m21Jobs)
+        }
 
-logging.info(f'Core corpus has {len(corpusPath)} works')
+        logging.info(f'Starting {MAX_WORKERS} workers...')
+        self.pool = Pool(processes=MAX_WORKERS,
+                         initializer=self.corpusFunctions[corpus][0])
+        self.collector = Process(target=self.collectResults)
 
-i = 0
+        self.temp_buffer = []
 
-for path in corpusPath:
-    ps = str(path)
-    if 'demos' in ps or 'theoryExercises' in ps:
-        continue
+        # start collector process...
+        self.collector.start()
 
-    logging.info(f'Parsing {ps}...[{i}]')
+        self.corpusFunctions[corpus][1]()
 
-    try:
-        song = m21.converter.parse(path)
+        self.pool.close()
 
-        if isinstance(song, m21.stream.Opus):
-            logging.info(f'(OPUS of size {len(song.scores)})')
-            for s in song.scores:
-                songData = getSongData(i, s)
-                musicData.append(songData)
-                i += 1
+        # wait for workers to finish...
+        self.pool.join()
 
-                if i%100 == 0:
-                    name = 'music_data_{:04d}.pkl'.format(i//100)
-                    saveProgress(musicData, name)
-                    musicData = []
-        else:
-            songData = getSongData(i, song)
-            musicData.append(songData)
+        # wait for collector to finish...
+        self.collector.join()
+
+    def collectResults(self):
+        logging.info('Collector started')
+        i = 0
+        musicData = []
+        started = False
+        while True:
+            try:
+                if started:
+                    data = self.returnQ.get(block=True, timeout=60)
+                else:
+                    data = self.returnQ.get(block=True, timeout=None)
+                    started = True
+
+            except:
+                # assume no more results, finish up
+                name = 'music21/music_data_{:04d}.pkl'.format(i//100+1)
+                saveProgress(musicData, name)
+                return
+
+            musicData.append(data)
             i += 1
-
             if i%100 == 0:
-                name = 'music_data_{:04d}.pkl'.format(i//100)
+                name = 'music21/music_data_{:04d}.pkl'.format(i//100)
                 saveProgress(musicData, name)
                 musicData = []
 
-    except:
-        logging.exception('')
+    def addJobToQueue(self, msg):
+        if self.jobQ.full():
+            self.temp_buffer.append(msg)
+        else:
+            self.jobQ.put(msg)
+            if len(self.temp_buffer) > 0:
+                addJobToQueue(self.temp_buffer.pop())
 
-name = 'music_data_{:04d}.pkl'.format(i//100 + 1)
-saveProgress(musicData, name)
+    def m21Jobs(self):
+        ''' Add jobs from the music21 corpus '''
+        corpusPath = m21.corpus.getCorePaths()
+        logging.info(f'Core corpus has {len(corpusPath)} works')
 
-logging.info('DONE')
+        for path in corpusPath:
+            self.jobQ.put(path, block=True, timeout=None)
+
+        logging.info('All jobs queued')
+
+    def m21Worker(self):
+        ''' Parses data from the music21 corpus '''
+        logging.info(f'Worker started [PID: {current_process().pid}]')
+        started = False
+        while True:
+            if not started:
+                path = self.jobQ.get(block=True, timeout=None)
+                started = True
+            else:
+                if self.jobQ.empty():
+                    logging.info('Worker finished')
+                    return
+
+                path = self.jobQ.get(block=True, timeout=None)
+
+            ps = str(path)
+            if 'demos' in ps or 'theoryExercises' in ps:
+                continue
+
+            try:
+                logging.info(f'Parsing {ps}...')
+                song = m21.converter.parse(path)
+
+                if isinstance(song, m21.stream.Opus):
+                    logging.info(f'(OPUS of size {len(song.scores)})')
+                    for s in song.scores:
+                        songData = getSongData(s)
+                        self.returnQ.put(songData)
+
+                else:
+                    songData = getSongData(song)
+                    self.returnQ.put(songData)
+
+            except:
+                logging.exception('')
 
 
 
 
+if __name__ == '__main__':
 
+    logging.basicConfig(filename='./createData.log', level=logging.INFO,
+                       format='%(asctime)s %(message)s')
 
+    logging.info('START')
 
+    data_parser = ParseData(corpus='music21')
 
-
-
-
-
-
-
-
-
-
+    logging.info('DONE')
 
 

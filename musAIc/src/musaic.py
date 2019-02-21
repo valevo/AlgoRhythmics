@@ -530,12 +530,12 @@ class MusaicApp():
         self.joystick_moved = False
 
         self.updateServer()
-        self.listener = MessageListener(self.server)
+        #self.listener = MessageListener(self.server)
 
         # start the loops...
         self.engine.daemon = True
         self.engine.start()
-        self.listener.start()
+        #self.listener.start()
         self.checkConnection()
         self.updateGUI()
         self.root.mainloop()
@@ -544,7 +544,7 @@ class MusaicApp():
         print('Closing threads...')
         self.ins_manager.send_message('/allOff', 0)
         self.engine.join(timeout=1)
-        self.listener.join(timeout=1)
+        #self.listener.join(timeout=1)
         self.network_manager.terminate()
         self.network_manager.join(timeout=1)
 

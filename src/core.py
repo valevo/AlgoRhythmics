@@ -3,6 +3,76 @@ import music21 as m21
 from copy import deepcopy
 from fractions import Fraction
 
+NOTES = [str(x) for x in range(12)]
+
+
+def getSongData(song):
+    '''
+    Loads and analyzes the music21 corpus and saves data as a tree:
+
+    - musicData (list):
+        - corpus:                   the corpus name
+
+        - instruments:              list of instruments
+            - id:                   index of instrument
+
+            - metaData:
+                - ts:               the (initial) time signature
+                - length:           number of measures
+                - span:             range of notes
+                - avgInt:           anverage note jump
+                - avgChord:         percentage of chords used
+                - tonalCenter:      average note value
+
+            - rhythm:               nested list of all beats and their divisions
+
+            - melody:
+                - notes:            tuple of measure notes
+                - octaves:          tuple of measure octaves
+
+    '''
+
+    songData = dict()
+
+    songData['corpus'] = 'music21 Core Corpus'
+
+    cSong = cleanScore(song)
+
+    instruments = []
+    for j, part in enumerate(cSong.parts):
+        partData = dict()
+
+        rhythmData = parseRhythmData(part)
+        melodyData = parseNoteData(part)
+        metaData   = metaAnalysis(part)
+
+        strengths = []
+        durations = []
+        pClass    = []
+        octaves   = []
+
+        for note in melodyData:
+            strengths.append(note[0])
+            durations.append(note[1])
+            pClass.append(note[2])
+            octaves.append(note[3])
+
+        melodyDict = dict()
+        melodyDict['strengths'] = strengths
+        melodyDict['durations'] = durations
+        melodyDict['pClass']    = pClass
+        melodyDict['octaves']   = octaves
+
+        partData['id']       = j
+        partData['metaData'] = metaData[0]
+        partData['rhythm']   = rhythmData
+        partData['melody']   = melodyDict
+
+        instruments.append(partData)
+
+    songData['instruments'] = instruments
+    return songData
+
 
 def cleanScore(score, verbose=False):
     '''
@@ -52,6 +122,11 @@ def cleanScore(score, verbose=False):
             continue
 
         new_part = m21.stream.Part()
+
+        # make sure of time signature...
+        if not part.flat.timeSignature:
+            part.flat.insert(0, m21.meter.TimeSignature('4/4'))
+            part.makeMeasures(inPlace=True)
 
         # make sure there are measures...
         if part.hasMeasures():
@@ -181,6 +256,91 @@ def parseNoteData(part, ts=None, verbose=False):
     return data
 
 
+def parseMelodyData(part, metaData, verbose=False):
+    '''
+    Returns melody data in continuous form:
+    {
+        'notes': [(n0, n1, ... n31), ...],
+        'octaves': [(o0, o1, ... o31), ...]
+
+    }
+    where pitch_class is -1 for rests, and has (+) operator if part of chord
+    '''
+    notes = []
+    octaves = []
+    last_octave = 4
+
+    # the number of divisions that have to be filled 24 = 2x3x4
+    RES = 24
+
+    def get_octave(pitch, lo):
+        if pitch.octave:
+            return pitch.octave
+        else:
+            return lo
+
+    def get_note_data(note):
+        if isinstance(note, m21.chord.Chord):
+            tonic = note.pitches[0]
+            return str(tonic.pitchClass) + '+', tonic.octave
+        elif isinstance(note, m21.note.Rest):
+            return None, None
+        else:
+            return str(note.pitch.pitchClass), note.pitch.octave
+
+
+    ts = part.timeSignature
+    if not ts:
+        ts = m21.meter.TimeSignature('4/4')
+
+    if not part.hasMeasures():
+        if verbose: print('making measures...')
+        part.makeMeasures(inPlace=True)
+
+    chordPercent = metaData['avgChord']
+
+    for m in part.getElementsByClass("Measure"):
+        m_notes = [None]*RES
+        m_octaves = [None]*RES
+
+        duration = m.duration.quarterLength
+
+        lo_o = 4
+        hi_o = 4
+
+        for n in m.flat.notesAndRests:
+            # compute notes index...
+            idx = round(RES*(n.offset/duration))
+
+            p, o = get_note_data(n)
+
+            m_notes[idx] = p
+            m_octaves[idx] = o
+
+            if o:
+                lo_o = min(o, lo_o)
+                hi_o = max(o, hi_o)
+
+
+        # fill in the gaps...
+        # complete random, of slightly more thoughtful?
+
+        for i in range(RES):
+            if m_notes[i]:
+                continue
+            else:
+                m_notes[i] = str(np.random.randint(12))
+                if np.random.rand() < chordPercent:
+                    m_notes[i] = m_notes[i] + '+'
+
+                m_octaves[i] = np.random.randint(lo_o, hi_o+1)
+
+        notes.append(tuple(m_notes))
+        octaves.append(tuple(m_octaves))
+
+    return {'notes': notes, 'octaves': octaves}
+
+
 def parseRhythmData(part, force_ts=None, verbose=False):
     '''
     Splits the score into single beat length 'words' that contain offset and tie information from that beat.
@@ -209,20 +369,25 @@ def parseRhythmData(part, force_ts=None, verbose=False):
             beat_length = Fraction(ts.beatDuration.quarterLength)
             if verbose: print('New ts: ', ts, beat_length)
 
-        off = m.offset
+        m_length = ts.numerator    # number of words in a measure
+        if verbose: print('Measure duration: ', m_length)
 
-        for i in np.arange(m.duration.quarterLength, step=beat_length):
-            w = m.flat.getElementsByOffset(i, i+beat_length, includeEndBoundary=False)
+        for i in range(m_length):
+            offset = i * beat_length
+            w = m.flat.getElementsByOffset(offset, offset+beat_length, includeEndBoundary=False)
             word = []
             for x in w.flat.notesAndRests:
                 if x.tie:
                     if x.tie.type != 'start':
                         continue
 
-                word.append(x.offset - i)
+                word.append(x.offset - offset)
 
             measure.append(tuple(word))
             if verbose: print(word)
+
+        while len(measure) < ts.numerator:
+            measure.append(())
 
         data.append(tuple(measure))
 
@@ -241,6 +406,8 @@ def metaAnalysis(stream):
             - 'avgInt' :        average interval size
             - 'avgChord' :      proportion of chords
             - 'tonalCenter' :   mean MIDI value
+            - 'expression':     0 if perfect on beat, 1 if played expressively
+                                (corpus dependent)
     '''
 
     def get_pitch(note):
@@ -289,7 +456,8 @@ def metaAnalysis(stream):
                     'span': span,
                     'avgInt': avgInt,
                     'avgChord': avgChord,
-                    'tonalCenter': tonalCenter}
+                    'tonalCenter': tonalCenter,
+                    'expression': 0}
 
         result.append(analysis)
 
