@@ -6,7 +6,7 @@ from fractions import Fraction
 NOTES = [str(x) for x in range(12)]
 
 
-def getSongData(song, corpus=None):
+def getSongData(song, corpus=None, verbose=False):
     '''
     Loads and analyzes the music21 corpus and saves data as a tree:
 
@@ -30,6 +30,7 @@ def getSongData(song, corpus=None):
             - melody:
                 - notes:            tuple of measure notes
                 - octaves:          tuple of measure octaves
+                - chords:           list of chord tuples, in order they appear
 
     '''
 
@@ -43,12 +44,12 @@ def getSongData(song, corpus=None):
     for j, part in enumerate(cSong.parts):
         partData = dict()
 
-        rhythmData = parseRhythmData(part)
-        metaData   = metaAnalysis(part)
-        melodyData = parseMelodyData(part, metaData[0])
+        rhythmData = parseRhythmData(part, verbose=verbose)
+        metaData   = metaAnalysis(part)[0]
+        melodyData = parseMelodyData(part, verbose=verbose)
 
         partData['id']       = j
-        partData['metaData'] = metaData[0]
+        partData['metaData'] = metaData
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
@@ -110,11 +111,12 @@ def cleanScore(score, verbose=False):
 
         # make sure of time signature...
         if not part.flat.timeSignature:
+            if verbose: print('Adding time signature...')
             part.flat.insert(0, m21.meter.TimeSignature('4/4'))
             part.makeMeasures(inPlace=True)
 
         # make sure there are measures...
-        if part.hasMeasures():
+        if not part.hasMeasures():
             if verbose: print('making measures...')
             part.makeMeasures(inPlace=True)
 
@@ -129,7 +131,7 @@ def cleanScore(score, verbose=False):
             new_m = m21.stream.Measure(quarterLength=m.quarterLength)
 
             # strip to core elements...
-            for element in m.chordify().flat.getElementsByClass(allowed):
+            for element in m.flat.getElementsByClass(allowed):
                 if isinstance(element, m21.chord.Chord):
                     if len(element.pitches) == 1:
                         note = m21.note.Note(element.pitches[0])
@@ -170,8 +172,8 @@ def cleanScore(score, verbose=False):
 
             new_part.append(new_m)
 
-        new_part.makeMeasures(inPlace=True)
-        new_part.makeNotation(inPlace=True)
+        #new_part.makeMeasures(inPlace=True)
+        #new_part.makeNotation(inPlace=True)
 
         new_score.insert(part.offset, new_part)
 
@@ -241,37 +243,38 @@ def parseNoteData(part, ts=None, verbose=False):
     return data
 
 
-def parseMelodyData(part, metaData, verbose=False):
+def parseMelodyData(part, verbose=False):
     '''
     Returns melody data in continuous form:
-    {
-        'notes': [(n0, n1, ... n31), ...],
-        'octaves': [(o0, o1, ... o31), ...]
 
-    }
+    {   'notes': [(n0, n1, ... n31), ...],
+        'octaves': [(o0, o1, ... o31), ...],
+        'chords':  [ch1, ch1, ... chn]   }
+
     where pitch_class is -1 for rests, and has (+) operator if part of chord
     '''
     notes = []
     octaves = []
+    chords = []
     last_octave = 4
 
     # the number of divisions that have to be filled 24 = 2x3x4
     RES = 24
 
-    def get_octave(pitch, lo):
-        if pitch.octave:
-            return pitch.octave
-        else:
-            return lo
-
     def get_note_data(note):
         if isinstance(note, m21.chord.Chord):
-            tonic = note.pitches[0]
-            return str(tonic.pitchClass) + '+', tonic.octave
+            if len(note.normalOrder) == 1:
+                return get_note_data(note.pitches[0])
+            root = note.root()
+            chordOrder = note.normalOrder
+            chord = [(pc - chordOrder[0]) for pc in chordOrder]
+            return str(root.pitchClass) + '+', root.octave, chord
         elif isinstance(note, m21.note.Rest):
-            return None, None
+            return None, None, None
+        elif isinstance(note, m21.pitch.Pitch):
+            return str(note.pitchClass), note.octave, None
         else:
-            return str(note.pitch.pitchClass), note.pitch.octave
+            return str(note.pitch.pitchClass), note.pitch.octave, None
 
 
     ts = part.timeSignature
@@ -282,7 +285,7 @@ def parseMelodyData(part, metaData, verbose=False):
         if verbose: print('making measures...')
         part.makeMeasures(inPlace=True)
 
-    chordPercent = metaData['avgChord']
+    #chordPercent = metaData['avgChord']
 
     for m in part.getElementsByClass("Measure"):
         m_notes = [None]*RES
@@ -290,40 +293,42 @@ def parseMelodyData(part, metaData, verbose=False):
 
         duration = m.duration.quarterLength
 
-        lo_o = 4
-        hi_o = 4
+        #lo_o = 4
+        #hi_o = 4
 
         for n in m.flat.notesAndRests:
             # compute notes index...
             idx = round(RES*(n.offset/duration))
 
-            p, o = get_note_data(n)
+            p, o, c = get_note_data(n)
 
             m_notes[idx] = p
             m_octaves[idx] = o
+            if c:
+                chords.append(tuple(c))
 
-            if o:
-                lo_o = min(o, lo_o)
-                hi_o = max(o, hi_o)
+        #    if o:
+        #        lo_o = min(o, lo_o)
+        #        hi_o = max(o, hi_o)
 
 
-        # fill in the gaps...
-        # complete random, of slightly more thoughtful?
+        ## fill in the gaps...
+        ## complete random, of slightly more thoughtful?
 
-        for i in range(RES):
-            if m_notes[i]:
-                continue
-            else:
-                m_notes[i] = str(np.random.randint(12))
-                if np.random.rand() < chordPercent:
-                    m_notes[i] = m_notes[i] + '+'
+        #for i in range(RES):
+        #    if m_notes[i]:
+        #        continue
+        #    else:
+        #        m_notes[i] = str(np.random.randint(12))
+        #        if np.random.rand() < chordPercent:
+        #            m_notes[i] = m_notes[i] + '+'
 
-                m_octaves[i] = np.random.randint(lo_o, hi_o+1)
+        #        m_octaves[i] = np.random.randint(lo_o, hi_o+1)
 
         notes.append(tuple(m_notes))
         octaves.append(tuple(m_octaves))
 
-    return {'notes': notes, 'octaves': octaves}
+    return {'notes': notes, 'octaves': octaves, 'chords': chords}
 
 
 def parseRhythmData(part, force_ts=None, verbose=False):
