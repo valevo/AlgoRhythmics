@@ -7,7 +7,7 @@ import queue
 import time
 from collections import deque
 
-from guielements import VScrollFrame, InstrumentPanel, PlayerControls
+from guielements import VScrollFrame, InstrumentPanel, PlayerControls, Knob
 from simpleDialog import Dialog
 from networkEngine import NetworkManager
 from pythonosc import udp_client, osc_server, dispatcher
@@ -303,6 +303,11 @@ class Instrument():
             # set up loop for when finished...
             self.loopLevel = len(self.record_bars)
             self.loopEnd = self.record_bars[0]
+
+    def update_params(self, parameters):
+        self.request_queue.put((3, self.ins_id, parameters))
+
+
 
 
     def toggle_paused(self):

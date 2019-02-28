@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 from tkinter import font
 
@@ -35,12 +36,86 @@ class VScrollFrame(tk.Frame):
 
     def onFrameConfigure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-        self.canvas.configure(height=self.frame.winfo_reqheight(), 
+        self.canvas.configure(height=self.frame.winfo_reqheight(),
                               width=self.frame.winfo_reqwidth())
+
+
+class Knob(tk.Frame):
+    def __init__(self, master, radius, variable, name='', min_=0, max_=1, default=0,
+                 **options):
+
+        tk.Frame.__init__(self, master, **options)
+
+        self.radius = radius
+        self.variable = variable
+        self.min_ = min_
+        self.max_ = max_
+
+        self.name = tk.Label(self, text=name)
+        self.name.grid()
+
+        self.canvas = tk.Canvas(self, width=2*radius+2, height=2*radius+2, bd=0,
+                                highlightthickness=0)
+        self.canvas.grid(row=1, column=0)
+
+        if default > max_:
+            self.val = max_
+        elif default < min_:
+            self.val = min_
+        else:
+            self.val = default
+
+        self.label = tk.Label(self, text='{:5.02f}'.format(self.val))
+        self.label.grid(row=2, column=0)
+
+        self.canvas.create_arc(1, 1, 2*radius+1, 2*radius+1, style=tk.ARC,
+                               outline='white', width=1,
+                               extent=300, start=-60)
+
+        # sets the sensitivity
+        self.range_ = 200/(max_ - min_)
+
+        self.line = self.canvas.create_line(radius+1, radius+1, 2*radius+1,
+                                            radius+1, fill='white', width=2)
+
+        self.dragStart = 0
+        self.valStart = self.range_*self.val
+
+        self.canvas.bind('<Button-1>', self.click)
+        self.canvas.bind('<B1-Motion>', self.drag)
+        self.canvas.bind('<ButtonRelease-1>', self.release)
+        self.update_line()
+
+    def click(self, event):
+        self.dragStart = event.y
+        self.valStart = self.range_* self.val
+
+    def drag(self, event):
+        offset = event.y - self.dragStart
+        self.val = min(self.max_, max(self.min_, (self.valStart - offset)/self.range_))
+        self.update_line()
+
+    def release(self, event):
+        self.variable.set(self.val)
+
+    def update_percent(self, p):
+        self.val = self.min_ + p*(self.max_ - self.min_)
+        self.update_line()
+
+    def update_line(self):
+        p = (self.val - self.min_)/(self.max_ - self.min_)
+        a = 4.18879 - p*5.23599
+
+        x = math.cos(a) * self.radius + self.radius
+        y = -math.sin(a) * self.radius + self.radius
+
+        self.canvas.coords(self.line, self.radius+1, self.radius+1, x+1, y+1)
+        self.label.config(text='{:5.02f}'.format(self.val))
+
 
 class SelectionGrid(tk.Frame):
     def __init__(self, master, variable, rows, columns, labels, func,
-                 colour='yellow', **options):
+                 name, colour='yellow', **options):
         tk.Frame.__init__(self, master, **options)
         self.variable = variable
         self.variable.set(0)
@@ -57,12 +132,15 @@ class SelectionGrid(tk.Frame):
         self.fontLabel = font.Font(family=tk.font.nametofont('TkDefaultFont').cget('family'),
                      size=8)
 
+        self.name = tk.Label(self, text=name)
+        self.name.grid(column=0)
+
         for i in range(rows):
             for j in range(columns):
                 idx = i * columns + j
                 label = tk.Label(self, text=self.labels[idx], bd=1,
                                  relief='solid', font=self.fontLabel)
-                label.grid(row=i, column=j, sticky='nesw', padx=1, pady=1)
+                label.grid(row=i, column=j+1, sticky='nesw', padx=1, pady=1)
                 label.bind('<Button-1>', self.clicked)
                 self.buttons[int(self.labels[idx])] = label
 
@@ -184,21 +262,6 @@ class PlayerControls(tk.Frame):
         self.engine.ins_manager.addInstrument()
 
 
-
-#class BarCanvas(tk.Canvas):
-#    def __init__(self, root, *args, **kwargs):
-#        tk.Canvas.__init__(self, root, *args, **kwargs)
-#        self.hsb = tk.Scrollbar(root, orient='horizontal', command=self.xview)
-#        self.hsb.pack(side='bottom', fill='x')
-#        self.configure(xscrollcommand=self.hsb.set)
-#
-#        self.bind('<Configure>', self.onCanvasConfigure)
-#
-#    def onCanvasConfigure(self, event):
-#        self.configure(scrollregion=self.bbox('all'))
-#        self.configure(width=self.winfo_width())
-
-
 class InstrumentPanel(tk.Frame):
     def __init__(self, master, instrument, name='Instrument', **options):
         tk.Frame.__init__(self, master, **options)
@@ -225,6 +288,53 @@ class InstrumentPanel(tk.Frame):
                                      bg=self.colour[0], fg=self.colour[1], anchor='w')
         self.removeButton.bind('<Button-1>', self.remove)
 
+
+        # ------ Player Parameter Knobs 
+        self.playerParamFrame = tk.Frame(self.controlFrame)
+        # Controls for:
+        # - span
+        # - center
+        # - chord density
+        # - chord depth
+        # - average interval (jump)
+        # - rhythmic density
+
+        self.spanVar = tk.DoubleVar()
+        self.centVar = tk.DoubleVar()
+        self.cDenVar = tk.DoubleVar()
+        self.cDepVar = tk.DoubleVar()
+        self.jumpVar = tk.DoubleVar()
+        self.rDenVar = tk.DoubleVar()
+
+        self.spanVar.trace('w', self.updateSpan)
+        self.centVar.trace('w', self.updateCent)
+        self.cDenVar.trace('w', self.updateCDen)
+        self.cDepVar.trace('w', self.updateCDep)
+        self.jumpVar.trace('w', self.updateJump)
+        self.rDenVar.trace('w', self.updateRDen)
+
+        self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar,
+                             name='span', min_=1, max_=60, default=20)
+        self.centKnob = Knob(self.playerParamFrame, 10, self.centVar,
+                             name='cent', min_=30, max_=90, default=60)
+        self.cDenKnob = Knob(self.playerParamFrame, 10, self.cDenVar,
+                             name='cDen', min_=0, max_=1, default=0)
+        self.cDepKnob = Knob(self.playerParamFrame, 10, self.cDepVar,
+                             name='cDep', min_=1, max_=6, default=1)
+        self.jumpKnob = Knob(self.playerParamFrame, 10, self.jumpVar,
+                             name='jump', min_=0.1, max_=6.0, default=3.0)
+        self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar,
+                             name='rDen', min_=0, max_=4, default=1)
+
+        self.spanKnob.grid(row=0, column=0, sticky='ew')
+        self.centKnob.grid(row=0, column=1, sticky='ew')
+        self.cDenKnob.grid(row=0, column=2, sticky='ew')
+        self.cDepKnob.grid(row=0, column=3, sticky='ew')
+        self.jumpKnob.grid(row=0, column=4, sticky='ew')
+        self.rDenKnob.grid(row=0, column=5, sticky='ew')
+
+
+        # ------ Redundant controls for now...
         self.continuousVar = tk.IntVar(self.controlFrame)
         self.continuousVar.set(1)
         self.continuousButton = tk.Checkbutton(self.controlFrame,
@@ -246,19 +356,24 @@ class InstrumentPanel(tk.Frame):
         self.chanLabel.bind('<Button-1>', lambda event: self.editEntry(event,
                                                                   self.chanUpdate))
 
+        # ------ Grid selection panels
+
         self.repeatVar = tk.StringVar(self.controlFrame)
         self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
-                                          4, [1, 2, 4, 8], self.loopUpdate)
+                                          4, [1, 2, 4, 8], self.loopUpdate,
+                                          'loop:')
 
         self.recVar = tk.StringVar(self.controlFrame)
-        self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4, 
+        self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4,
                                        [1, 2, 4, 8], self.recUpdate,
-                                       colour='#cc1010')
+                                       ' rec:', colour='#cc1010')
+
+        # ------ Controls
 
         self.pauseButton = tk.Button(self.controlFrame, text='Pause')
         self.pauseButton['command'] = lambda: self.toggle_playback(self.pauseButton)
-        self.muteButton = tk.Button(self.controlFrame, text='Mute', command=self.mute)
 
+        # ------ Display track
         self.update()
         self.canvasHeight = 80
         self.barCanvas = tk.Canvas(self, width=self.winfo_width(),
@@ -271,14 +386,14 @@ class InstrumentPanel(tk.Frame):
         self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
         self.removeButton.grid(row=0, column=1, sticky='ew')
         self.nameLabel.grid(row=0, column=2, columnspan=1, sticky='ew')
-        self.confidenceOption.grid(row=1, column=1)
-        self.transpose.grid(row=1, column=2)
-        self.continuousButton.grid(row=1, column=3)
+        self.playerParamFrame.grid(row=1, column=1, columnspan=3, sticky='ew')
+        #self.confidenceOption.grid(row=1, column=1)
+        #self.transpose.grid(row=1, column=2)
+        #self.continuousButton.grid(row=1, column=3)
         self.chanLabel.grid(row=0, column=3, sticky='ew')
         self.repeatSelect.grid(row=2, column=1, )
         self.recSelect.grid(row=3, column=1)
         self.pauseButton.grid(row=2, column=2, rowspan=2)
-        self.muteButton.grid(row=2, column=3, rowspan=2)
 
         # initialise bar display...
         self.update_display(0)
@@ -394,6 +509,24 @@ class InstrumentPanel(tk.Frame):
         self.instrument.chan = new_chan
         entry.destroy()
 
+    def updateSpan(self, *args):
+        self.instrument.update_params({'span': self.spanVar.get()})
+
+    def updateCent(self, *args):
+        self.instrument.update_params({'cent': self.centVar.get()})
+
+    def updateCDen(self, *args):
+        self.instrument.update_params({'cDen': self.cDenVar.get()})
+
+    def updateCDep(self, *args):
+        self.instrument.update_params({'cDep': self.cDepVar.get()})
+
+    def updateJump(self, *args):
+        self.instrument.update_params({'jump': self.jumpVar.get()})
+
+    def updateRDen(self, *args):
+        self.instrument.update_params({'rDen': self.rDenVar.get()})
+
     def transUpdate(self, event):
         self.instrument.transpose = self.transposeVar.get()
 
@@ -414,9 +547,16 @@ class InstrumentPanel(tk.Frame):
     def toggle_playback(self, button):
         self.instrument.toggle_paused()
 
-    def mute(self):
-        self.instrument.toggle_mute()
-
     def continuous(self):
         self.instrument.toggle_continuous()
+
+
+
+
+
+
+
+
+
+
 

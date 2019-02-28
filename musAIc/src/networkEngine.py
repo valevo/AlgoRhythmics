@@ -4,7 +4,9 @@ import random
 import numpy as np
 import pickle as pkl
 
-from keras.models import load_model
+from utils import *
+
+#from keras.models import load_model
 
 class Network():
     def __init__(self, name):
@@ -24,7 +26,7 @@ class BasicPlayer():
         self.id = _id
 
         # load model...
-        self.model = load_model('./final_model.hdf5')
+        #self.model = load_model('./final_model.hdf5')
 
         with open('./note_dict.pkl', 'rb') as f:
             self.word_to_id = pkl.load(f)
@@ -66,6 +68,40 @@ class BasicPlayer():
 
         return bar
 
+    def update_params(self, params):
+        print('Params updated:')
+        print(params)
+
+
+class DataReader():
+    ''' Player that reads in musical data of the Melody, Rhythm, Chords format '''
+    def __init__(self, _id):
+        with open('./testData.pkl', 'rb') as f:
+            self.music_data = pkl.load(f)
+
+        self._id = _id
+        self.current_bar = 0
+
+        self.notes      = self.music_data['instruments'][_id]['melody']['notes']
+        self.octaves    = self.music_data['instruments'][_id]['melody']['octaves']
+        self.rhythm     = self.music_data['instruments'][_id]['rhythm']
+
+    def generate_bar(self, **kwargs):
+        ''' Reads the next bar from the file '''
+
+        bar = parseBarData(self.notes[self.current_bar],
+                            self.octaves[self.current_bar],
+                            self.rhythm[self.current_bar])
+
+        self.current_bar += 1
+
+        return bar
+
+
+    def update_params(self, params):
+        print('Params updated [{}]:'.format(self._id))
+        print(params)
+
 
 
 class NetworkManager(multiprocessing.Process):
@@ -95,7 +131,8 @@ class NetworkManager(multiprocessing.Process):
                 # new instrument id
                 _id = req[1]
                 self.return_queues[_id] = req[2]
-                self.models[_id] = BasicPlayer(_id)
+                self.models[_id] = DataReader(_id)
+                #self.models[_id] = BasicPlayer(_id)
 
             elif req[0] == 1:
                 # instument requests new bar
@@ -109,6 +146,11 @@ class NetworkManager(multiprocessing.Process):
                 _id = req[1]
 
                 pass
+
+            elif req[0] == 3:
+                # instrument has updated it's parameters
+                _id = req[1]
+                self.models[_id].update_params(req[2])
 
             elif req[0] == -1:
                 # remove the model and data

@@ -11,18 +11,18 @@ def getSongData(song, corpus=None, verbose=False):
     Loads and analyzes the music21 corpus and saves data as a tree:
 
     - musicData (list):
-        - corpus:                   the corpus name
-
-        - instruments:              list of instruments
-            - id:                   index of instrument
-
+        - 'corpus':                   the corpus name
+        - 'instruments':              number of instruments
+        - [id]:
             - metaData:
                 - ts:               the (initial) time signature
                 - length:           number of measures
                 - span:             range of notes
-                - avgInt:           anverage note jump
-                - avgChord:         percentage of chords used
-                - tonalCenter:      average note value
+                - jump:             anverage note jump
+                - cDens:            percentage of chords used
+                - cDepth:           average number of notes in the chord
+                - tCent:            average note value
+                - rDens:            average number of events ber beat
                 - expressive:       1 if human player, 0 otherwise
 
             - rhythm:               nested list of all beats and their divisions
@@ -37,25 +37,23 @@ def getSongData(song, corpus=None, verbose=False):
     songData = dict()
 
     songData['corpus'] = corpus
+    songData['instruments'] = len(cSong.parts)
 
-    cSong = cleanScore(song)
+    cSong = cleanScore(song, verbose=verbose)
 
-    instruments = []
     for j, part in enumerate(cSong.parts):
         partData = dict()
 
         rhythmData = parseRhythmData(part, verbose=verbose)
-        metaData   = metaAnalysis(part)[0]
         melodyData = parseMelodyData(part, verbose=verbose)
+        metaData   = metaAnalysis(part, rhythmData, melodyData)[0]
 
-        partData['id']       = j
         partData['metaData'] = metaData
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
-        instruments.append(partData)
+        songData[j] = partData
 
-    songData['instruments'] = instruments
 
     return songData
 
@@ -97,7 +95,6 @@ def cleanScore(score, verbose=False):
         s.append(p)
         score = s
         print(score)
-#         score.makeNotation(inPlace=True)
 
     for part in score.parts:
         if verbose: print(part, '----------')
@@ -110,8 +107,9 @@ def cleanScore(score, verbose=False):
         new_part = m21.stream.Part()
 
         # make sure of time signature...
-        if not part.flat.timeSignature:
-            if verbose: print('Adding time signature...')
+        ts = part.recurse().timeSignature
+        if not ts:
+            if verbose: print('[CleanSong] Adding time signature...')
             part.flat.insert(0, m21.meter.TimeSignature('4/4'))
             part.makeMeasures(inPlace=True)
 
@@ -126,12 +124,12 @@ def cleanScore(score, verbose=False):
             new_part.append(ins)
 
         # clean each measure...
-        for m in part.getElementsByClass(m21.stream.Measure):
+        for m in part.recurse().getElementsByClass(m21.stream.Measure):
 
             new_m = m21.stream.Measure(quarterLength=m.quarterLength)
 
             # strip to core elements...
-            for element in m.flat.getElementsByClass(allowed):
+            for element in m.recurse().getElementsByClass(allowed):
                 if isinstance(element, m21.chord.Chord):
                     if len(element.pitches) == 1:
                         note = m21.note.Note(element.pitches[0])
@@ -172,6 +170,7 @@ def cleanScore(score, verbose=False):
 
             new_part.append(new_m)
 
+        new_part.timeSignature = ts
         #new_part.makeMeasures(inPlace=True)
         #new_part.makeNotation(inPlace=True)
 
@@ -195,8 +194,9 @@ def parseNoteData(part, ts=None, verbose=False):
             return lo
 
     if not ts:
-        ts = part.timeSignature
+        ts = part.recurse().timeSignature
         if not ts:
+            if verbose: print('[ParseNoteData] Setting TS to 4/4')
             ts = m21.meter.TimeSignature('4/4')
 
     if len(part.getElementsByClass(m21.stream.Measure)) == 0:
@@ -204,8 +204,9 @@ def parseNoteData(part, ts=None, verbose=False):
         part.makeMeasures(inPlace=True)
 
     for m in part.getElementsByClass("Measure"):
-        if m.timeSignature:
-            ts = m.timeSignature
+        if m.recurse().timeSignature:
+            ts = m.recurse().timeSignature
+            if verbose: print('[ParseNoteData] Found ts: ', ts) 
 
         for n in m.flat.notesAndRests:
             bs = ts.getAccentWeight(n.offset, permitMeterModulus=True)
@@ -277,9 +278,10 @@ def parseMelodyData(part, verbose=False):
             return str(note.pitch.pitchClass), note.pitch.octave, None
 
 
-    ts = part.timeSignature
+    ts = part.recurse().timeSignature
     if not ts:
         ts = m21.meter.TimeSignature('4/4')
+        if verbose: print('[ParseMelodyData] Setting TS to 4/4')
 
     if not part.hasMeasures():
         if verbose: print('making measures...')
@@ -344,20 +346,23 @@ def parseRhythmData(part, force_ts=None, verbose=False):
     if force_ts:
         ts = force_ts
     else:
-        ts = m21.meter.TimeSignature('4/4')
+        ts = part.recurse().timeSignature
+        if not ts:
+            ts = m21.meter.TimeSignature('4/4')
+
 
     beat_length = Fraction(ts.beatDuration.quarterLength)
 
-    if len(part.getElementsByClass(m21.stream.Measure)) == 0:
+    if part.hasMeasures():
         if verbose: print('making measures...')
         part.makeMeasures(inPlace=True)
 
     for m in part.getElementsByClass("Measure"):
         measure = []
-        if m.timeSignature and not force_ts:
-            ts = m.timeSignature
+        if m.recurse().timeSignature and not force_ts:
+            ts = m.recurse().timeSignature
             beat_length = Fraction(ts.beatDuration.quarterLength)
-            if verbose: print('New ts: ', ts, beat_length)
+            if verbose: print('[ParseRhythmData] New ts: ', ts, beat_length)
 
         m_length = ts.numerator    # number of words in a measure
         if verbose: print('Measure duration: ', m_length)
@@ -384,20 +389,22 @@ def parseRhythmData(part, force_ts=None, verbose=False):
     return data
 
 
-def metaAnalysis(stream):
+def metaAnalysis(stream, rhythm, melody):
     '''
     Args:
         - stream: to be analysed
     Returns:
         - analysis: dictionary of results, where
-            - 'ts':             time signature (as string)
-            - 'length':         total number of measures
-            - 'span' :          pitch span
-            - 'avgInt' :        average interval size
-            - 'avgChord' :      proportion of chords
-            - 'tonalCenter' :   mean MIDI value
-            - 'expression':     0 if perfect on beat, 1 if played expressively
-                                (corpus dependent)
+            - 'ts':                 time signature (as string)
+            - 'length':             total number of measures
+            - 'span' :              pitch span
+            - 'jump' :              average interval size
+            - 'cDens' :             proportion of chords
+            - 'cDepth':             average number of notes in chord
+            - 'tCent' :             mean MIDI value
+            - 'rDens':              average number of events per beat
+            - 'expression':         0 if perfect on beat, 1 if played expressively
+                                    (corpus dependent)
     '''
 
     def get_pitch(note):
@@ -415,7 +422,7 @@ def metaAnalysis(stream):
 
     mid = m21.analysis.discrete.MelodicIntervalDiversity()
 
-    for part in parts:
+    for i, part in enumerate(parts):
         analysis = dict()
 
         notes = part.flat.notes
@@ -424,7 +431,7 @@ def metaAnalysis(stream):
             # have a score in Chord notation? skip it...
             continue
 
-        timeSig = part.flat.timeSignature
+        timeSig = part.recurse().timeSignature
         if timeSig:
             ts = timeSig.ratioString
         else:
@@ -440,13 +447,30 @@ def metaAnalysis(stream):
         ints = [abs(i-j) for i, j in zip(midiPitches[:-1], midiPitches[1:])]
         avgInt = sum(ints)/len(ints)
 
-        avgChord = len(part.flat.getElementsByClass(m21.chord.Chord))/len(notes)
+        #avgChord = len(part.flat.getElementsByClass(m21.chord.Chord))/len(notes)
+        avgChord = len(melody['chords']) / len(notes)
+
+        if len(melody['chords']) == 0:
+            chordDepth = 0
+        else:
+            chordDepth = sum([len(c) for c in melody['chords']])/len(melody['chords'])
+
+        beatCount = 0
+        events = 0
+        for m in rhythm:
+            for b in m:
+                beatCount += 1
+                events += len(b)
+
+        rhythmicDensity = events/beatCount
 
         analysis = {'ts': ts,
                     'span': span,
-                    'avgInt': avgInt,
-                    'avgChord': avgChord,
-                    'tonalCenter': tonalCenter,
+                    'jump': avgInt,
+                    'cDens': avgChord,
+                    'cDepth': chordDepth,
+                    'tCent': tonalCenter,
+                    'rDens': rhythmicDensity,
                     'expression': 0}
 
         result.append(analysis)
