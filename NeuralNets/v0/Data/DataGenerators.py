@@ -9,7 +9,7 @@ from keras.utils import to_categorical
 
 
 import pickle
-from utils import label
+from Data.utils import label
 
 def bar_iter(parts, bar_len, beat_f=lambda x: x):
     for p in parts:
