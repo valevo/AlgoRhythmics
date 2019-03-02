@@ -269,13 +269,16 @@ def parseMelodyData(part, verbose=False):
             root = note.root()
             chordOrder = note.normalOrder
             chord = [(pc - chordOrder[0]) for pc in chordOrder]
-            return str(root.pitchClass) + '+', root.octave, chord
+            return root.pitchClass+1.5, root.octave, chord
+
         elif isinstance(note, m21.note.Rest):
             return None, None, None
+
         elif isinstance(note, m21.pitch.Pitch):
-            return str(note.pitchClass), note.octave, None
+            return note.pitchClass+1, note.octave, None
+
         else:
-            return str(note.pitch.pitchClass), note.pitch.octave, None
+            return note.pitch.pitchClass+1, note.pitch.octave, None
 
 
     ts = part.recurse().timeSignature

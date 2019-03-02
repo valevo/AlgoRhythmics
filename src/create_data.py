@@ -68,7 +68,7 @@ class ParseData(object):
         musicData = []
         started = False
 
-        SAVE_FREQ = 10
+        SAVE_FREQ = 100
 
         while True:
             if self.workersRunning:
