@@ -230,7 +230,8 @@ class ParseData(object):
                 # quantize song
                 # IMPORTANT: Settle on nice divisor!
                 # is Melody res = 24, then (6,), if res = 32, then (8,)
-                song.quantize(quarterLengthDivisors=(6,), inPlace=True)
+                # or res = 48 then (12,3)
+                song.quantize(quarterLengthDivisors=(12,6), inPlace=True)
 
                 # remove duplicate voices?
                 song2 = m21.stream.Score()

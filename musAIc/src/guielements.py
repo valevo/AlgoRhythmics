@@ -1,4 +1,5 @@
 import math
+import time
 import tkinter as tk
 from tkinter import font
 
@@ -68,18 +69,20 @@ class Knob(tk.Frame):
         self.label = tk.Label(self, text='{:5.02f}'.format(self.val))
         self.label.grid(row=2, column=0)
 
-        self.canvas.create_arc(1, 1, 2*radius+1, 2*radius+1, style=tk.ARC,
+        self.arc = self.canvas.create_arc(1, 1, 2*radius+1, 2*radius+1, style=tk.ARC,
                                outline='white', width=1,
-                               extent=300, start=-60)
+                               extent=300, start=-60, tags='knob')
 
         # sets the sensitivity
         self.range_ = 200/(max_ - min_)
 
         self.line = self.canvas.create_line(radius+1, radius+1, 2*radius+1,
-                                            radius+1, fill='white', width=2)
+                                            radius+1, fill='white', width=2,
+                                            tags='knob')
 
         self.dragStart = 0
         self.valStart = self.range_*self.val
+        self.lastChangeTime = 0
 
         self.canvas.bind('<Button-1>', self.click)
         self.canvas.bind('<B1-Motion>', self.drag)
@@ -101,6 +104,9 @@ class Knob(tk.Frame):
     def update_percent(self, p):
         self.val = self.min_ + p*(self.max_ - self.min_)
         self.update_line()
+        #self.canvas.itemconfig(self.line, fill='orange')
+        #self.canvas.itemconfig(self.arc, outline='orange')
+        self.lastChangeTime = time.time()
 
     def update_line(self):
         p = (self.val - self.min_)/(self.max_ - self.min_)
@@ -476,9 +482,9 @@ class InstrumentPanel(tk.Frame):
             self.pauseButton['fg'] = 'orange'
 
         if self.instrument.active:
-            self.configure(highlightbackground='black', highlightthickness=1)
+            self.configure(highlightbackground='orange', highlightthickness=1)
         else:
-            self.configure(highlightbackground='grey', highlightthickness=0)
+            self.configure(highlightbackground='grey', highlightthickness=1)
 
 
 
@@ -550,7 +556,15 @@ class InstrumentPanel(tk.Frame):
     def continuous(self):
         self.instrument.toggle_continuous()
 
+    def changeParameter(self, param, percent):
+        KEYS = {'span': self.spanKnob,
+                'cent': self.centKnob,
+                'cDen': self.cDenKnob,
+                'cDep': self.cDepKnob,
+                'jump': self.jumpKnob,
+                'rDen': self.rDenKnob}
 
+        KEYS[param].update_percent(percent)
 
 
 

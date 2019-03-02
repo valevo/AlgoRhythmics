@@ -163,6 +163,7 @@ class UFO:
 
 
     def ccRecieve(self, *msg):
+        print(msg)
         if msg[1] == 0:
             return
 

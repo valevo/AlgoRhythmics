@@ -18,17 +18,17 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-#CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '100.75.0.230'
 #CLIENT_PORT = 57120
 #CLIENT_ADDR = '145.109.6.217'
-CLIENT_ADDR = '127.0.0.1'
+#CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
 # Address and port of guest machine to listen for incoming messages:
 #   - run ifconfig (or `ip addr` in Arch) and use Host-Only IP (same as listed on Windows ipconfig)
 #   - port can be arbitrary, but SuperCollider must know!
-#SERVER_ADDR = '192.168.56.102'
-SERVER_ADDR = '127.0.0.1'
+SERVER_ADDR = '192.168.56.102'
+#SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
 
 # Colours for the widgets to use
@@ -55,8 +55,11 @@ class MessageListener(threading.Thread):
 
 
 class Engine(threading.Thread):
+#class Engine(multiprocessing.Process):
     """Controls the clock and instument playback"""
     def __init__(self, app, ins_manager, bpmVar):
+        #super(Engine, self).__init__()
+        #multiprocessing.Process.__init__(self)
         threading.Thread.__init__(self)
         self.app = app
         self.ins_manager = ins_manager
@@ -534,13 +537,14 @@ class MusaicApp():
         self.disp.map('/noteOn', self.noteOn)
         self.joystick_moved = False
 
+        #self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
         self.updateServer()
-        #self.listener = MessageListener(self.server)
+        self.listener = MessageListener(self.server)
 
         # start the loops...
         self.engine.daemon = True
         self.engine.start()
-        #self.listener.start()
+        self.listener.start()
         self.checkConnection()
         self.updateGUI()
         self.root.mainloop()
@@ -549,7 +553,7 @@ class MusaicApp():
         print('Closing threads...')
         self.ins_manager.send_message('/allOff', 0)
         self.engine.join(timeout=1)
-        #self.listener.join(timeout=1)
+        self.listener.join(timeout=1)
         self.network_manager.terminate()
         self.network_manager.join(timeout=1)
 
@@ -598,18 +602,16 @@ class MusaicApp():
         if self.client:
             del self.client
         self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
-        print('Client updated')
+        print('Client updated: ', self.cl_ip, self.cl_port)
 
     def updateServer(self):
         if self.server:
             self.server.server_address = (self.sv_ip, self.sv_port)
         else:
             self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
-
-        print('Server updated')
+        print('Server updated', self.sv_ip, self.sv_port)
 
     def ccRecieve(self, *msg):
-        print(msg)
         val = msg[1]
         num = msg[2]
         # here process CC messages (value, number)
@@ -625,12 +627,20 @@ class MusaicApp():
                     21: self.CC_loop_selected,
                     22: self.CC_loop_selected,
                     23: self.CC_loop_selected,
-                    24: self.CC_loop_selected
+                    24: self.CC_loop_selected,
+                    25: self.CC_change_parameter,
+                    26: self.CC_change_parameter,
+                    27: self.CC_change_parameter,
+                    28: self.CC_change_parameter,
+                    29: self.CC_change_parameter,
+                    30: self.CC_change_parameter,
+                    #31: self.CC_change_parameter,
+                    #32: self.CC_change_parameter
                    }
 
         # since MIDI TOGGLE sends two separate messages, only listen to
         # non-zero messages (a little sketchy...)
-        if val == 0:
+        if num < 25 and val == 0:
             return
         else:
             try:
@@ -690,6 +700,26 @@ class MusaicApp():
             n = 0
 
         self.ins_manager.instrumentPanels[selected_ins].repeatSelect.set(n)
+
+    def CC_change_parameter(self, val, num):
+        p = val/127
+
+        VALS = {25: 'span',
+                26: 'cent',
+                27: 'cDen',
+                28: 'cDep',
+                29: 'jump',
+                30: 'rDen'}
+
+        try:
+            selected_ins = self.ins_manager.selected_ins.ins_id
+        except:
+            print('No selected instrument to update')
+            return
+
+        param = VALS[num]
+        self.ins_manager.instrumentPanels[selected_ins].changeParameter(param, p)
+
 
 
     def noteOn(self, *msg):

@@ -86,6 +86,8 @@ class DataReader():
         self.octaves    = self.music_data['instruments'][_id]['melody']['octaves']
         self.rhythm     = self.music_data['instruments'][_id]['rhythm']
 
+        print('DataReader initialised')
+
     def generate_bar(self, **kwargs):
         ''' Reads the next bar from the file '''
 

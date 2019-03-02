@@ -30,14 +30,14 @@ def getSongData(song, corpus=None, verbose=False):
             - melody:
                 - notes:            tuple of measure notes
                 - octaves:          tuple of measure octaves
-                - chords:           list of chord tuples, in order they appear
+                - chords:           list of chord tuples in each measaure
 
     '''
 
     songData = dict()
 
     songData['corpus'] = corpus
-    songData['instruments'] = len(cSong.parts)
+    songData['instruments'] = len(song.parts)
 
     cSong = cleanScore(song, verbose=verbose)
 
@@ -248,8 +248,8 @@ def parseMelodyData(part, verbose=False):
     '''
     Returns melody data in continuous form:
 
-    {   'notes': [(n0, n1, ... n31), ...],
-        'octaves': [(o0, o1, ... o31), ...],
+    {   'notes': [(n0, n1, ... n48), ...],
+        'octaves': [(o0, o1, ... o48), ...],
         'chords':  [ch1, ch1, ... chn]   }
 
     where pitch_class is -1 for rests, and has (+) operator if part of chord
@@ -260,7 +260,7 @@ def parseMelodyData(part, verbose=False):
     last_octave = 4
 
     # the number of divisions that have to be filled 24 = 2x3x4
-    RES = 24
+    RES = 48
 
     def get_note_data(note):
         if isinstance(note, m21.chord.Chord):
@@ -292,6 +292,7 @@ def parseMelodyData(part, verbose=False):
     for m in part.getElementsByClass("Measure"):
         m_notes = [None]*RES
         m_octaves = [None]*RES
+        m_chords = []
 
         duration = m.duration.quarterLength
 
@@ -307,7 +308,7 @@ def parseMelodyData(part, verbose=False):
             m_notes[idx] = p
             m_octaves[idx] = o
             if c:
-                chords.append(tuple(c))
+                m_chords.append(tuple(c))
 
         #    if o:
         #        lo_o = min(o, lo_o)
@@ -329,6 +330,7 @@ def parseMelodyData(part, verbose=False):
 
         notes.append(tuple(m_notes))
         octaves.append(tuple(m_octaves))
+        chords.append(m_chords)
 
     return {'notes': notes, 'octaves': octaves, 'chords': chords}
 
