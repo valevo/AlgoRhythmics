@@ -256,8 +256,8 @@ if __name__ == '__main__':
 
     logging.info('START')
 
-    data_parser = ParseData(corpus='jazzMidi', folder='../SourceData/JazzMidi/')
-    #data_parser = ParseData(corpus='music21')
+    #data_parser = ParseData(corpus='jazzMidi', folder='../SourceData/JazzMidi/')
+    data_parser = ParseData(corpus='music21')
 
 
     logging.info('DONE')
