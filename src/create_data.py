@@ -184,7 +184,7 @@ class ParseData(object):
                         self.returnQ.put(songData)
 
                 else:
-                    songData = getSongData(song, corpus='music21')
+                    songData = getSongData(song, corpus='music21', name=path)
                     self.returnQ.put(songData)
 
             except:
@@ -238,7 +238,7 @@ class ParseData(object):
                 for p in song.parts:
                     song2.insert(0.0, p.chordify())
 
-                songData = getSongData(song2, corpus=self.corpus)
+                songData = getSongData(song2, corpus=self.corpus, name=path)
                 self.returnQ.put(songData)
 
             except:

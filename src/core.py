@@ -4,15 +4,16 @@ from copy import deepcopy
 from fractions import Fraction
 
 NOTES = [str(x) for x in range(12)]
+EXP_CORPORA = ['jazzMidi']
 
-
-def getSongData(song, corpus=None, verbose=False):
+def getSongData(song, corpus=None, name=None, verbose=False):
     '''
     Loads and analyzes the music21 corpus and saves data as a tree:
 
     - musicData (list):
-        - 'corpus':                   the corpus name
-        - 'instruments':              number of instruments
+        - 'corpus':                 the corpus name
+        - 'name':                   file name
+        - 'instruments':            number of instruments
         - [id]:
             - metaData:
                 - ts:               the (initial) time signature
@@ -23,7 +24,7 @@ def getSongData(song, corpus=None, verbose=False):
                 - cDepth:           average number of notes in the chord
                 - tCent:            average note value
                 - rDens:            average number of events ber beat
-                - expressive:       1 if human player, 0 otherwise
+                - expression:       1 if human player, 0 otherwise
 
             - rhythm:               nested list of all beats and their divisions
 
@@ -37,6 +38,7 @@ def getSongData(song, corpus=None, verbose=False):
     songData = dict()
 
     songData['corpus'] = corpus
+    songData['name'] = name
     songData['instruments'] = len(song.parts)
 
     cSong = cleanScore(song, verbose=verbose)
@@ -49,6 +51,8 @@ def getSongData(song, corpus=None, verbose=False):
         metaData   = metaAnalysis(part, rhythmData, melodyData)[0]
 
         partData['metaData'] = metaData
+        if corpus in EXP_CORPORA:
+            partData['melodyData']['expression'] = 1
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
@@ -206,7 +210,7 @@ def parseNoteData(part, ts=None, verbose=False):
     for m in part.getElementsByClass("Measure"):
         if m.recurse().timeSignature:
             ts = m.recurse().timeSignature
-            if verbose: print('[ParseNoteData] Found ts: ', ts) 
+            if verbose: print('[ParseNoteData] Found ts: ', ts)
 
         for n in m.flat.notesAndRests:
             bs = ts.getAccentWeight(n.offset, permitMeterModulus=True)
@@ -362,7 +366,7 @@ def parseRhythmData(part, force_ts=None, verbose=False):
         if verbose: print('making measures...')
         part.makeMeasures(inPlace=True)
 
-    for m in part.getElementsByClass("Measure"):
+    for m in part.recurse().getElementsByClass("Measure"):
         measure = []
         if m.recurse().timeSignature and not force_ts:
             ts = m.recurse().timeSignature
@@ -370,18 +374,19 @@ def parseRhythmData(part, force_ts=None, verbose=False):
             if verbose: print('[ParseRhythmData] New ts: ', ts, beat_length)
 
         m_length = ts.numerator    # number of words in a measure
-        if verbose: print('Measure duration: ', m_length)
+        if verbose: print('[parseRhythmData] Measure duration: ', m_length)
 
         for i in range(m_length):
             offset = i * beat_length
-            w = m.flat.getElementsByOffset(offset, offset+beat_length, includeEndBoundary=False)
+            beat = m.flat.getElementsByOffset(offset, offset+beat_length, includeEndBoundary=False)
             word = []
-            for x in w.flat.notesAndRests:
+            for x in beat.recurse().notesAndRests:
                 if x.tie:
                     if x.tie.type != 'start':
                         continue
 
-                word.append(x.offset - offset)
+                onsetTime = (x.offset - offset) / beat_length
+                word.append(onsetTime)
 
             measure.append(tuple(word))
             if verbose: print(word)
