@@ -1,6 +1,5 @@
 
 
-
 def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
     ''' Converts the separate melody, rhythm and chord data into a new bar
     and appends it to the current stream'''
@@ -28,13 +27,59 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
                 # rest...
                 continue
             o = octaves[i]
-            bar[offset] = pcOctaveToMIDI(int(pc), o)
+            bar[offset] = PCOctaveToMIDI(int(pc), o)
 
     return bar
 
 
-def pcOctaveToMIDI(pc, octave):
+def PCOctaveToMIDI(pc, octave):
     return 12*(octave+1) + pc
+
+def MIDItoPCOctave(midi):
+    return (midi%12, midi//12-1)
+
+def convertStreamToData(stream, ts_num=4):
+    ''' Converts a dictionary of input data to separate rhythm, melody, chords  '''
+    RES = 48
+
+    rhythm = []
+    melody = []
+    octave = []
+    chords = []
+
+    for bar in stream.getBars():
+        b_melody = [None]*RES
+        b_octave = [None]*RES
+        b_chords = []
+
+        beats = [[] for i in range(ts_num)]
+
+        for b in bar.keys():
+            try:
+                beats[int(b)].append(b%1)
+                idx = int(RES/ts_num * b)
+                pc, oc = MIDItoPCOctave(bar[b])
+                b_melody[idx] = pc
+                b_octave[idx] = oc
+
+            except IndexError:
+                print('Beat outside scope of time signature')
+                continue
+
+        rhythm.append(tuple(map(tuple, beats)))
+        melody.append(tuple(b_melody))
+        octave.append(b_octave)
+        chords.append(b_chords)
+
+    return {
+        'metaData': stream.getMetaAnalysis(),
+        'rhythm': rhythm,
+        'melody': {
+            'notes': melody,
+            'octaves': octave,
+            'chords': chords
+        }
+    }
 
 
 class Stream():
@@ -140,7 +185,18 @@ class Stream():
 
         self.appendBar(bar)
 
+    def getBar(self, num):
+        ''' Returns a given bar, in format {offset: MIDI} '''
+        b_notes = [n for n in self.notes if n.bar==num]
+        bar = dict([(n.beat, n.midi) for n in b_notes])
+        return bar
 
+    def getBars(self):
+        ''' Returns list of seperate bars '''
+        bars = []
+        for i in range(self.__len__()):
+            bars.append(self.getBar(i))
+        return bars
 
 
     def getNotePlaying(self, bar, beat):
@@ -153,9 +209,11 @@ class Stream():
         '''
         Meta analysis is :
             - span: range between highest and lowest note
-            - avgInt: average interval between notes
-            - avgChord: proportion of chords
-            - tonalCenter: average MIDI value
+            - jump: average interval between notes
+            - cDens: proportion of chords
+            - cDepth: average depth of chords
+            - tCent: average MIDI value
+            - rDens: rhythmic density
         '''
         analysis = dict()
         midi_pitches = list([n.midi for n in self.notes])
@@ -163,13 +221,19 @@ class Stream():
         tonalCenter = sum(midi_pitches) / len(midi_pitches)
         ints = [abs(i-j) for i,j in zip(midi_pitches[:-1], midi_pitches[1:])]
         avgInts = sum(ints) / len(ints)
+
+        density = len(self.notes) / (self.__len__() * self.notes[0].ts_num)
+
         avgChord = 0   # for now...
+        chordDep = 0
 
         analysis = {
             'span': span,
-            'avgInt': avgInts,
-            'avgChord': avgChord,
-            'tonalCenter': tonalCenter
+            'jump': avgInts,
+            'cDens': avgChord,
+            'cDepth': chordDep,
+            'tCent': tonalCenter,
+            'rDens': density
         }
         return analysis
 
@@ -193,7 +257,7 @@ class Note():
         if isinstance(note, int):
             self.midi = note
         else:
-            self.midi = pcOctaveToMIDI(note[0], note[1])
+            self.midi = PCOctaveToMIDI(note[0], note[1])
         self.bar = bar
         self.beat = round(division*beat) / division
         self.ts_num = ts_num
@@ -233,4 +297,16 @@ class Note():
 
     def __str__(self):
         return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() })'
+
+import random
+
+TEST_STREAM = Stream()
+for i in range(8):
+    for j in [0.0, 1.0, 2.0, 2.5, 3.0, 3.5]:
+        TEST_STREAM.append(Note(random.randint(45, 65), i, j))
+
+
+
+
+
 
