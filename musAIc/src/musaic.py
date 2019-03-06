@@ -76,6 +76,8 @@ class Engine(threading.Thread):
                     if self.record:
                         self.app.sendCC(1, 127)
 
+                    self.ins_manager.set_playing()
+
                 # before bar processes
                 for ins in self.ins_manager.get_instruments():
                     ins.load_bar()
@@ -117,6 +119,7 @@ class Engine(threading.Thread):
 
                     self.app.controls.update_buttons()
                     self.start_playing = True
+                    self.ins_manager.set_stopped()
                     self.ins_manager.update_gui()
 
             # update instruments if they have requested new bars...
@@ -165,7 +168,7 @@ class Instrument():
         self.confidence = 0               # the rank of which note to play
         self.bar_num = 0                  # current bar number
         self.stream = utils.Stream()      # the musical stream of notes / chords
-        self.status = PLAYING             # current playing status
+        self.status = PAUSED              # current playing status
         self.armed = False                # is armed (recording) instrument
         self.active = True                # is selected instrument
         self.mute = False                 # mute the output
@@ -468,12 +471,20 @@ class InstrumentManager():
             self.armed_ins = None
         else:
             self.armed_ins = ins
-            if self.engine.play_request.isSet():
+            if self.armed_ins.status == PLAYING:
                 self.armed_ins.init_record(self.armed_ins.bar_num + 2, num)
             else:
                 self.armed_ins.init_record(self.armed_ins.bar_num, num)
 
             self.instrumentPanels[self.armed_ins.ins_id].recVar.set(num)
+
+    def set_playing(self):
+        for ins in self.instruments.values():
+            ins.status = PLAYING
+
+    def set_stopped(self):
+        for ins in self.instruments.values():
+            ins.status = PAUSED
 
     def update_gui(self):
         for ins_panel in self.instrumentPanels.values():
