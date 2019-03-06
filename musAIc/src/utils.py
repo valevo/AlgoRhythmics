@@ -25,9 +25,10 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
             pc = notes[i]
             if pc == None:
                 # rest...
-                continue
-            o = octaves[i]
-            bar[offset] = PCOctaveToMIDI(int(pc), o)
+                bar[offset] = -1
+            else:
+                o = octaves[i]
+                bar[offset] = PCOctaveToMIDI(int(pc), o)
 
     return bar
 
@@ -165,6 +166,12 @@ class Stream():
         '''Append a bar of the form {offset time: MIDI value}'''
         next_bar = self.getNextBarNumber()
 
+        if len(bar) == 0:
+            # rest bar...
+            rest = Note(-1, next_bar, 0)
+            self.append(rest)
+            return
+
         for offset in bar.keys():
             n = bar[offset]
             #offset = float('{:.02f}'.format(offset))
@@ -259,7 +266,7 @@ class Stream():
             - rDens: rhythmic density
         '''
         analysis = dict()
-        midi_pitches = list([n.midi for n in self.notes])
+        midi_pitches = list([n.midi for n in self.notes if not n.isRest])
         span = max(midi_pitches) - min(midi_pitches)
         tonalCenter = sum(midi_pitches) / len(midi_pitches)
         ints = [abs(i-j) for i,j in zip(midi_pitches[:-1], midi_pitches[1:])]
@@ -312,8 +319,13 @@ class Note():
         - Chord is a tuple of offsets from root, where self.midi is root, e.g. (0, 4, 7) for major
         '''
 
+        self.rest = False
         if isinstance(note, int):
-            self.midi = note
+            if note < 0:
+                self.rest = True
+                self.midi = -1
+            else:
+                self.midi = note
         else:
             self.midi = PCOctaveToMIDI(note[0], note[1])
         self.bar = bar
@@ -351,6 +363,9 @@ class Note():
     def isChord(self):
         return self.chord is not None
 
+    def isRest(self):
+        return self.rest
+
     def setNextNote(self, next_note):
         '''Update the next note'''
         self.next_note = next_note
@@ -364,7 +379,10 @@ class Note():
         return (self.midi, self.getDuration())
 
     def __str__(self):
-        return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
+        if self.rest:
+            return f'Rest  @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
+        else:
+            return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
 
 import random
 

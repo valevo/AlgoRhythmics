@@ -262,7 +262,11 @@ class PlayerControls(tk.Frame):
 
     def stop(self, event):
         self.engine.toggle_stop(self.stop_button)
-        self.stop_button.configure(bg='yellow')
+        if self.engine.play_request.isSet():
+            self.stop_button.configure(bg='yellow')
+        else:
+            self.stop_button.configure(bg=self.col_gray)
+
 
     def add(self, event):
         self.engine.ins_manager.addInstrument()
@@ -395,7 +399,7 @@ class InstrumentPanel(tk.Frame):
                                     self.canvasHeight, fill='#800000')
 
         self.cursor = self.barCanvas.create_line(1, 0, 1, self.canvasHeight,
-                                                    fill='orange', width=2)
+                                                 fill='orange', width=3)
 
         # ------ Pack all the elements...
         self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
@@ -422,7 +426,7 @@ class InstrumentPanel(tk.Frame):
     def update_highlighted_bars(self):
         if self.instrument.loopLevel > 0:
             loopEnd = self.instrument.loopEnd
-            loopStart = max(0, loopEnd - self.instrument.loopLevel)
+            loopStart = max(0, loopEnd - self.instrument.loopLevel+1)
             x = loopStart * self.bar_width
             width = loopEnd - loopStart + 1
             self.barCanvas.coords(self.loopRegion, x, 0,
@@ -436,9 +440,16 @@ class InstrumentPanel(tk.Frame):
             recEnd = self.instrument.record_bars[-1]
 
             x = recStart * self.bar_width
-            width = recEnd - recStart + 1
+            width = recEnd - recStart
             self.barCanvas.coords(self.recRegion, x, 0,
                                  x+width*self.bar_width, self.canvasHeight)
+
+            for i in range(recStart, recEnd+20):
+                x = i * self.bar_width
+                self.barCanvas.create_line(x, 0, x, 100, fill='#aaaaaa',
+                                           tags='redraw')
+                self.barCanvas.create_text(x+5, 5, text=i,
+                                           fill='#aaaaaa', tags='redraw')
 
         else:
             self.barCanvas.coords(self.recRegion, -100, 0, -100, self.canvasHeight)
@@ -464,7 +475,7 @@ class InstrumentPanel(tk.Frame):
         ''' Updates the canvas with the notes to draw '''
         self.null_bars = 1
 
-        self.barCanvas.delete('redraw')
+        #self.barCanvas.delete('redraw')
         self.beat_width = 25
         self.bar_width = 4 * self.beat_width
         noteRange = (36, 85)   # +- two octaves from middle C
@@ -473,7 +484,7 @@ class InstrumentPanel(tk.Frame):
         stream = self.instrument.stream
 
         # draw bars
-        for i in range(-self.null_bars, len(stream)):
+        for i in range(-self.null_bars, len(stream)+20):
             x = i * self.bar_width
             self.barCanvas.create_line(x, 0, x, 100, fill='#aaaaaa',
                                        tags='redraw')
@@ -504,7 +515,7 @@ class InstrumentPanel(tk.Frame):
         if not self.cursor:
             x = self.instrument.bar_num * self.bar_width
             self.cursor = self.barCanvas.create_line(x, 0, x, 100, fill='orange',
-                                                 width=2)
+                                                 width=3)
 
     def move_canvas(self, beat):
         # update cursor position
@@ -513,7 +524,7 @@ class InstrumentPanel(tk.Frame):
 
         # scroll canvas
         b_frac = beat / 4
-        scroll_x = (self.instrument.bar_num + b_frac - 1) * self.bar_width
+        scroll_x = (self.instrument.bar_num + b_frac - 2) * self.bar_width
         self.barCanvas.config(scrollregion=(scroll_x, 0, scroll_x + 4*self.bar_width, 100))
 
         self.barCanvas.xview('moveto', 0)
