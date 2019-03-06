@@ -33,12 +33,15 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
 
 
 def PCOctaveToMIDI(pc, octave):
-    return 12*(octave+1) + pc
+    if pc > 12:
+        # chord...
+        pc -= 12
+    return 12*(octave+1) + pc - 1
 
 def MIDItoPCOctave(midi):
-    return (midi%12, midi//12-1)
+    return (midi%12+1, midi//12-1)
 
-def convertStreamToData(stream, ts_num=4):
+def convertStreamToData(stream):
     ''' Converts a dictionary of input data to separate rhythm, melody, chords  '''
     RES = 48
 
@@ -52,13 +55,17 @@ def convertStreamToData(stream, ts_num=4):
         b_octave = [None]*RES
         b_chords = []
 
-        beats = [[] for i in range(ts_num)]
+        beats = [[] for i in range(stream.ts_num)]
 
         for b in bar.keys():
             try:
                 beats[int(b)].append(b%1)
-                idx = int(RES/ts_num * b)
-                pc, oc = MIDItoPCOctave(bar[b])
+                idx = int(RES/stream.ts_num * b)
+                note = bar[b]
+                pc, oc = MIDItoPCOctave(note.midi)
+                if note.isChord():
+                    b_chords.append(note.chord)
+                    pc += 12
                 b_melody[idx] = pc
                 b_octave[idx] = oc
 
@@ -86,7 +93,7 @@ class Stream():
     '''
     Holds a list of notes and has some useful functions.
     '''
-    def __init__(self, notes=None):
+    def __init__(self, notes=None, ts_num=4):
         self.stream = dict()
         self.offset_times = []
         self.notes = []
@@ -95,9 +102,12 @@ class Stream():
             for n in notes:
                 self.append(n)
 
+        self.numberOfNotes = len(self.notes)
+        self.ts_num = ts_num
+
     def append(self, note):
         '''Adds a Note to the end of the stream'''
-        if self.numberOfNotes() > 0:
+        if self.numberOfNotes > 0:
             self.getLastNote().setNextNote(note)
 
         offset = note.getOffset()
@@ -105,6 +115,7 @@ class Stream():
         self.offset_times.append(offset)
 
         self.notes.append(note)
+        self.numberOfNotes = len(self.notes)
 
     def recalculate(self):
         '''Make sure lists in order and notes all have durations'''
@@ -112,10 +123,14 @@ class Stream():
         self.notes = []
         for ot in self.offset_times:
             self.notes.append(self.stream[ot])
+        self.numberOfNotes = len(self.notes)
 
     def getStartNote(self):
         '''Returns the start note'''
-        return self.stream[self.offset_times[0]]
+        if len(self.offset_times) > 0:
+            return self.stream[self.offset_times[0]]
+        else:
+            return None
 
     def getLastNote(self):
         '''Returns the last note'''
@@ -152,10 +167,31 @@ class Stream():
 
         for offset in bar.keys():
             n = bar[offset]
+            #offset = float('{:.02f}'.format(offset))
             if n == 'EOP':
                 continue
             note = Note(n, next_bar, offset)
             self.append(note)
+
+    def getIndexAtOffset(self, offset):
+        ''' Returns the index of the lowest offset above a given offset time '''
+        for i, o in enumerate(self.offset_times):
+            if o >= offset:
+                return i
+
+        return None
+
+    def removeBarsToEnd(self, bar_num):
+        ''' Removes all the bars from bar_num onwards '''
+        start_index = self.getIndexAtOffset(bar_num * self.ts_num)
+        for offset in self.offset_times[start_index:]:
+            del self.stream[offset]
+
+        self.offset_times = self.offset_times[:start_index]
+        del self.notes[start_index:]
+
+        self.recalculate()
+
 
     def readBarData(self, notes, octaves, rhythm, chords):
         ''' Converts the separate melody, rhythm and chord data into a new bar
@@ -180,30 +216,37 @@ class Stream():
             if r_mask[i]:
                 offset = i*self.ts_num/RES
                 pc = notes[i]
-                o = ocataves[i]
+                o = octaves[i]
                 bar[offset] = (pc, o)
 
         self.appendBar(bar)
 
     def getBar(self, num):
-        ''' Returns a given bar, in format {offset: MIDI} '''
+        ''' Returns a given bar, in format {offset: Note} '''
         b_notes = [n for n in self.notes if n.bar==num]
-        bar = dict([(n.beat, n.midi) for n in b_notes])
+        bar = dict([(n.beat, n) for n in b_notes])
         return bar
 
     def getBars(self):
         ''' Returns list of seperate bars '''
         bars = []
-        for i in range(self.__len__()):
+        for i in range(len(self)):
             bars.append(self.getBar(i))
         return bars
-
 
     def getNotePlaying(self, bar, beat):
         '''Returns the note that is currently playing at bar, beat'''
         offset = self.ts_num * bar + beat
-        earlier_notes = [n for n in self.notes if n.offset < offset]
-        return earlier_notes[-1]
+        #try:
+        #    off = max([o for o in self.offset_times if o < offset ])
+        #    return self.stream[off]
+        #except ValueError:
+        #    return None
+        earlier_notes = [n for n in self.notes if n.getOffset() <= offset]
+        if len(earlier_notes) > 0:
+            return earlier_notes[-1]
+        else:
+            return None
 
     def getMetaAnalysis(self):
         '''
@@ -224,14 +267,24 @@ class Stream():
 
         density = len(self.notes) / (self.__len__() * self.notes[0].ts_num)
 
-        avgChord = 0   # for now...
-        chordDep = 0
+        chordCount = len([n for n in self.notes if n.isChord()])
+        chordDep = sum([len(n.chord) for n in self.notes if n.isChord])
+
+        if self.numberOfNotes > 0:
+            cDens = chordCount / self.numberOfNotes
+        else:
+            cDens = 0
+
+        if chordCount > 0:
+            cDepth = chordDep/chordCount
+        else:
+            cDepth = 0
 
         analysis = {
             'span': span,
             'jump': avgInts,
-            'cDens': avgChord,
-            'cDepth': chordDep,
+            'cDens': cDens,
+            'cDepth': cDepth,
             'tCent': tonalCenter,
             'rDens': density
         }
@@ -239,6 +292,8 @@ class Stream():
 
     def __len__(self):
         '''Length is the total number of bars'''
+        if self.numberOfNotes == 0:
+            return 0
         start_bar = self.getStartNote().bar
         end_bar = self.getLastNote().bar
         return end_bar - start_bar + 1
@@ -248,11 +303,14 @@ class Note():
     '''
     A Note object holds information on MIDI value, bar number and beat offset,
     plus the next note in the stream.
+    Also holds chord info.
     '''
-    def __init__(self, note, bar, beat, ts_num=4, ts_den=4, division=2,
+    def __init__(self, note, bar, beat, chord=None, ts_num=4, ts_den=4, division=6,
                  next_note=None, word=None):
-        ''' Note can be a single integer (MIDI value) or (Pitch Class, Octave)
-        tuple '''
+        '''
+        - Note can be a single integer (MIDI value) or (Pitch Class, Octave) tuple.
+        - Chord is a tuple of offsets from root, where self.midi is root, e.g. (0, 4, 7) for major
+        '''
 
         if isinstance(note, int):
             self.midi = note
@@ -260,9 +318,16 @@ class Note():
             self.midi = PCOctaveToMIDI(note[0], note[1])
         self.bar = bar
         self.beat = round(division*beat) / division
+        if chord:
+            self.chord = tuple(chord)
+        else:
+            self.chord = None
         self.ts_num = ts_num
         self.ts_den = ts_den
         self.next_note = next_note
+
+        self.played = False
+        self.drawn = False
 
     def getOffset(self):
         '''The total offset from the begining of the song'''
@@ -283,6 +348,9 @@ class Note():
         else:
             return self.getDurationToEnd()
 
+    def isChord(self):
+        return self.chord is not None
+
     def setNextNote(self, next_note):
         '''Update the next note'''
         self.next_note = next_note
@@ -296,16 +364,16 @@ class Note():
         return (self.midi, self.getDuration())
 
     def __str__(self):
-        return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() })'
+        return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
 
 import random
 
 TEST_STREAM = Stream()
-for i in range(8):
+for i in range(4):
     for j in [0.0, 1.0, 2.0, 2.5, 3.0, 3.5]:
         TEST_STREAM.append(Note(random.randint(45, 65), i, j))
 
-
+TEST_STREAM.append(Note(60, 4, 0.0, chord=[0, 4, 7]))
 
 
 

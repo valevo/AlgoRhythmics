@@ -8,6 +8,7 @@ import time
 from collections import deque
 
 from guielements import VScrollFrame, InstrumentPanel, PlayerControls, Knob
+import utils
 from simpleDialog import Dialog
 from networkEngine import NetworkManager
 from pythonosc import udp_client, osc_server, dispatcher
@@ -19,8 +20,6 @@ import numpy as np
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
 CLIENT_ADDR = '100.75.0.230'
-#CLIENT_PORT = 57120
-#CLIENT_ADDR = '145.109.6.217'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -31,14 +30,8 @@ SERVER_ADDR = '192.168.56.102'
 #SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
 
-# Colours for the widgets to use
-#COLOURS = {
-#    'darkGrey':     '#101010',
-#    'grey':         '#484848',
-#    'textLight':    '#F0F0F0',
-#    'textDark':     '#000000',
-#    'active':       'orange'
-#}
+APP_NAME = 'musAIc LIVE (v0.4)'
+
 
 class MessageListener(threading.Thread):
     """Listens to incoming OSC messages"""
@@ -55,11 +48,8 @@ class MessageListener(threading.Thread):
 
 
 class Engine(threading.Thread):
-#class Engine(multiprocessing.Process):
     """Controls the clock and instument playback"""
     def __init__(self, app, ins_manager, bpmVar):
-        #super(Engine, self).__init__()
-        #multiprocessing.Process.__init__(self)
         threading.Thread.__init__(self)
         self.app = app
         self.ins_manager = ins_manager
@@ -90,13 +80,16 @@ class Engine(threading.Thread):
                 bps = self.bpmVar.get()/60
                 while self.beat < 4 and not self.stop_request.isSet():
                     # during bar processes...
-                    self.wait_event.wait(timeout=0.01)
+                    self.wait_event.wait(timeout=0.05)
                     self.beat = min(4, bps*(time.time() - time_bar_start))
                     self.ins_manager.play_instruments(self.bar, self.beat)
+                    for ins in self.ins_manager.instrumentPanels.values():
+                        ins.move_canvas(self.beat)
 
                 # after bar processes
                 for ins in self.ins_manager.get_instruments():
                     ins.close_bar()
+                    ins.increment_bar_num()
 
                 self.ins_manager.load_nextbar()
 
@@ -112,10 +105,10 @@ class Engine(threading.Thread):
                     self.record = False
 
                     if self.stop:
-                        print('reseting positions')
+                        print('resetting positions')
                         self.stop = False
                         for ins in self.ins_manager.get_instruments():
-                            ins.bar_num = -1
+                            ins.reset()
                         self.bar = 0
                         self.ins_manager.load_nextbar()
 
@@ -160,13 +153,14 @@ class Instrument():
         self.chan = chan
         self.ins_id = ins_id
         self.ins_manager = ins_manager
+        self.ins_panel = None
         self.request_queue = request_queue   # queue to send new bar requests
         self.network_queue = network_queue   # queue to recieve new bars
 
         self.transpose = 0                # number of octaves to shift output
         self.confidence = 0               # the rank of which note to play
         self.bar_num = 0                  # current bar number
-        self.bars = []                    # list of all bars 
+        self.stream = utils.Stream()      # the musical stream of notes / chords
         self.status = PLAYING             # current playing status
         self.armed = False                # is armed (recording) instrument
         self.active = True                # is selected instrument
@@ -176,8 +170,7 @@ class Instrument():
         self.record_bars = []             # list of bars that will take input
 
         self.current_bar = None           # currently playing bar
-        self.eventTimes = deque([])       # queue of event times in this bar
-        self.lastNote = None              # last note played for muting
+        self.lastNote = []                # last note played for muting
 
         self.loopLevel = 0                # number of bars to loop 
         self.loopEnd = 0                  # bar the loop number offsets from
@@ -190,10 +183,18 @@ class Instrument():
         for _ in range(4):
             self.request_new_bar()
 
+    def set_ins_panel(self, ins_panel):
+        self.ins_panel = ins_panel
 
     def delete(self):
         '''Deletes this instrument'''
         self.ins_manager.removeInstrument(self.ins_id)
+
+    def increment_bar_num(self):
+        if self.status == PAUSED:
+            return
+        else:
+            self.bar_num += 1
 
     def load_bar(self):
         '''Loads the current bar into memory to be played'''
@@ -204,30 +205,41 @@ class Instrument():
             self.status = PLAYING
 
         if self.continuous:
-            for _ in range(max(0, -len(self.bars) + self.bar_num + 6)):
+            for _ in range(max(0, -len(self.stream) + self.bar_num + 6)):
                 self.request_new_bar()
 
         if self.loopLevel > 0:
-            if self.bar_num == self.loopEnd:
-                self.bar_num -= self.loopLevel
+            if self.bar_num > self.loopEnd:
+                self.bar_num = self.loopEnd - self.loopLevel + 1
                 self.bar_num = max(0, self.bar_num)
 
-        try:
-            self.current_bar = self.bars[self.bar_num]
-            self.eventTimes = deque(sorted(list(self.current_bar.keys())))
+                # reset played attribute of notes...
+                for i in range(self.loopLevel):
+                    bar = self.stream.getBar(self.bar_num + i)
+                    for n in bar.values():
+                        n.played = False
 
-            if self.bar_num in self.record_bars:
-                self.recording = True
+        try:
+            self.current_bar = self.stream.getBar(self.bar_num)
+
+            if self.record_bars:
+                if self.bar_num >= self.record_bars[0] and \
+                   self.bar_num <= self.record_bars[1]:
+                    self.recording = True
             else:
                 self.recording = False
                 self.record_bars = []
 
-            self.bar_num += 1
-        except:
+
+        except Exception as e:
             # no bar left to load...
+            print(e)
             self.current_bar = None
             #self.status = PAUSE_WAIT
             return
+
+        if self.ins_panel:
+            self.ins_panel.update_canvas()
 
     def play_bar(self, bar, beat):
         '''Checks if have to play any notes in current bar'''
@@ -240,7 +252,7 @@ class Instrument():
         if self.status == PAUSED or self.mute or self.current_bar == None:
             return
 
-        if len(self.eventTimes) == 0:
+        if len(self.current_bar) == 0:
             return
 
         if self.recording:
@@ -248,76 +260,122 @@ class Instrument():
             if self.noteOn:
                 self.recorded_bar[round(beat*4)/4] = self.noteOn
                 self.noteOn = None
-
             return
 
-        if beat >= self.eventTimes[0]:
-            # play note
-            time = self.eventTimes.popleft()
-            note = self.current_bar[time] + 12 * self.transpose
+        current_note = self.stream.getNotePlaying(self.bar_num, beat)
 
-            if self.lastNote:
-                self.ins_manager.send_message('/noteOff',
-                                                     (self.chan, self.lastNote))
-            self.ins_manager.send_message('/noteOn', (self.chan, note))
-            #print('Play note {} on channel {}'.format(note, self.chan))
-            self.lastNote = note
+        if current_note:
+            if not current_note.played:
+                self.mute_last_notes()
+                note = current_note.midi + 12*self.transpose
+                if current_note.isChord():
+                    self.lastNote = []
+                    for c in current_note.chord:
+                        cNote = note + c
+                        self.ins_manager.send_message('/noteOn', (self.chan, cNote))
+                        #print(self.bar_num)
+                        print('Play note {} on channel {}'.format(cNote, self.chan))
+                        self.lastNote.append(cNote)
+
+                else:
+                    self.ins_manager.send_message('/noteOn', (self.chan, note))
+                    #print(self.bar_num)
+                    print('Play note {} on channel {}'.format(note, self.chan))
+                    self.lastNote = [note]
+
+                current_note.played = True
+
+    def mute_last_notes(self):
+        for n in self.lastNote:
+            self.ins_manager.send_message('/noteOff', (self.chan, n))
 
     def request_new_bar(self):
         self.request_queue.put((1, self.ins_id, self.confidence))
 
     def check_new_bar(self):
         '''Checks if a new bar from network is ready'''
+        if self.recording:
+            return
         try:
             new_bar = self.network_queue.get(block=False)
-            self.bars.append(new_bar)
+            if not new_bar:
+                return
+
+            self.stream.appendBar(new_bar)
+            if self.ins_panel:
+                self.ins_panel.update_canvas()
         except:
             # no new bars...
             return
 
     def close_bar(self):
         '''Called at end of bar'''
-        if self.lastNote:
-            self.ins_manager.send_message('/noteOff', (self.chan,
-                                                       self.lastNote))
+        #self.mute_last_notes()
 
         if self.status == PAUSE_WAIT:
             self.status = PAUSED
 
-        if self.bar_num == len(self.bars) - 1 and not self.continuous:
+        if self.bar_num == len(self.stream) - 1 and not self.continuous:
             self.status = PAUSED
 
         if self.recording:
             # only update bar if anything was recorded
-            if len(self.recorded_bar) > 0:
-                self.bars[self.bar_num - 1] = dict(self.recorded_bar)
-                self.recorded_bar = {}
+            #if len(self.recorded_bar) > 0:
+                #self.bars[self.bar_num - 1] = dict(self.recorded_bar)
+            self.stream.appendBar(self.recorded_bar)
+            self.recorded_bar = {}
 
-            self.recording = False
+            if self.bar_num == self.record_bars[-1]:
+                print('FINISHED RECORDING')
+                self.recording = False
+                self.init_record(self.bar_num, 0)
 
-    def init_record(self, num):
+
+    def reset(self):
+        ''' Called when musAIc is stopped '''
+        self.bar_num = 0
+        for n in self.stream.notes:
+            n.played = False
+
+    def init_record(self, start, num):
         if num == 0:
             self.record_bars = []
             self.armed = False
+            self.ins_panel.recVar.set(0)
+            self.ins_panel.update_highlighted_bars()
         else:
             start = self.bar_num
-            self.record_bars = list(range(start, start+num))
+            self.record_bars = [start, start+num]
+            self.armed = True
+
+            # clear the rest of the stream...
+            self.stream.removeBarsToEnd(start)
+            self.ins_panel.clear_canvas(start)
+            self.ins_panel.update_highlighted_bars()
+
 
             # set up loop for when finished...
-            self.loopLevel = len(self.record_bars)
-            self.loopEnd = self.record_bars[0]
+            #self.toggle_loop(len(self.record_bars))
 
     def update_params(self, parameters):
         self.request_queue.put((3, self.ins_id, parameters))
-
-
-
 
     def toggle_paused(self):
         if self.status == PAUSED or self.status == PAUSE_WAIT:
             self.status = PLAY_WAIT
         else:
             self.status = PAUSE_WAIT
+
+    def toggle_loop(self, level):
+        if self.loopLevel == level:
+            self.loopLevel = 0
+        else:
+            self.loopLevel = level
+            self.loopEnd = self.bar_num
+
+        print(self.loopLevel, self.loopEnd)
+
+        self.ins_panel.update_highlighted_bars()
 
     def toggle_mute(self):
         self.mute = not self.mute
@@ -353,6 +411,8 @@ class InstrumentManager():
                                 request_queue=self.request_queue)
 
         insPanel = InstrumentPanel(self.ins_box, instrument)
+        instrument.set_ins_panel(insPanel)
+
         self.instrumentPanels[self.ins_counter] = insPanel
         self.instruments[self.ins_counter] = instrument
         self.ins_counter += 1
@@ -374,8 +434,9 @@ class InstrumentManager():
         print('Removing instrument {}'.format(ins_id))
 
     def load_nextbar(self):
-        for ins in self.get_instruments():
-            ins.load_bar()
+        for _id in self.instruments.keys():
+            self.instruments[_id].load_bar()
+            #self.instrumentPanels[_id].update_canvas()
 
     def play_instruments(self, bar, beat):
         for ins in self.get_instruments():
@@ -388,23 +449,28 @@ class InstrumentManager():
 
     def set_recording_instrument(self, ins, num):
         if self.armed_ins:
-            self.armed_ins.init_record(0)
+            self.armed_ins.init_record(0, 0)
             self.instrumentPanels[self.armed_ins.ins_id].recVar.set(0)
 
         if num == 0:
             self.armed_ins = None
         else:
             self.armed_ins = ins
-            self.armed_ins.init_record(num)
+            if self.armed_ins.status == PLAYING:
+                self.armed_ins.init_record(self.armed_ins.bar_num + 1, num)
+            else:
+                self.armed_ins.init_record(self.armed_ins.bar_num, num)
             self.instrumentPanels[self.armed_ins.ins_id].recVar.set(num)
 
     def set_selected_instrument(self, ins):
         if self.selected_ins:
             self.selected_ins.active = False
+            self.selected_ins.ins_panel.configure(highlightbackground='gray', highlightthickness=1)
 
         self.selected_ins = ins
         if ins:
             self.selected_ins.active = True
+            self.selected_ins.ins_panel.configure(highlightbackground='orange', highlightthickness=1)
 
     def select_up(self):
         all_ids = list(self.instruments.keys())
@@ -446,7 +512,6 @@ class InstrumentManager():
                       add, msg))
             return
 
-APP_NAME = 'musAIc LIVE (v0.3)'
 
 class MusaicApp():
     client = None
@@ -513,7 +578,7 @@ class MusaicApp():
         self.ins_manager = InstrumentManager(self.instrumentsBox, self.client,
                                              self.request_queue,
                                              self.queue_manager)
-        #self.ins_manager.addInstrument()
+        self.ins_manager.addInstrument()
 
         # add engine...
         self.engine = Engine(self, self.ins_manager, self.BPM)
@@ -547,6 +612,7 @@ class MusaicApp():
         self.listener.start()
         self.checkConnection()
         self.updateGUI()
+
         self.root.mainloop()
 
         # tidy up on close...
@@ -572,12 +638,12 @@ class MusaicApp():
         #    self.recButton['relief'] = 'raised'
         #    self.recButton['fg'] = 'black'
 
-        for ins in self.ins_manager.instrumentPanels.values():
-            ins.update_display(beat)
+        #for ins in self.ins_manager.instrumentPanels.values():
+        #    ins.move_canvas(beat)
             # set record buttons arcordingly
 
         # 25 FPS refresh rate...
-        self.root.after(40, self.updateGUI)
+        self.root.after(1000//25, self.updateGUI)
 
     def checkConnection(self):
         try:

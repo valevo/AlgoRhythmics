@@ -91,9 +91,12 @@ class DataReader():
     def generate_bar(self, **kwargs):
         ''' Reads the next bar from the file '''
 
-        bar = parseBarData(self.notes[self.current_bar],
-                            self.octaves[self.current_bar],
-                            self.rhythm[self.current_bar])
+        try:
+            bar = parseBarData(self.notes[self.current_bar],
+                                self.octaves[self.current_bar],
+                                self.rhythm[self.current_bar])
+        except IndexError:
+            bar = None
 
         self.current_bar += 1
 

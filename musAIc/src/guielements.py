@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import font
 
 #              BG       Text
-COLOURS = [('#ff0011', 'white'),
+INS_COLOURS = [('#ff0011', 'white'),
            ('yellow',  'black'),
            ('#22ff22', 'black'),
            ('#1100ff', 'white'),
@@ -107,6 +107,7 @@ class Knob(tk.Frame):
         #self.canvas.itemconfig(self.line, fill='orange')
         #self.canvas.itemconfig(self.arc, outline='orange')
         self.lastChangeTime = time.time()
+        self.variable.set(self.val)
 
     def update_line(self):
         p = (self.val - self.min_)/(self.max_ - self.min_)
@@ -184,7 +185,6 @@ class SelectionGrid(tk.Frame):
                 pass
 
 class PlayerControls(tk.Frame):
-
     def __init__(self, master, engine, **kwargs):
         tk.Frame.__init__(self, master, **kwargs)
 
@@ -278,7 +278,7 @@ class InstrumentPanel(tk.Frame):
         self.name.set(name + ' ({})'.format(instrument.ins_id))
         self.chan = tk.IntVar(self)
         self.chan.set(instrument.chan)
-        self.colour = COLOURS[self.instrument.ins_id % len(COLOURS)]
+        self.colour = INS_COLOURS[self.instrument.ins_id % len(INS_COLOURS)]
 
         self.controlFrame = tk.Frame(self)
         self.controlFrame.grid(row=0, column=0, sticky='ns')
@@ -382,13 +382,22 @@ class InstrumentPanel(tk.Frame):
         # ------ Display track
         self.update()
         self.canvasHeight = 80
+        self.beat_width = 25
+        self.bar_width = 4 * self.beat_width
+        self.null_bars = 1
         self.barCanvas = tk.Canvas(self, width=self.winfo_width(),
                                    height=self.canvasHeight, bg='#303030')
         self.barCanvas.grid(row=0, column=1, sticky='ew', padx=2, pady=2)
-        self.barCursor = self.barCanvas.create_line(1, 0, 1, self.canvasHeight,
+
+        self.loopRegion = self.barCanvas.create_rectangle(-100, 0, -100,
+                                    self.canvasHeight, fill='#605500')
+        self.recRegion = self.barCanvas.create_rectangle(-100, 0, -100,
+                                    self.canvasHeight, fill='#800000')
+
+        self.cursor = self.barCanvas.create_line(1, 0, 1, self.canvasHeight,
                                                     fill='orange', width=2)
 
-        # pack all the elements...
+        # ------ Pack all the elements...
         self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
         self.removeButton.grid(row=0, column=1, sticky='ew')
         self.nameLabel.grid(row=0, column=2, columnspan=1, sticky='ew')
@@ -402,89 +411,193 @@ class InstrumentPanel(tk.Frame):
         self.pauseButton.grid(row=2, column=2, rowspan=2)
 
         # initialise bar display...
-        self.update_display(0)
+        self.update_canvas()
+        self.move_canvas(0)
+
         self.bind('<Configure>', self.onConfigure)
 
     def onConfigure(self, event):
         self.barCanvas.configure(width=self.winfo_width())
 
-    def update_display(self, beat):
-        # pretty inefficient for now
-        self.barCanvas.delete('all')
-        self.beat_width = 25
-        noteRange = (36, 85)   # +- one octave from middle C
-        scale = self.canvasHeight / (noteRange[0] - noteRange[1])
-        cb = self.instrument.bar_num - 1
-        bars = self.instrument.bars[max(0, cb-2): min(len(self.instrument.bars), cb+7)]
-        bar_nums = range(max(0, cb-2), min(len(self.instrument.bars), cb+7))
+    def update_highlighted_bars(self):
+        if self.instrument.loopLevel > 0:
+            loopEnd = self.instrument.loopEnd
+            loopStart = max(0, loopEnd - self.instrument.loopLevel)
+            x = loopStart * self.bar_width
+            width = loopEnd - loopStart + 1
+            self.barCanvas.coords(self.loopRegion, x, 0,
+                                  x+width*self.bar_width, self.canvasHeight)
 
-        if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
-            beat = 0.0
-            cb += 1
+        else:
+            self.barCanvas.coords(self.loopRegion, -100, 0, -100, self.canvasHeight)
+
+        if self.instrument.armed and self.instrument.record_bars:
+            recStart = self.instrument.record_bars[0]
+            recEnd = self.instrument.record_bars[-1]
+
+            x = recStart * self.bar_width
+            width = recEnd - recStart + 1
+            self.barCanvas.coords(self.recRegion, x, 0,
+                                 x+width*self.bar_width, self.canvasHeight)
+
+        else:
+            self.barCanvas.coords(self.recRegion, -100, 0, -100, self.canvasHeight)
+
+
+    def clear_canvas(self, start):
+        ''' Clears the canvas over a range of bar numbers '''
+        bbox = self.barCanvas.bbox('all')
+        print(start)
+
+        x1 = start * self.bar_width
+
+        elements = self.barCanvas.find_overlapping(x1, -5, bbox[2] + 5, self.canvasHeight + 5)
+
+        for item in elements:
+            if item == self.cursor or \
+               item == self.loopRegion or \
+               item == self.recRegion:
+                continue
+            self.barCanvas.delete(item)
+
+    def update_canvas(self):
+        ''' Updates the canvas with the notes to draw '''
+        self.null_bars = 1
+
+        self.barCanvas.delete('redraw')
+        self.beat_width = 25
+        self.bar_width = 4 * self.beat_width
+        noteRange = (36, 85)   # +- two octaves from middle C
+        scale = self.canvasHeight / (noteRange[0] - noteRange[1])
+
+        stream = self.instrument.stream
 
         # draw bars
-        for i, bar in zip(list(bar_nums), bars):
-            offset = (2 + i - cb - beat/4) * self.beat_width * 4
-            note_col = '#aaaaaa'
+        for i in range(-self.null_bars, len(stream)):
+            x = i * self.bar_width
+            self.barCanvas.create_line(x, 0, x, 100, fill='#aaaaaa',
+                                       tags='redraw')
+            self.barCanvas.create_text(x+5, 5, text=i,
+                                       fill='#aaaaaa', tags='redraw')
 
-            if self.instrument.loopLevel > 0:
-                loop_end = self.instrument.loopEnd
-                loop_start = loop_end - self.instrument.loopLevel
+        # draw notes
+        for n in stream.notes:
+            if n.drawn:
+                continue
 
-                if i >= loop_start and i < loop_end:
-                    self.barCanvas.create_rectangle(offset, 0,
-                                                    offset+(4*self.beat_width),
-                                                    self.canvasHeight,
-                                                    fill='#605500')
-                else:
-                    note_col = '#555555'
+            x = n.getOffset()*self.beat_width
+            y = scale * (n.midi - noteRange[1])
+            note_width = n.getDuration() * self.beat_width
+            if n.isChord():
+                for c in n.chord:
+                    interval = c*scale
+                    self.barCanvas.create_line(x, y+interval, x+note_width-2,
+                                        y+interval, fill='#aaaaaa', width=2,
+                                        tags='note')
+            else:
+                self.barCanvas.create_line(x, y, x+note_width-2, y,
+                                          fill='#aaaaaa', width=2, tags='note')
 
-            if i in self.instrument.record_bars:
-                self.barCanvas.create_rectangle(offset, 0,
-                                                offset+(4*self.beat_width),
-                                                self.canvasHeight,
-                                                fill='#800000')
-
-
-            self.barCanvas.create_line(offset, 0, offset, 100, fill='#aaaaaa')
-            self.barCanvas.create_text(offset+5, 5, text=i+1, fill='#aaaaaa')
-
-            noteOn_times = sorted(list(bar.keys())) + [4]
-            for j, t in enumerate(noteOn_times[:-1]):
-                x = offset + t * self.beat_width
-                l = (noteOn_times[j+1] - t) * self.beat_width
-                y = scale * (bar[t] - noteRange[1])
-                self.barCanvas.create_line(x, y, x+l-2, y, fill=note_col,
-                                           width=2)
+            n.drawn = True
 
         # draw cursor
-        cursor = 8*self.beat_width
-        self.barCanvas.create_line(cursor, 0, cursor,
-                                   self.canvasHeight, fill='orange', width=2)
-        self.barCanvas.create_polygon(cursor, 5, cursor+5, 0, cursor-5, 0,
-                                      fill='orange')
-        self.barCanvas.create_polygon(cursor, self.canvasHeight-4, cursor+5,
-                                      self.canvasHeight+1, cursor-5,
-                                      self.canvasHeight+1, fill='orange')
+        if not self.cursor:
+            x = self.instrument.bar_num * self.bar_width
+            self.cursor = self.barCanvas.create_line(x, 0, x, 100, fill='orange',
+                                                 width=2)
 
-        # make sure controls are up-to-date...
-        if self.instrument.status == PAUSED:
-            self.pauseButton['text'] = 'Play'
-            self.pauseButton['fg'] = 'black'
-        elif self.instrument.status == PAUSE_WAIT:
-            self.pauseButton['text'] = 'Pausing'
-            self.pauseButton['fg'] = 'orange'
-        elif self.instrument.status == PLAYING:
-            self.pauseButton['text'] = 'Pause'
-            self.pauseButton['fg'] = 'black'
-        elif self.instrument.status == PLAY_WAIT:
-            self.pauseButton['text'] = 'Playing'
-            self.pauseButton['fg'] = 'orange'
+    def move_canvas(self, beat):
+        # update cursor position
+        x = self.instrument.bar_num * self.bar_width + beat*self.beat_width
+        self.barCanvas.coords(self.cursor, x, 0, x, 100)
 
-        if self.instrument.active:
-            self.configure(highlightbackground='orange', highlightthickness=1)
-        else:
-            self.configure(highlightbackground='grey', highlightthickness=1)
+        # scroll canvas
+        b_frac = beat / 4
+        scroll_x = (self.instrument.bar_num + b_frac - 1) * self.bar_width
+        self.barCanvas.config(scrollregion=(scroll_x, 0, scroll_x + 4*self.bar_width, 100))
+
+        self.barCanvas.xview('moveto', 0)
+
+#    def update_display(self, beat):
+#        # pretty inefficient for now
+#        self.barCanvas.delete('all')
+#        self.beat_width = 25
+#        noteRange = (36, 85)   # +- two octaves from middle C
+#        scale = self.canvasHeight / (noteRange[0] - noteRange[1])
+#        cb = self.instrument.bar_num - 1
+#        #bars = self.instrument.bars[max(0, cb-2): min(len(self.instrument.bars), cb+7)]
+#        l_bound = max(0, cb-2)
+#        r_bar = min(len(self.instrument.stream), cb+7)
+#        #bars = self.instrument.getBars(max(0, cb-2), min(len(self.instrument.bars), cb+7))
+#        bar_nums = range(max(0, cb-2), min(len(self.instrument.bars), cb+7))
+#
+#        if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
+#            beat = 0.0
+#            cb += 1
+#
+#        # draw bars
+#        for i, bar in zip(list(bar_nums), bars):
+#            offset = (2 + i - cb - beat/4) * self.beat_width * 4
+#            note_col = '#aaaaaa'
+#
+#            if self.instrument.loopLevel > 0:
+#                loop_end = self.instrument.loopEnd
+#                loop_start = loop_end - self.instrument.loopLevel
+#
+#                if i >= loop_start and i < loop_end:
+#                    self.barCanvas.create_rectangle(offset, 0,
+#                                                    offset+(4*self.beat_width),
+#                                                    self.canvasHeight,
+#                                                    fill='#605500')
+#                else:
+#                    note_col = '#555555'
+#
+#            if i in self.instrument.record_bars:
+#                self.barCanvas.create_rectangle(offset, 0,
+#                                                offset+(4*self.beat_width),
+#                                                self.canvasHeight,
+#                                                fill='#800000')
+#
+#
+#            self.barCanvas.create_line(offset, 0, offset, 100, fill='#aaaaaa')
+#            self.barCanvas.create_text(offset+5, 5, text=i+1, fill='#aaaaaa')
+#
+#            noteOn_times = sorted(list(bar.keys())) + [4]
+#            for j, t in enumerate(noteOn_times[:-1]):
+#                x = offset + t * self.beat_width
+#                l = (noteOn_times[j+1] - t) * self.beat_width
+#                y = scale * (bar[t] - noteRange[1])
+#                self.barCanvas.create_line(x, y, x+l-2, y, fill=note_col,
+#                                           width=2)
+#
+#        # draw cursor
+#        cursor = 8*self.beat_width
+#        self.barCanvas.create_line(cursor, 0, cursor,
+#                                   self.canvasHeight, fill='orange', width=2)
+#        self.barCanvas.create_polygon(cursor, 5, cursor+5, 0, cursor-5, 0,
+#                                      fill='orange')
+#        self.barCanvas.create_polygon(cursor, self.canvasHeight-4, cursor+5,
+#                                      self.canvasHeight+1, cursor-5,
+#                                      self.canvasHeight+1, fill='orange')
+#
+#        # make sure controls are up-to-date...
+#        if self.instrument.status == PAUSED:
+#            self.pauseButton['text'] = 'Play'
+#            self.pauseButton['fg'] = 'black'
+#        elif self.instrument.status == PAUSE_WAIT:
+#            self.pauseButton['text'] = 'Pausing'
+#            self.pauseButton['fg'] = 'orange'
+#        elif self.instrument.status == PLAYING:
+#            self.pauseButton['text'] = 'Pause'
+#            self.pauseButton['fg'] = 'black'
+#        elif self.instrument.status == PLAY_WAIT:
+#            self.pauseButton['text'] = 'Playing'
+#            self.pauseButton['fg'] = 'orange'
+#
+#        if self.instrument.active:
+#            self.configure(highlightbackground='orange', highlightthickness=1)
+#        else:
+#            self.configure(highlightbackground='grey', highlightthickness=1)
 
 
 
@@ -540,8 +653,9 @@ class InstrumentPanel(tk.Frame):
         self.instrument.confidence = self.confidence.get()
 
     def loopUpdate(self, variable):
-        self.instrument.loopLevel = int(variable.get())
-        self.instrument.loopEnd = self.instrument.bar_num
+        self.instrument.toggle_loop(int(variable.get()))
+        #self.instrument.loopLevel = int(variable.get())
+        #self.instrument.loopEnd = self.instrument.bar_num
 
     def recUpdate(self, variable):
         num = int(variable.get())

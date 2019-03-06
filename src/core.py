@@ -273,7 +273,7 @@ def parseMelodyData(part, verbose=False):
             root = note.root()
             chordOrder = note.normalOrder
             chord = [(pc - chordOrder[0]) for pc in chordOrder]
-            return root.pitchClass+1.5, root.octave, chord
+            return root.pitchClass+1+12, root.octave, chord
 
         elif isinstance(note, m21.note.Rest):
             return None, None, None
