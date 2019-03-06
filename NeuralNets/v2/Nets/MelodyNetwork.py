@@ -6,7 +6,7 @@
 from keras.models import Model, load_model
 from keras.layers import Input, Embedding, LSTM,\
                  TimeDistributed, Dense, Bidirectional,\
-                 Lambda, RepeatVector, Layer, Conv1D, Reshape, Concatenate
+                 Lambda, RepeatVector, Layer, Conv1D, Reshape
 from keras.layers import concatenate as Concat
 from keras.metrics import categorical_accuracy, mean_absolute_error
 from keras.losses import mean_squared_error, categorical_crossentropy
@@ -25,26 +25,31 @@ from collections import Counter
 class MelodyNetwork(Model):
     def __init__(self, m, V, rhythm_embed_size,
                  conv_f, conv_win_size, enc_lstm_size,
-                 dec_lstm_1_size, dec_lstm_2_size,
-                 compile_now=True):
+                 dec_lstm_1_size, dec_lstm_2_size, meta_len,
+                 compile_now=False):
         
-        inputs = Input(shape=(None, m), name="contexts")
+        self.n_voices = 6
+        
+        prev_melodies = Input(shape=(None, m), name="contexts")
         bar_embedding = Input(shape=(rhythm_embed_size, ), name="bar_rhythm_embedded")
+        meta_data = Input(shape=(meta_len,), name="metaData")
+        meta_cat = Dense(self.n_voices, activation="softmax")(meta_data)
+        
 
         #encode
-        conved = Conv1D(filters=conv_f, kernel_size=conv_win_size)(inputs)
+        conved = Conv1D(filters=conv_f, kernel_size=conv_win_size)(prev_melodies)
         processed = LSTM(enc_lstm_size)(conved)
 
         # decode
-        proc_rhythm_concat = Concat([processed, bar_embedding])
+        proc_rhythm_concat = Concat([processed, bar_embedding, meta_cat])
         proc_repeated = RepeatVector(m)(proc_rhythm_concat)
-
+        
         lstm1_outputs = LSTM(dec_lstm_1_size, return_sequences=True)(proc_repeated)
         lstm2_outputs = LSTM(dec_lstm_2_size, return_sequences=True)(lstm1_outputs)
 
         preds = TimeDistributed(Dense(V, activation="softmax"))(lstm2_outputs)
 
-        super().__init__(inputs=[inputs, bar_embedding], outputs=preds)
+        super().__init__(inputs=[prev_melodies, bar_embedding, meta_data], outputs=preds)
 
         if compile_now:
             self.compile_default()
@@ -57,7 +62,7 @@ class MelodyNetwork(Model):
         
 
 
-##%%
+#%%
 #        
 #from Data.DataGenerators import MelodyGenerator
 #
@@ -120,7 +125,7 @@ class MelodyNetwork(Model):
 
 
         
-#%%
+##%%
 #
 ## input params
 #m = 48
@@ -143,7 +148,10 @@ class MelodyNetwork(Model):
 #
 #mn = MelodyNetwork(m, V, rhythm_emb_size, f, win_size, lstm_size,
 #                   dec_lstm_1_size, dec_lstm_2_size)
-#
+
+
+#%%
+
 #
 #
 ##%% rhythm data

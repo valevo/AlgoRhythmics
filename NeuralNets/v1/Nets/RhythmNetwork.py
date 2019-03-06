@@ -21,12 +21,12 @@ from collections import Counter
 
 class BarEmbedding(Model):
     def __init__(self, V, 
-                 note_embed_size, embed_lstm_size, out_size, compile_now=True):
+                 beat_embed_size, embed_lstm_size, out_size, compile_now=True):
         
         self.embedding_size = out_size
         self.vocab_size = V
         
-        embed_layer = Embedding(input_dim=V, output_dim=note_embed_size)
+        embed_layer = Embedding(input_dim=V, output_dim=beat_embed_size)
         lstm_layer = Bidirectional(LSTM(embed_lstm_size), merge_mode="concat")
         out_layer = Dense(out_size)
 
@@ -53,6 +53,8 @@ class BarEmbedding(Model):
 
 class RhythmNetwork(Model):
     def __init__(self, bar_embedder, context_size, enc_lstm_size, dec_lstm_size, compile_now=True):
+        self.num_calls = 0
+
         prev_bars = [Input(shape=(None,)) for _ in range(context_size)]
 
         # embed
@@ -84,11 +86,12 @@ class RhythmNetwork(Model):
             
     def compile_default(self):
         self.compile(optimizer="adam", 
-                     loss=lambda y_true, y_pred: categorical_crossentropy(y_true, y_pred) + self.l2(), 
+                     loss=lambda y_true, y_pred: categorical_crossentropy(y_true, y_pred) + 10000.0, #self.l2(y_true, y_pred), 
                      metrics=[categorical_accuracy])
         
         
-    def l2(self):
+    def l2(self, y_true, y_pred):
+        self.num_calls += 1
         squared = K.square(self.embedded_mat)
         summed = K.sum(squared, axis=-1)
         return 1 - K.exp(-K.mean(K.sqrt(summed)))
