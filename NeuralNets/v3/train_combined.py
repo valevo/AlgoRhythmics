@@ -17,7 +17,7 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 2   
+    num_epochs = 4   
         
         
     #   
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     rc_size = 3
     data_iter = cg.generate_data(rhythm_context_size=rc_size, melody_context_size=3, 
                                  with_metaData=True)
-    print("Data generator set up...\n")
+    print("\nData generator set up...\n")
     
     # PARAMS
     
@@ -83,13 +83,44 @@ if __name__ == "__main__":
     
     
     #
-    comb_net.fit_generator(data_iter, 
-                           steps_per_epoch=cg.num_pieces, 
-                           epochs=num_epochs, 
-                           verbose=2,
-                           callbacks=[tb])
+    
+    j = 2
+    
+    for cur_iteration in range(int(num_epochs/j)):
+    
+        print("\nITERATION ", cur_iteration)
+        
+        comb_net.fit_generator(data_iter, 
+                               steps_per_epoch=cg.num_pieces, 
+                               epochs=j, 
+                               verbose=2,
+                               callbacks=[tb])
+    
+        cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
+        os.makedirs(top_dir + weight_dir + cur_folder_name)
+        comb_net.save_model_custom(top_dir + weight_dir + cur_folder_name)
+
+        
     
     
-    be.save_weights(top_dir + weight_dir + cur_date_time + "/bar_embedding_weights")
-    rhythm_net.save_weights(top_dir + weight_dir + cur_date_time + "/rhythm_net_weights")
-    melody_net.save(top_dir + weight_dir + cur_date_time +"/melody_net_weights")
+    comb_net.save_model_custom(top_dir + weight_dir + cur_date_time)
+    
+    
+    
+    
+    
+#%%
+
+f1 = None
+f2 = None
+
+with open("events.out.tfevents.1551957589.valentin-U30Sd", "rb") as handle1:
+       f1 = handle1.read() 
+       
+with open("events.out.tfevents.1551957639.valentin-U30Sd", "rb") as handle2:
+       f2 = handle2.read() 
+       
+       
+with open("events_combined", "wb") as handle3:
+    handle3.write(f1)
+    handle3.write(f2)

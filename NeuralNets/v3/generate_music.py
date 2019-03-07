@@ -6,7 +6,7 @@ import numpy as np
 import numpy.random as rand
 
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
     
     #%%
     
@@ -25,9 +25,9 @@ import numpy.random as rand
     meta_len = comb_net.params["meta_len"]
     
     print("\n", "-"*40,  "\nINFO FOR LOADED NET:", comb_net)
-    print("\n- Used context size: ", context_size)
+    print("\n - Used context size: ", context_size)
     
-    print("\n- Number of voices: ",comb_net.rhythm_net.n_voices)
+    print("\n - Number of voices: ",comb_net.rhythm_net.n_voices)
     
     
     print("\n - Expected rhythm input size: "+
