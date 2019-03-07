@@ -17,7 +17,7 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 4   
+    num_epochs = 400   
         
         
     #   
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     
     #
     
-    j = 2
+    j = 50
     
     for cur_iteration in range(int(num_epochs/j)):
     
