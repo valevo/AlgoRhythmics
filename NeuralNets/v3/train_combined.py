@@ -104,23 +104,3 @@ if __name__ == "__main__":
     
     
     comb_net.save_model_custom(top_dir + weight_dir + cur_date_time)
-    
-    
-    
-    
-    
-#%%
-
-f1 = None
-f2 = None
-
-with open("events.out.tfevents.1551957589.valentin-U30Sd", "rb") as handle1:
-       f1 = handle1.read() 
-       
-with open("events.out.tfevents.1551957639.valentin-U30Sd", "rb") as handle2:
-       f2 = handle2.read() 
-       
-       
-with open("events_combined", "wb") as handle3:
-    handle3.write(f1)
-    handle3.write(f2)
