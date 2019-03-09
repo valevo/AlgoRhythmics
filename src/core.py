@@ -62,14 +62,14 @@ def getSongData(song, corpus=None, name=None, verbose=False):
     return songData
 
 
-def cleanScore(score, verbose=False):
+def cleanScore(score, quantise=True, verbose=False):
     '''
     - Transposes to key of C
     - Sets simultaneous notes to a chord object (chordifies parts, any problems?)
     - Pads short bars with rests
     - Fixes bars that are too long (assumes notes in correct offset)
     - Strips unnecessary elements
-    - etc
+    - Quantise?
     '''
 
     # what is wanted in each part
@@ -99,6 +99,9 @@ def cleanScore(score, verbose=False):
         s.append(p)
         score = s
         print(score)
+
+    if quantise:
+        score.quantize(quarterLengthDivisors=(12,6), inPlace=True)
 
     for part in score.parts:
         if verbose: print(part, '----------')
@@ -379,17 +382,17 @@ def parseRhythmData(part, force_ts=None, verbose=False):
         for i in range(m_length):
             offset = i * beat_length
             beat = m.flat.getElementsByOffset(offset, offset+beat_length, includeEndBoundary=False)
-            word = []
+            word = set()
             for x in beat.recurse().notesAndRests:
                 if x.tie:
                     if x.tie.type != 'start':
                         continue
 
                 onsetTime = (x.offset - offset) / beat_length
-                word.append(onsetTime)
+                word.add(onsetTime)
 
-            measure.append(tuple(word))
-            if verbose: print(word)
+            measure.append(tuple(sorted(word)))
+            if verbose: print(tuple(sorted(word)))
 
         while len(measure) < ts.numerator:
             measure.append(())
