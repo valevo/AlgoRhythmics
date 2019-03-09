@@ -43,7 +43,7 @@ if __name__ == "__main__":
     print("\n", "-"*40)
     #%%
     
-    batch_size = 5
+    batch_size = 1
     bar_length = 4
     
     example_rhythm_contexts = [rand.randint(0, V_rhythm, size=(batch_size, bar_length))

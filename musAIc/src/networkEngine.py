@@ -2,10 +2,13 @@ import multiprocessing
 import threading
 import random
 import numpy as np
+import numpy.random as rand
 import pickle as pkl
+from fractions import Fraction
 
 from utils import *
 
+from v3.Nets.CombinedNetwork import CombinedNetwork
 #from keras.models import load_model
 
 class Network():
@@ -15,6 +18,103 @@ class Network():
     def generate_bar(self, **kwargs):
         ''' Requests the next bar '''
         pass
+
+
+class PlayerV3():
+    ''' First generation of Neural Net Player '''
+    def __init__(self, _id, metaParameters):
+        self._id = _id
+        self.metaParameters = metaParameters
+
+        print('Loading net', _id)
+        with open('/home/arran/AlgoRhythmics/musAIc/src/v3/Nets/rhythmDict.pkl', 'rb') as f:
+            self.rhythmDict = pkl.load(f)
+
+        weights_folder = "v3/Nets/weights/Thu_Mar__7_17-28-16_2019/"
+        self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
+                                                     generation=True,
+                                                     compile_now=False)
+
+        self.context_size = self.comb_net.params["context_size"]
+
+        self.V_rhythm = self.comb_net.params["bar_embed_params"][0]
+        self.m, self.V_melody = self.comb_net.params["melody_net_params"][0], self.comb_net.params["melody_net_params"][1]
+        #meta_len = comb_net.params["meta_len"]
+        self.meta_len = len(self.metaParameters)
+
+        print("\n", "-"*40,  "\nINFO FOR LOADED NET:", self.comb_net)
+        print("\n - Used context size: ", self.context_size)
+        print("\n - Number of voices: ",self.comb_net.rhythm_net.n_voices)
+        print("\n - Expected rhythm input size: "+
+              "(?, ?) with labels in [0, {}]".format(self.V_rhythm))
+        print("\n - Expected melody input size: "+
+              "(?, ?, {}) with labels in [0, {}]".format(self.m, self.V_melody))
+        print("\n - Expected metaData input size: " +
+              "(?, {})".format(self.meta_len))
+        print("\n", "-"*40)
+
+        self.batch_size = 1
+        self.bar_length = 4
+
+        self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
+                                        for _ in range(self.context_size)]
+        self.melody_contexts = rand.randint(0, self.V_melody, size=(self.batch_size, self.context_size, self.m))
+        #example_metaData = rand.random(size=(batch_size, meta_len))
+        self.prepare_meta_data()
+
+        #self.metaData = np.tile(mData, (self.batch_size, 1))
+
+
+    def generate_bar(self, **kwargs):
+        # asterisk on example_rhythm_contexts is important
+        # predict...
+        output = self.comb_net.predict(x=[*self.rhythm_contexts,
+                                             self.melody_contexts,
+                                             self.metaData])
+
+        # get rhythm and melody...
+        sampled_rhythm = np.argmax(output[0], axis=-1)
+        sampled_melody = np.argmax(output[1], axis=-1)
+
+        # update history...
+        self.rhythm_contexts.append(sampled_rhythm)
+        self.rhythm_contexts = self.rhythm_contexts[1:]
+
+        self.melody_contexts = np.append(self.melody_contexts, [sampled_melody], axis=1)[:, 1:, :]
+
+        # convert to bar...
+        rhythm = []
+        for b in sampled_rhythm[0]:
+            rhythm.append(self.rhythmDict[b])
+
+        melody = [int(n) for n in sampled_melody[0]]
+        octaves =[int(x) for x in rand.randint(3, 5, 48)]
+        #print('Melody:', melody)
+        #print('rhythm:', rhythm)
+
+        bar = parseBarData(melody, octaves, rhythm)
+        #print('Bar generated', bar)
+
+        return bar
+
+    def update_params(self, params):
+        for k in params.keys():
+            self.metaParameters[k] = params[k]
+        print('Paramters for', self._id, 'updated')
+        self.prepare_meta_data()
+
+    def prepare_meta_data(self):
+        values = []
+        for k in sorted(self.metaParameters.keys()):
+            if k == 'ts':
+                frac = Fraction(self.metaParameters[k], _normalize=False)
+                values.extend([frac.numerator, frac.denominator])
+            else:
+                assert isinstance(self.metaParameters[k], (float, int))
+                values.append(self.metaParameters[k])
+
+        print(values)
+        self.metaData = np.tile(values, (self.batch_size, 1))
 
 
 class BasicPlayer():
@@ -100,6 +200,7 @@ class DataReader():
 
         self.current_bar += 1
 
+        print('Bar generated', bar)
         return bar
 
 
@@ -136,8 +237,10 @@ class NetworkManager(multiprocessing.Process):
                 # new instrument id
                 _id = req[1]
                 self.return_queues[_id] = req[2]
-                self.models[_id] = DataReader(_id)
+                #self.models[_id] = DataReader(_id)
                 #self.models[_id] = BasicPlayer(_id)
+                md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
+                self.models[_id] = PlayerV3(_id, md)
 
             elif req[0] == 1:
                 # instument requests new bar

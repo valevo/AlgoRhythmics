@@ -15,7 +15,9 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
     r_mask = [False]*RES
     for i, beat in enumerate(rhythm):
         for j in beat:
-            index = round((i + j)*beat_slot)
+            index = round((i + j%1)*beat_slot)
+            if index >= RES:
+                continue
             r_mask[index] = True
 
     bar = {}
@@ -320,14 +322,18 @@ class Note():
         '''
 
         self.rest = False
-        if isinstance(note, int):
+        #print(type(note))
+        if isinstance(note, int) or isinstance(note, float):
             if note < 0:
                 self.rest = True
                 self.midi = -1
             else:
                 self.midi = note
         else:
-            self.midi = PCOctaveToMIDI(note[0], note[1])
+            if isinstance(note, int) or isinstance(note, float):
+                self.midi = note
+            else:
+                self.midi = PCOctaveToMIDI(note[0], note[1])
         self.bar = bar
         self.beat = round(division*beat) / division
         if chord:

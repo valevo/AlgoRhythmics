@@ -19,7 +19,9 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '192.168.1.12'
+#CLIENT_ADDR = '192.168.1.15'
+#CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -27,6 +29,7 @@ CLIENT_PORT = 57120
 #   - run ifconfig (or `ip addr` in Arch) and use Host-Only IP (same as listed on Windows ipconfig)
 #   - port can be arbitrary, but SuperCollider must know!
 SERVER_ADDR = '192.168.56.102'
+#SERVER_ADDR = '192.168.56.102'
 #SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
 
@@ -81,6 +84,7 @@ class Engine(threading.Thread):
                 # before bar processes
                 for ins in self.ins_manager.get_instruments():
                     ins.load_bar()
+                    ins.ins_panel.update_canvas()
 
                 bps = self.bpmVar.get()/60
                 while self.beat < 4 and not self.stop_request.isSet():
@@ -290,7 +294,7 @@ class Instrument():
                 else:
                     self.ins_manager.send_message('/noteOn', (self.chan, note))
                     #print(self.bar_num)
-                    #print('Play note {} on channel {}'.format(note, self.chan))
+                    print('Play note {} on channel {}'.format(note, self.chan))
                     self.lastNote = [note]
 
                 current_note.played = True
@@ -308,13 +312,16 @@ class Instrument():
             return
         try:
             new_bar = self.network_queue.get(block=False)
+            #print('Instrument: new_bar', new_bar)
             if not new_bar:
+                #print('No new bar...')
                 return
 
             self.stream.appendBar(new_bar)
             if self.ins_panel:
                 self.ins_panel.update_canvas()
-        except:
+        except Exception as e:
+            #print(e)
             # no new bars...
             return
 
@@ -707,6 +714,7 @@ class MusaicApp():
         print('Server updated', self.sv_ip, self.sv_port)
 
     def ccRecieve(self, *msg):
+        print('CC Recieve:', msg)
         val = msg[1]
         num = msg[2]
         # here process CC messages (value, number)
