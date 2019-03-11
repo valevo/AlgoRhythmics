@@ -402,7 +402,7 @@ def parseRhythmData(part, force_ts=None, verbose=False):
                     if x.tie.type != 'start':
                         continue
 
-                onsetTime = (x.offset - offset) / beat_length
+                onsetTime = round((float(x.offset - offset) / beat_length), 4)
                 word.add(onsetTime)
 
             measure.append(tuple(sorted(word)))
