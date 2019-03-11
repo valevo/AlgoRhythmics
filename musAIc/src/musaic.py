@@ -810,10 +810,10 @@ class MusaicApp():
 
         VALS = {25: 'span',
                 26: 'cent',
-                27: 'cDen',
-                28: 'cDep',
+                27: 'cDens',
+                28: 'cDepth',
                 29: 'jump',
-                30: 'rDen'}
+                30: 'rDens'}
 
         try:
             selected_ins = self.ins_manager.selected_ins.ins_id

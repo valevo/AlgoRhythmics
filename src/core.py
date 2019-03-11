@@ -70,6 +70,7 @@ def cleanScore(score, quantise=True, verbose=False):
     - Fixes bars that are too long (assumes notes in correct offset)
     - Strips unnecessary elements
     - Quantise?
+    - asserts one time signature for easier batching
     '''
 
     # what is wanted in each part
@@ -114,11 +115,24 @@ def cleanScore(score, quantise=True, verbose=False):
         new_part = m21.stream.Part()
 
         # make sure of time signature...
-        ts = part.recurse().timeSignature
-        if not ts:
-            if verbose: print('[CleanSong] Adding time signature...')
-            part.flat.insert(0, m21.meter.TimeSignature('4/4'))
+        #ts = part.recurse().timeSignature
+        #if not ts:
+        #    if verbose: print('[CleanSong] Adding time signature...')
+        #    part.flat.insert(0, m21.meter.TimeSignature('4/4'))
+        #    part.makeMeasures(inPlace=True)
+
+        # force single time signature....
+        t_sigs = part.recurse().getElementsByClass(m21.meter.TimeSignature)
+        if len(t_sigs) == 0:
+            part.timeSignature = m21.meter.timeSignature('4/4')
             part.makeMeasures(inPlace=True)
+            ts = m21.meter.timeSignature('4/4')
+        elif len(t_sigs) > 1:
+            part.remove(t_sigs[1:], recurse=True)
+            part.makeMeasures(inPlace=True)
+            ts = t_sigs[0]
+        else:
+            ts = t_sigs[0]
 
         # make sure there are measures...
         if not part.hasMeasures():
@@ -388,7 +402,7 @@ def parseRhythmData(part, force_ts=None, verbose=False):
                     if x.tie.type != 'start':
                         continue
 
-                onsetTime = (x.offset - offset) / beat_length
+                onsetTime = round((float(x.offset - offset) / beat_length), 4)
                 word.add(onsetTime)
 
             measure.append(tuple(sorted(word)))

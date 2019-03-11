@@ -643,19 +643,19 @@ class InstrumentPanel(tk.Frame):
         self.instrument.update_params({'span': self.spanVar.get()})
 
     def updateCent(self, *args):
-        self.instrument.update_params({'cent': self.centVar.get()})
+        self.instrument.update_params({'tCent': self.centVar.get()})
 
     def updateCDen(self, *args):
-        self.instrument.update_params({'cDen': self.cDenVar.get()})
+        self.instrument.update_params({'cDens': self.cDenVar.get()})
 
     def updateCDep(self, *args):
-        self.instrument.update_params({'cDep': self.cDepVar.get()})
+        self.instrument.update_params({'cDepth': self.cDepVar.get()})
 
     def updateJump(self, *args):
         self.instrument.update_params({'jump': self.jumpVar.get()})
 
     def updateRDen(self, *args):
-        self.instrument.update_params({'rDen': self.rDenVar.get()})
+        self.instrument.update_params({'rDens': self.rDenVar.get()})
 
     def transUpdate(self, event):
         self.instrument.transpose = self.transposeVar.get()
@@ -683,11 +683,11 @@ class InstrumentPanel(tk.Frame):
 
     def changeParameter(self, param, percent):
         KEYS = {'span': self.spanKnob,
-                'cent': self.centKnob,
-                'cDen': self.cDenKnob,
-                'cDep': self.cDepKnob,
+                'tCent': self.centKnob,
+                'cDens': self.cDenKnob,
+                'cDepth': self.cDepKnob,
                 'jump': self.jumpKnob,
-                'rDen': self.rDenKnob}
+                'rDens': self.rDenKnob}
 
         KEYS[param].update_percent(percent)
 

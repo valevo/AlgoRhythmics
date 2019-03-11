@@ -17,17 +17,17 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 400   
+    num_epochs = 1   
         
         
-    #   
-    cg = CombinedGenerator("Data/files")
+    #
+    cg = CombinedGenerator("Data/oldfiles", save_conversion_params=0)
     cg.get_num_pieces()
-    
     rc_size = 3
-    data_iter = cg.generate_data(rhythm_context_size=rc_size, melody_context_size=3, 
+    data_iter = cg.generate_forever(rhythm_context_size=rc_size, melody_context_size=3, 
                                  with_metaData=True)
     print("\nData generator set up...\n")
+    
     
     # PARAMS
     
@@ -73,18 +73,18 @@ if __name__ == "__main__":
     print("Combined network set up...\n")
     
     #
-    top_dir = "Nets/"
-    log_dir = "logs/"
-    weight_dir = "weights/"
-    
-    cur_date_time = asctime().replace(" ", "_").replace(":", "-")
-    tb = TensorBoard(log_dir= top_dir + log_dir + cur_date_time)
-    os.makedirs(top_dir + weight_dir + cur_date_time)
-    
+#    top_dir = "Nets/"
+#    log_dir = "logs/"
+#    weight_dir = "weights/"
+#    
+#    cur_date_time = asctime().replace(" ", "_").replace(":", "-")
+#    tb = TensorBoard(log_dir= top_dir + log_dir + cur_date_time)
+#    os.makedirs(top_dir + weight_dir + cur_date_time)
+#    
     
     #
     
-    j = 50
+    j = 1
     
     for cur_iteration in range(int(num_epochs/j)):
     
@@ -93,14 +93,13 @@ if __name__ == "__main__":
         comb_net.fit_generator(data_iter, 
                                steps_per_epoch=cg.num_pieces, 
                                epochs=j, 
-                               verbose=2,
-                               callbacks=[tb])
+                               verbose=2)#,callbacks=[tb])
     
-        cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
-        os.makedirs(top_dir + weight_dir + cur_folder_name)
-        comb_net.save_model_custom(top_dir + weight_dir + cur_folder_name)
-
-        
-    
-    
-    comb_net.save_model_custom(top_dir + weight_dir + cur_date_time)
+#        cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
+#        os.makedirs(top_dir + weight_dir + cur_folder_name)
+#        comb_net.save_model_custom(top_dir + weight_dir + cur_folder_name)
+#
+#        
+#    
+#    
+#    comb_net.save_model_custom(top_dir + weight_dir + cur_date_time)

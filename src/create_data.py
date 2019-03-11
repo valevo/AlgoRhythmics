@@ -11,7 +11,6 @@ from core import *
 MAX_WORKERS = cpu_count()
 
 
-
 class ParseData(object):
     def __init__(self, corpus='music21', outPath='../Data/', **kwargs):
         self.corpus = corpus
@@ -110,30 +109,6 @@ class ParseData(object):
                                                                  i//SAVE_FREQ)
                         self.saveProgress(musicData, name)
                         musicData = []
-
-
-            #try:
-            #    if started:
-            #        data = self.returnQ.get(block=True, timeout=60)
-            #    else:
-            #        data = self.returnQ.get(block=True, timeout=None)
-            #        started = True
-
-            #except:
-            #    # assume no more results, finish up
-            #    name = '{}/music_data_{:04d}.pkl'.format(self.corpus,
-            #                                             i//SAVE_FREQ+1)
-            #    self.saveProgress(musicData, name)
-            #    logging.info('Collector finishing...')
-            #    return
-
-            #musicData.append(data)
-            #i += 1
-            #if i%SAVE_FREQ == 0:
-            #    name = '{}/music_data_{:04d}.pkl'.format(self.corpus,
-            #                                             i//SAVE_FREQ)
-            #    self.saveProgress(musicData, name)
-            #    musicData = []
 
 
     def addJobToQueue(self, msg):
@@ -245,8 +220,6 @@ class ParseData(object):
                 logging.exception('')
 
         return
-
-
 
 
 if __name__ == '__main__':

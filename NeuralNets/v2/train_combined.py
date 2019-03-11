@@ -17,7 +17,7 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 500   
+    num_epochs = 2   
         
         
     #   
