@@ -59,11 +59,7 @@ class PlayerV3():
         self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
                                         for _ in range(self.context_size)]
         self.melody_contexts = rand.randint(0, self.V_melody, size=(self.batch_size, self.context_size, self.m))
-        #example_metaData = rand.random(size=(batch_size, meta_len))
         self.prepare_meta_data()
-
-        #self.metaData = np.tile(mData, (self.batch_size, 1))
-
 
     def generate_bar(self, **kwargs):
         # asterisk on example_rhythm_contexts is important
@@ -89,11 +85,8 @@ class PlayerV3():
 
         melody = [int(n) for n in sampled_melody[0]]
         octaves =[int(x) for x in rand.randint(3, 5, 48)]
-        #print('Melody:', melody)
-        #print('rhythm:', rhythm)
 
         bar = parseBarData(melody, octaves, rhythm)
-        #print('Bar generated', bar)
 
         return bar
 
@@ -103,15 +96,23 @@ class PlayerV3():
         print('Paramters for', self._id, 'updated')
         self.prepare_meta_data()
 
+    def update_contexts(self, stream):
+        ''' update the contexts based on the given stream '''
+        pass
+
+
+
     def prepare_meta_data(self):
         values = []
         for k in sorted(self.metaParameters.keys()):
+            print(k, end=' ')
             if k == 'ts':
                 frac = Fraction(self.metaParameters[k], _normalize=False)
                 values.extend([frac.numerator, frac.denominator])
             else:
                 assert isinstance(self.metaParameters[k], (float, int))
                 values.append(self.metaParameters[k])
+        print()
 
         print(values)
         self.metaData = np.tile(values, (self.batch_size, 1))
@@ -252,8 +253,8 @@ class NetworkManager(multiprocessing.Process):
             elif req[0] == 2:
                 # instrument wants to regenerate data (e.g. after recording)
                 _id = req[1]
-
-                pass
+                stream = req[2]
+                self.models[_id].update_contexts(stream)
 
             elif req[0] == 3:
                 # instrument has updated it's parameters
