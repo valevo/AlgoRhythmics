@@ -75,7 +75,7 @@ def cleanScore(score, quantise=True, verbose=False):
 
     # what is wanted in each part
     allowed = [
-        m21.instrument.Instrument,
+        #m21.instrument.Instrument,
         m21.stream.Measure,
         m21.meter.TimeSignature,
         m21.clef.Clef,
@@ -102,7 +102,7 @@ def cleanScore(score, quantise=True, verbose=False):
         print(score)
 
     if quantise:
-        score.quantize(quarterLengthDivisors=(12,6), inPlace=True)
+        score.quantize(quarterLengthDivisors=(8,4), inPlace=True)
 
     for part in score.parts:
         if verbose: print(part, '----------')
@@ -124,9 +124,9 @@ def cleanScore(score, quantise=True, verbose=False):
         # force single time signature....
         t_sigs = part.recurse().getElementsByClass(m21.meter.TimeSignature)
         if len(t_sigs) == 0:
-            part.timeSignature = m21.meter.timeSignature('4/4')
+            part.timeSignature = m21.meter.TimeSignature('4/4')
             part.makeMeasures(inPlace=True)
-            ts = m21.meter.timeSignature('4/4')
+            ts = m21.meter.TimeSignature('4/4')
         elif len(t_sigs) > 1:
             part.remove(t_sigs[1:], recurse=True)
             part.makeMeasures(inPlace=True)
@@ -140,9 +140,9 @@ def cleanScore(score, quantise=True, verbose=False):
             part.makeMeasures(inPlace=True)
 
         # get instrument information
-        ins = part.recurse().getInstrument()
-        if ins:
-            new_part.append(ins)
+        #ins = part.recurse().getInstrument()
+        #if ins:
+        #    new_part.append(ins)
 
         # clean each measure...
         for m in part.recurse().getElementsByClass(m21.stream.Measure):

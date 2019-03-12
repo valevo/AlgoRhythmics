@@ -135,8 +135,10 @@ class ParseData(object):
         started = False
         while True:
             if not started:
+                logging.info('Waiting on first job...')
                 path = self.jobQ.get(block=True, timeout=None)
                 started = True
+                logging.info('got it')
             else:
                 if self.jobQ.empty():
                     logging.info('Worker finished')
@@ -148,22 +150,24 @@ class ParseData(object):
             if 'demos' in ps or 'theoryExercises' in ps:
                 continue
 
-            try:
-                logging.info(f'Parsing {ps}...')
-                song = m21.converter.parse(path)
+            logging.info(f'Parsing {ps}...')
+            song = m21.converter.parse(path)
 
-                if isinstance(song, m21.stream.Opus):
-                    logging.info(f'(OPUS of size {len(song.scores)})')
-                    for s in song.scores:
+            if isinstance(song, m21.stream.Opus):
+                logging.info(f'(OPUS of size {len(song.scores)})')
+                for s in song.scores:
+                    try:
                         songData = getSongData(s, corpus='music21')
                         self.returnQ.put(songData)
+                    except:
+                        logging.exception('')
 
-                else:
+            else:
+                try:
                     songData = getSongData(song, corpus='music21', name=path)
                     self.returnQ.put(songData)
-
-            except:
-                logging.exception('')
+                except:
+                    logging.exception('')
 
 
     def midiJobs(self):
@@ -228,11 +232,13 @@ if __name__ == '__main__':
                        format='%(asctime)s %(message)s')
 
     logging.info('START')
+    print('STARTING')
 
     #data_parser = ParseData(corpus='jazzMidi', folder='../SourceData/JazzMidi/')
     data_parser = ParseData(corpus='music21')
 
 
+    print('DONE')
     logging.info('DONE')
 
 
