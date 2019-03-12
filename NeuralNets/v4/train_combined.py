@@ -17,12 +17,12 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 1
-    j = 1
+    num_epochs = 100
+    j = 10
         
         
     #
-    cg = CombinedGenerator("Data/oldfiles", save_conversion_params=1)
+    cg = CombinedGenerator("Data/files", save_conversion_params=1)
     cg.get_num_pieces()
     rc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, melody_context_size=3, 
