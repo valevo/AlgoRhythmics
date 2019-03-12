@@ -136,12 +136,7 @@ class CombinedNetwork(Model):
 
         with open(dir_to_save + "/parameters", "w") as handle:
             json.dump(self.params, handle)
-            
-            
-#%%
-            
-some_net = CombinedNetwork.from_saved_custom("Nets/weights/Wed_Mar_13_00-18-25_2019")
-            
+              
 #%%            
             
 ##%%

@@ -17,12 +17,12 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 100
+    num_epochs = 1
     j = 1
         
         
     #
-    cg = CombinedGenerator("Data/files", save_conversion_params=0)
+    cg = CombinedGenerator("Data/oldfiles", save_conversion_params=1)
     cg.get_num_pieces()
     rc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, melody_context_size=3, 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         comb_net.fit_generator(data_iter, 
                                steps_per_epoch=cg.num_pieces, 
                                epochs=j, 
-                               verbose=2,callbacks=[tb])
+                               verbose=1, callbacks=[tb])
     
         cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
         os.makedirs(top_dir + weight_dir + cur_folder_name)
