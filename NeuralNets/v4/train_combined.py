@@ -17,8 +17,8 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 6
-    j = 2
+    num_epochs = 4
+    j = 1
         
         
     #
