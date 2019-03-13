@@ -26,7 +26,7 @@ if __name__ == "__main__":
     cg.get_num_pieces()
     rc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, melody_context_size=3, 
-                                 with_metaData=True)
+                                 with_metaData=True, to_list=True)
     print("\nData generator set up...\n")
     
     
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         comb_net.fit_generator(data_iter, 
                                steps_per_epoch=cg.num_pieces, 
                                epochs=j, 
-                               verbose=1, callbacks=[tb])
+                               verbose=1, callbacks=[tb], use_multiprocessing=True)
     
         cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
         os.makedirs(top_dir + weight_dir + cur_folder_name)

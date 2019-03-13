@@ -75,12 +75,19 @@ class DataGenerator:
             return np.repeat(np.asarray([values], dtype="float"), repeat, axis=0)
 
 
-    def generate_forever(self, **generate_params):
-        data_gen = self.generate_data(**generate_params)
-        
-        while True:
-            yield from data_gen
+    def generate_forever(self, to_list=False, **generate_params):
+        if to_list:
+            data_list = list(self.generate_data(**generate_params))
+            
+            while True:
+                yield from data_list
+                
+        else:
             data_gen = self.generate_data(**generate_params)
+        
+            while True:
+                yield from data_gen
+                data_gen = self.generate_data(**generate_params)
 
 
     def save_conversion_params(self, filename=None):
