@@ -22,13 +22,23 @@ class Network():
 
 class PlayerV3():
     ''' First generation of Neural Net Player '''
-    def __init__(self, _id, metaParameters):
+    #def __init__(self, _id, metaParameters):
+    def __init__(self, _id, ins_panel=None):
         self._id = _id
-        self.metaParameters = metaParameters
+        #self.metaParameters = metaParameters
+        self.ins_panel = ins_panel
+        if ins_panel:
+            self.metaParameters = self.update_params(ins_panel.getMetaParams())
+            print('Found instrument panel, using paramters from knobs')
+        else:
+            self.metaParameters = TEST_MD
+            print('Using default TEST metadata')
 
         print('Loading net', _id)
         with open('/home/arran/AlgoRhythmics/musAIc/src/v3/Nets/rhythmDict.pkl', 'rb') as f:
             self.rhythmDict = pkl.load(f)
+
+        self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
         weights_folder = "v3/Nets/weights/Thu_Mar__7_17-28-16_2019/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
@@ -84,7 +94,8 @@ class PlayerV3():
             rhythm.append(self.rhythmDict[b])
 
         melody = [int(n) for n in sampled_melody[0]]
-        octaves =[int(x) for x in rand.randint(3, 5, 48)]
+        octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
+        #octaves =[int(x) for x in rand.randint(3, 5, 48)]
 
         bar = parseBarData(melody, octaves, rhythm)
 
@@ -96,26 +107,42 @@ class PlayerV3():
         print('Paramters for', self._id, 'updated')
         self.prepare_meta_data()
 
-    def update_contexts(self, stream):
-        ''' update the contexts based on the given stream '''
-        pass
+    def update_contexts(self, stream, updateMeta=False):
+        ''' update the contexts based on the given stream, i.e. after recording '''
+        stream_data = convertStreamToData(stream)
+        new_rhythm_context = []
+        new_melody_context = np.zeros(shape=(1, self.context_size, 48))
+        for i in range(self.context_size):
+            if self.context_size-i > len(stream):
+                #new_melody_context[0, i, :] = [0]*48
+                new_rhythm_context.append(np.array([[self.indexDict[(0.0,)]]*4]))
+            else:
+                new_melody_context[0, i, :] = stream_data['melody']['notes'][-self.context_size+i]
+                r_bar = stream_data['rhythm'][-self.context_size+i]
+                bar = np.array([[self.indexDict[b] for b in r_bar]])
+                new_rhythm_context.append(bar)
 
+        self.melody_contexts = new_melody_context
+        self.rhythm_contexts = new_rhythm_context
+
+        if updateMeta:
+            self.update_params(stream.getMetaAnalysis())
+            if self.ins_panel:
+                self.ins_panel.updateMetaParams(self.metaParameters)
 
 
     def prepare_meta_data(self):
         values = []
         for k in sorted(self.metaParameters.keys()):
-            print(k, end=' ')
             if k == 'ts':
                 frac = Fraction(self.metaParameters[k], _normalize=False)
                 values.extend([frac.numerator, frac.denominator])
             else:
                 assert isinstance(self.metaParameters[k], (float, int))
                 values.append(self.metaParameters[k])
-        print()
 
-        print(values)
         self.metaData = np.tile(values, (self.batch_size, 1))
+
 
 
 class BasicPlayer():
@@ -240,15 +267,18 @@ class NetworkManager(multiprocessing.Process):
                 self.return_queues[_id] = req[2]
                 #self.models[_id] = DataReader(_id)
                 #self.models[_id] = BasicPlayer(_id)
-                md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
-                self.models[_id] = PlayerV3(_id, md)
+                #md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
+                if len(req) > 3:
+                    self.models[_id] = PlayerV3(_id, req[3])
+                else:
+                    self.models[_id] = PlayerV3(_id)
 
             elif req[0] == 1:
                 # instument requests new bar
                 _id = req[1]
                 bar = self.models[_id].generate_bar(confidence=req[2])
                 #bar = self.create_bar(_id, req[2])
-                self.return_queues[_id].put(bar)
+                self.return_queues[_id].put({'bar': bar})
 
             elif req[0] == 2:
                 # instrument wants to regenerate data (e.g. after recording)
@@ -261,6 +291,12 @@ class NetworkManager(multiprocessing.Process):
                 _id = req[1]
                 self.models[_id].update_params(req[2])
 
+            elif req[0] == 4:
+                # get metaData parameters
+                _id = req[1]
+                md = self.models[_id].metaParameters
+                self.return_queues[_id].put({'md': md})
+
             elif req[0] == -1:
                 # remove the model and data
                 _id = req[1]
@@ -269,3 +305,4 @@ class NetworkManager(multiprocessing.Process):
                 del self.return_queues[_id]
 
 
+TEST_MD = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
