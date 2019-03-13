@@ -106,10 +106,16 @@ class Knob(tk.Frame):
         self.update_line()
         #self.canvas.itemconfig(self.line, fill='orange')
         #self.canvas.itemconfig(self.arc, outline='orange')
-        self.lastChangeTime = time.time()
-        self.variable.set(self.val)
+        #self.lastChangeTime = time.time()
 
     def update_line(self):
+        if self.val < self.min_:
+            self.val = self.min_
+        elif self.val > self.max_:
+            self.val = self.max_
+
+        self.variable.set(self.val)
+
         p = (self.val - self.min_)/(self.max_ - self.min_)
         a = 4.18879 - p*5.23599
 
@@ -529,89 +535,6 @@ class InstrumentPanel(tk.Frame):
 
         self.barCanvas.xview('moveto', 0)
 
-#    def update_display(self, beat):
-#        # pretty inefficient for now
-#        self.barCanvas.delete('all')
-#        self.beat_width = 25
-#        noteRange = (36, 85)   # +- two octaves from middle C
-#        scale = self.canvasHeight / (noteRange[0] - noteRange[1])
-#        cb = self.instrument.bar_num - 1
-#        #bars = self.instrument.bars[max(0, cb-2): min(len(self.instrument.bars), cb+7)]
-#        l_bound = max(0, cb-2)
-#        r_bar = min(len(self.instrument.stream), cb+7)
-#        #bars = self.instrument.getBars(max(0, cb-2), min(len(self.instrument.bars), cb+7))
-#        bar_nums = range(max(0, cb-2), min(len(self.instrument.bars), cb+7))
-#
-#        if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
-#            beat = 0.0
-#            cb += 1
-#
-#        # draw bars
-#        for i, bar in zip(list(bar_nums), bars):
-#            offset = (2 + i - cb - beat/4) * self.beat_width * 4
-#            note_col = '#aaaaaa'
-#
-#            if self.instrument.loopLevel > 0:
-#                loop_end = self.instrument.loopEnd
-#                loop_start = loop_end - self.instrument.loopLevel
-#
-#                if i >= loop_start and i < loop_end:
-#                    self.barCanvas.create_rectangle(offset, 0,
-#                                                    offset+(4*self.beat_width),
-#                                                    self.canvasHeight,
-#                                                    fill='#605500')
-#                else:
-#                    note_col = '#555555'
-#
-#            if i in self.instrument.record_bars:
-#                self.barCanvas.create_rectangle(offset, 0,
-#                                                offset+(4*self.beat_width),
-#                                                self.canvasHeight,
-#                                                fill='#800000')
-#
-#
-#            self.barCanvas.create_line(offset, 0, offset, 100, fill='#aaaaaa')
-#            self.barCanvas.create_text(offset+5, 5, text=i+1, fill='#aaaaaa')
-#
-#            noteOn_times = sorted(list(bar.keys())) + [4]
-#            for j, t in enumerate(noteOn_times[:-1]):
-#                x = offset + t * self.beat_width
-#                l = (noteOn_times[j+1] - t) * self.beat_width
-#                y = scale * (bar[t] - noteRange[1])
-#                self.barCanvas.create_line(x, y, x+l-2, y, fill=note_col,
-#                                           width=2)
-#
-#        # draw cursor
-#        cursor = 8*self.beat_width
-#        self.barCanvas.create_line(cursor, 0, cursor,
-#                                   self.canvasHeight, fill='orange', width=2)
-#        self.barCanvas.create_polygon(cursor, 5, cursor+5, 0, cursor-5, 0,
-#                                      fill='orange')
-#        self.barCanvas.create_polygon(cursor, self.canvasHeight-4, cursor+5,
-#                                      self.canvasHeight+1, cursor-5,
-#                                      self.canvasHeight+1, fill='orange')
-#
-#        # make sure controls are up-to-date...
-#        if self.instrument.status == PAUSED:
-#            self.pauseButton['text'] = 'Play'
-#            self.pauseButton['fg'] = 'black'
-#        elif self.instrument.status == PAUSE_WAIT:
-#            self.pauseButton['text'] = 'Pausing'
-#            self.pauseButton['fg'] = 'orange'
-#        elif self.instrument.status == PLAYING:
-#            self.pauseButton['text'] = 'Pause'
-#            self.pauseButton['fg'] = 'black'
-#        elif self.instrument.status == PLAY_WAIT:
-#            self.pauseButton['text'] = 'Playing'
-#            self.pauseButton['fg'] = 'orange'
-#
-#        if self.instrument.active:
-#            self.configure(highlightbackground='orange', highlightthickness=1)
-#        else:
-#            self.configure(highlightbackground='grey', highlightthickness=1)
-
-
-
     def editEntry(self, event, func):
         widget = event.widget
         entry_widget = tk.Entry(widget)
@@ -665,8 +588,6 @@ class InstrumentPanel(tk.Frame):
 
     def loopUpdate(self, variable):
         self.instrument.toggle_loop(int(variable.get()))
-        #self.instrument.loopLevel = int(variable.get())
-        #self.instrument.loopEnd = self.instrument.bar_num
 
     def recUpdate(self, variable):
         num = int(variable.get())
@@ -691,11 +612,37 @@ class InstrumentPanel(tk.Frame):
 
         KEYS[param].update_percent(percent)
 
+    def getMetaParams(self):
+        ''' returns a dictionary of meta params '''
+        return {'span':   self.spanKnob.val,
+                'tCent':  self.centKnob.val,
+                'cDens':  self.cDenKnob.val,
+                'cDepth': self.cDepKnob.val,
+                'jump':   self.jumpKnob.val,
+                'rDens':  self.rDenKnob.val}
 
+    def updateMetaParams(self, params):
+        if 'span' in params:
+            self.spanKnob.val = params['span']
+            self.spanKnob.update_line()
 
+        if 'tCent' in params:
+            self.centKnob.val = params['tCent']
+            self.centKnob.update_line()
 
+        if 'cDens' in params:
+            self.cDenKnob.val = params['cDens']
+            self.cDenKnob.update_line()
 
+        if 'cDepth' in params:
+            self.cDepKnob.val = params['cDepth']
+            self.cDepKnob.update_line()
 
+        if 'jump' in params:
+            self.jumpKnob.val = params['jump']
+            self.jumpKnob.update_line()
 
-
+        if 'rDens' in params:
+            self.rDenKnob.val = params['rDens']
+            self.rDenKnob.update_line()
 

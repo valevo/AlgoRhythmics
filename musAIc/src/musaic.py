@@ -19,9 +19,9 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-CLIENT_ADDR = '192.168.1.12'
+#CLIENT_ADDR = '192.168.1.12'
 #CLIENT_ADDR = '192.168.1.15'
-#CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -128,7 +128,7 @@ class Engine(threading.Thread):
 
             # update instruments if they have requested new bars...
             for ins in self.ins_manager.get_instruments():
-                ins.check_new_bar()
+                ins.check_updates()
 
             self.play_request.wait(timeout=0.1)
 
@@ -179,6 +179,8 @@ class Instrument():
         self.continuous = True            # continuously generate new bars
         self.recording = False            # if instrument is recording input
         self.record_bars = []             # range of recording bars [start, end]
+
+        self.lead = False                 # Lead instrument that others follow
 
         self.current_bar = None           # currently playing bar
         self.lastNote = []                # last note played for muting
@@ -254,7 +256,7 @@ class Instrument():
         '''Checks if have to play any notes in current bar'''
         #print('PLAY BAR', self.bar_num, bar, beat)
         # check if any new bars are ready...
-        self.check_new_bar()
+        self.check_updates()
         #print(bar, beat)
 
         #if self.current_bar == None and len(self.bars) > 0:
@@ -265,9 +267,10 @@ class Instrument():
             return
 
         if self.recording:
-            print('REC: ', bar, beat)
+            #print('REC: ', bar, beat)
             # parse any inputs recieved, something like...
             if self.noteOn:
+                print('play_bar: noteOn', self.noteOn)
                 self.recorded_bar[round(beat*8)/8] = self.noteOn
                 self.noteOn = None
             return
@@ -303,25 +306,31 @@ class Instrument():
         for n in self.lastNote:
             self.ins_manager.send_message('/noteOff', (self.chan, n))
 
+    def mute_all_notes(self):
+        self.ins_manager.send_message('/allOff', self.chanl)
+
     def request_new_bar(self):
         self.request_queue.put((1, self.ins_id, self.confidence))
 
-    def check_new_bar(self):
-        '''Checks if a new bar from network is ready'''
+    def check_updates(self):
+        '''Checks if any news from network'''
         if self.recording or self.armed:
             return
         try:
-            new_bar = self.network_queue.get(block=False)
-            #print('Instrument: new_bar', new_bar)
-            if not new_bar:
-                #print('No new bar...')
-                return
+            while not self.network_queue.empty():
+                msg = self.network_queue.get(block=False)
 
-            self.stream.appendBar(new_bar)
-            if self.ins_panel:
-                self.ins_panel.update_canvas()
+                if 'bar' in msg:
+                    new_bar = msg['bar']
+
+                    self.stream.appendBar(new_bar)
+                    if self.ins_panel:
+                        self.ins_panel.update_canvas()
+
+                if 'md' in msg:
+                    self.ins_panel.updateMetaParams(msg['md'])
+
         except Exception as e:
-            #print(e)
             # no new bars...
             return
 
@@ -337,13 +346,11 @@ class Instrument():
         if self.recording:
             print('close bar, self.recording=True')
             # only update bar if anything was recorded
-            print(self.recorded_bar)
+            print('Recorded bar:', self.recorded_bar)
 
             if len(self.recorded_bar) == 0:
-                #self.bars[self.bar_num - 1] = dict(self.recorded_bar)
                 self.recorded_bar = {0.0: -1}
             self.stream.appendBar(self.recorded_bar)
-            #self.stream.show()
             self.recorded_bar = {}
 
             if self.bar_num == self.record_bars[-1] - 1:
@@ -351,12 +358,18 @@ class Instrument():
                 self.recording = False
                 self.init_record(self.bar_num, 0)
                 self.stream.recalculate()
+                self.stream.show()
                 self.ins_panel.update_canvas()
                 self.ins_panel.update_highlighted_bars()
+                self.request_queue.put((2, self.ins_id, self.stream))
+
+                # if live update of meta parameters...
+                self.ins_panel.updateMetaParams(self.stream.getMetaAnalysis())
 
 
     def reset(self):
         ''' Called when player is stopped '''
+        self.mute_all_notes()
         self.bar_num = 0
         for n in self.stream.notes:
             n.played = False
@@ -422,6 +435,7 @@ class InstrumentManager():
         self.ins_counter = 0                # last instrument ID
         self.armed_ins = None               # if any instruments set to record
         self.selected_ins = None            # the currently selected instrument
+        self.lead_ins = None                # the lead instrumet
 
     def addInstrument(self):
         print('adding instrument {}...'.format(self.ins_counter))
@@ -459,7 +473,6 @@ class InstrumentManager():
     def load_nextbar(self):
         for _id in self.instruments.keys():
             self.instruments[_id].load_bar()
-            #self.instrumentPanels[_id].update_canvas()
 
     def play_instruments(self, bar, beat):
         for ins in self.get_instruments():
@@ -497,6 +510,13 @@ class InstrumentManager():
         for ins_panel in self.instrumentPanels.values():
             ins_panel.move_canvas(0)
 
+    def set_lead_instrument(self, ins):
+        if self.lead_ins:
+            self.lead_ins.lead = False
+
+        self.lead_ins = ins
+        if ins:
+            self.lead_ins.lead = True
 
     def set_selected_instrument(self, ins):
         if self.selected_ins:
@@ -653,7 +673,7 @@ class MusaicApp():
 
         # tidy up on close...
         print('Closing threads...')
-        self.ins_manager.send_message('/allOff', 0)
+        self.ins_manager.send_message('/panic', 0)
         self.engine.join(timeout=1)
         self.listener.join(timeout=1)
         self.network_manager.terminate()
@@ -809,7 +829,7 @@ class MusaicApp():
         p = val/127
 
         VALS = {25: 'span',
-                26: 'cent',
+                26: 'tCent',
                 27: 'cDens',
                 28: 'cDepth',
                 29: 'jump',
@@ -836,7 +856,7 @@ class MusaicApp():
 
     def panic(self):
         '''Send MIDI all off message to all channels'''
-        self.ins_manager.send_message('/allOff', 0)
+        self.ins_manager.send_message('/panic', 0)
 
     def sendCC(self, num, val):
         self.client.send_message('/midiCC', (num, val))

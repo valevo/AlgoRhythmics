@@ -268,7 +268,20 @@ class Stream():
             - rDens: rhythmic density
         '''
         analysis = dict()
-        midi_pitches = list([n.midi for n in self.notes if not n.isRest])
+        midi_pitches = list([n.midi for n in self.notes if not n.isRest()])
+        if len(midi_pitches) == 0:
+            print('Empty stream...')
+
+            analysis = {
+                'span': 0,
+                'jump': 0,
+                'cDens': 0,
+                'cDepth': 1,
+                'tCent': 60,
+                'rDens': 0
+            }
+            return analysis
+
         span = max(midi_pitches) - min(midi_pitches)
         tonalCenter = sum(midi_pitches) / len(midi_pitches)
         ints = [abs(i-j) for i,j in zip(midi_pitches[:-1], midi_pitches[1:])]
@@ -277,7 +290,7 @@ class Stream():
         density = len(self.notes) / (self.__len__() * self.notes[0].ts_num)
 
         chordCount = len([n for n in self.notes if n.isChord()])
-        chordDep = sum([len(n.chord) for n in self.notes if n.isChord])
+        chordDep = sum([len(n.chord) for n in self.notes if n.isChord()])
 
         if self.numberOfNotes > 0:
             cDens = chordCount / self.numberOfNotes
