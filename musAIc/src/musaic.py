@@ -297,7 +297,7 @@ class Instrument():
                 else:
                     self.ins_manager.send_message('/noteOn', (self.chan, note))
                     #print(self.bar_num)
-                    print('Play note {} on channel {}'.format(note, self.chan))
+                    #print('Play note {} on channel {}'.format(note, self.chan))
                     self.lastNote = [note]
 
                 current_note.played = True
@@ -307,7 +307,7 @@ class Instrument():
             self.ins_manager.send_message('/noteOff', (self.chan, n))
 
     def mute_all_notes(self):
-        self.ins_manager.send_message('/allOff', self.chanl)
+        self.ins_manager.send_message('/allOff', self.chan)
 
     def request_new_bar(self):
         self.request_queue.put((1, self.ins_id, self.confidence))

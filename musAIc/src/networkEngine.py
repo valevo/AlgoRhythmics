@@ -8,7 +8,7 @@ from fractions import Fraction
 
 from utils import *
 
-from v3.Nets.CombinedNetwork import CombinedNetwork
+from v4.Nets.CombinedNetwork import CombinedNetwork
 #from keras.models import load_model
 
 class Network():
@@ -20,12 +20,10 @@ class Network():
         pass
 
 
-class PlayerV3():
+class PlayerV4():
     ''' First generation of Neural Net Player '''
-    #def __init__(self, _id, metaParameters):
     def __init__(self, _id, ins_panel=None):
         self._id = _id
-        #self.metaParameters = metaParameters
         self.ins_panel = ins_panel
         if ins_panel:
             self.metaParameters = self.update_params(ins_panel.getMetaParams())
@@ -34,13 +32,14 @@ class PlayerV3():
             self.metaParameters = TEST_MD
             print('Using default TEST metadata')
 
-        print('Loading net', _id)
-        with open('/home/arran/AlgoRhythmics/musAIc/src/v3/Nets/rhythmDict.pkl', 'rb') as f:
+        print('Loading Player', _id)
+
+        with open('./v4/Nets/rhythmDict.pkl', 'rb') as f:
             self.rhythmDict = pkl.load(f)
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        weights_folder = "v3/Nets/weights/Thu_Mar__7_17-28-16_2019/"
+        weights_folder = "v4/Nets/weights/Wed_Mar_13_23-08-08_2019/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
                                                      generation=True,
                                                      compile_now=False)
@@ -49,27 +48,32 @@ class PlayerV3():
 
         self.V_rhythm = self.comb_net.params["bar_embed_params"][0]
         self.m, self.V_melody = self.comb_net.params["melody_net_params"][0], self.comb_net.params["melody_net_params"][1]
-        #meta_len = comb_net.params["meta_len"]
-        self.meta_len = len(self.metaParameters)
+        meta_len = comb_net.params["meta_len"]
+        #self.meta_len = len(self.metaParameters)
 
-        print("\n", "-"*40,  "\nINFO FOR LOADED NET:", self.comb_net)
-        print("\n - Used context size: ", self.context_size)
-        print("\n - Number of voices: ",self.comb_net.rhythm_net.n_voices)
-        print("\n - Expected rhythm input size: "+
+        print("-"*40,  "\nINFO FOR LOADED NET:", self.comb_net)
+        print(" - Used context size: ", self.context_size)
+        print(" - Number of voices: ",self.comb_net.rhythm_net.n_voices)
+        print(" - Expected rhythm input size: "+
               "(?, ?) with labels in [0, {}]".format(self.V_rhythm))
-        print("\n - Expected melody input size: "+
+        print(" - Expected melody input size: "+
               "(?, ?, {}) with labels in [0, {}]".format(self.m, self.V_melody))
-        print("\n - Expected metaData input size: " +
+        print(" - Expected metaData input size: " +
               "(?, {})".format(self.meta_len))
-        print("\n", "-"*40)
+        print("-"*40)
 
         self.batch_size = 1
         self.bar_length = 4
 
-        self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
-                                        for _ in range(self.context_size)]
-        self.melody_contexts = rand.randint(0, self.V_melody, size=(self.batch_size, self.context_size, self.m))
+        self.rhythm_contexts = [ 773*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
+        #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
+        #                                for _ in range(self.context_size)]
+
+        self.melody_contexts = rand.randint(1, 13, size=(self.batch_size, self.context_size, self.m))
+
         self.prepare_meta_data()
+
+        print('Player {} loaded\n'.format(self._id))
 
     def generate_bar(self, **kwargs):
         # asterisk on example_rhythm_contexts is important
@@ -82,6 +86,9 @@ class PlayerV3():
         sampled_rhythm = np.argmax(output[0], axis=-1)
         sampled_melody = np.argmax(output[1], axis=-1)
 
+        print('sampled rhythm...', sampled_rhythm)
+        print('sampled melody...', sampled_melody)
+
         # update history...
         self.rhythm_contexts.append(sampled_rhythm)
         self.rhythm_contexts = self.rhythm_contexts[1:]
@@ -91,11 +98,11 @@ class PlayerV3():
         # convert to bar...
         rhythm = []
         for b in sampled_rhythm[0]:
-            rhythm.append(self.rhythmDict[b])
+            rhythm.append(self.indexDict[b])
 
         melody = [int(n) for n in sampled_melody[0]]
-        octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
-        #octaves =[int(x) for x in rand.randint(3, 5, 48)]
+        octaves =[3]*48
+        #octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
 
         bar = parseBarData(melody, octaves, rhythm)
 
@@ -115,11 +122,11 @@ class PlayerV3():
         for i in range(self.context_size):
             if self.context_size-i > len(stream):
                 #new_melody_context[0, i, :] = [0]*48
-                new_rhythm_context.append(np.array([[self.indexDict[(0.0,)]]*4]))
+                new_rhythm_context.append(np.array([[self.rhythmDict[(0.0,)]]*4]))
             else:
                 new_melody_context[0, i, :] = stream_data['melody']['notes'][-self.context_size+i]
                 r_bar = stream_data['rhythm'][-self.context_size+i]
-                bar = np.array([[self.indexDict[b] for b in r_bar]])
+                bar = np.array([[self.rhythmDict[b] for b in r_bar]])
                 new_rhythm_context.append(bar)
 
         self.melody_contexts = new_melody_context
@@ -129,7 +136,6 @@ class PlayerV3():
             self.update_params(stream.getMetaAnalysis())
             if self.ins_panel:
                 self.ins_panel.updateMetaParams(self.metaParameters)
-
 
     def prepare_meta_data(self):
         values = []
@@ -269,9 +275,9 @@ class NetworkManager(multiprocessing.Process):
                 #self.models[_id] = BasicPlayer(_id)
                 #md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
                 if len(req) > 3:
-                    self.models[_id] = PlayerV3(_id, req[3])
+                    self.models[_id] = PlayerV4(_id, req[3])
                 else:
-                    self.models[_id] = PlayerV3(_id)
+                    self.models[_id] = PlayerV4(_id)
 
             elif req[0] == 1:
                 # instument requests new bar
