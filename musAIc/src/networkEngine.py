@@ -21,7 +21,7 @@ class Network():
 
 
 class PlayerV4():
-    ''' First generation of Neural Net Player '''
+    ''' Neural Net Player '''
     def __init__(self, _id, ins_panel=None):
         self._id = _id
         self.ins_panel = ins_panel
@@ -39,7 +39,7 @@ class PlayerV4():
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        weights_folder = "v4/Nets/weights/Wed_Mar_13_23-08-08_2019/"
+        weights_folder = "./v4/Nets/weights/Wed_Mar_13_23-08-08_2019/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
                                                      generation=True,
                                                      compile_now=False)
@@ -65,7 +65,8 @@ class PlayerV4():
         self.batch_size = 1
         self.bar_length = 4
 
-        self.rhythm_contexts = [ 773*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
+        quarterBeat = self.rhythmDict[(0.0,)]
+        self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
         #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
         #                                for _ in range(self.context_size)]
 

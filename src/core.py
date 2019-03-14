@@ -101,8 +101,6 @@ def cleanScore(score, quantise=True, verbose=False):
         score = s
         print(score)
 
-    if quantise:
-        score.quantize(quarterLengthDivisors=(8,4), inPlace=True)
 
     for part in score.parts:
         if verbose: print(part, '----------')
@@ -133,6 +131,10 @@ def cleanScore(score, quantise=True, verbose=False):
             ts = t_sigs[0]
         else:
             ts = t_sigs[0]
+
+        if quantise:
+            level = 48 // 4
+            score.quantize(quarterLengthDivisors=(level,), inPlace=True)
 
         # make sure there are measures...
         if not part.hasMeasures():
