@@ -133,7 +133,7 @@ def cleanScore(score, quantise=True, verbose=False):
             ts = t_sigs[0]
 
         if quantise:
-            level = 48 // 4
+            level = 48 // 12
             score.quantize(quarterLengthDivisors=(level,), inPlace=True)
 
         # make sure there are measures...
