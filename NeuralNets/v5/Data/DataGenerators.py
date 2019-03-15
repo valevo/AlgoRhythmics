@@ -70,7 +70,6 @@ class DataGenerator:
                 values.append(metaData[k])
         
         if not repeat:
-            print("NOT REPEATING")
             return np.asarray(values, dtype="float")
         else:
             return np.repeat(np.asarray([values], dtype="float"), repeat, axis=0)
@@ -112,8 +111,10 @@ class RhythmGenerator(DataGenerator):
         label_f, self.label_d = label([beat 
                                   for s in song_iter 
                                   for bar in s 
-                                  for beat in bar], start=1)
-        self.V = len(self.label_d) + 1
+                                  for beat in bar], start=0)
+    
+        self.null_elem = ()
+        self.V = len(self.label_d)
         self.conversion_params["rhythm"] = self.label_d
         if self.save_params_eager:
             self.save_conversion_params()
@@ -127,7 +128,7 @@ class RhythmGenerator(DataGenerator):
         for rhythms, meta in song_iter:
             bar_len = len(rhythms[0])
             rhythms_labeled = [tuple(self.label_d[b] for b in bar) for bar in rhythms]
-            null_bar = (0, )*bar_len
+            null_bar = (self.label_d[self.null_elem], )*bar_len
                 
             padded_rhythms = [null_bar]*context_size + rhythms_labeled                 
             contexts = [padded_rhythms[i:-(context_size-i)] for i in range(context_size)]
@@ -149,7 +150,8 @@ class MelodyGenerator(DataGenerator):
         
         song_iter = self.get_notevalues(with_metaData=False)        
         self.V = len(set(n for melodies in song_iter 
-                         for bar in melodies for n in bar))        
+                         for bar in melodies for n in bar))    
+        self.null_elem = 0
         
     def get_notevalues(self, with_metaData=True):
         song_iter = self.get_songs(lambda d: d["melody"]["notes"], 
@@ -169,7 +171,7 @@ class MelodyGenerator(DataGenerator):
         song_iter = self.get_notevalues(with_metaData=True)
         for melodies, meta in song_iter:
             bar_len = len(melodies[0])
-            null_bar = (0, )*bar_len
+            null_bar = (self.null_elem, )*bar_len
                                 
             padded_melodies = [null_bar]*context_size + melodies                 
             contexts = [padded_melodies[i:-(context_size-i)] for i in range(context_size)]
@@ -207,12 +209,14 @@ class CombinedGenerator(DataGenerator):
                                                     with_metaData=False)
         
         if with_metaData:
-            (*rhythm_x, rhythms, meta), rhythm_y = next(rhythm_iter)
-            melody_x, melody_y = next(melody_iter)
-            yield [*rhythm_x, rhythms, melody_x, meta], [rhythm_y, melody_y]
+            for (cur_rhythm, cur_melody) in zip(rhythm_iter, melody_iter):
+                (*rhythm_x, rhythms, meta), rhythm_y = cur_rhythm
+                melody_x, melody_y = cur_melody
+                yield [*rhythm_x, rhythms, melody_x, meta], [rhythm_y, melody_y]
         else:
-            (*rhythm_x, rhythms), rhythm_y = next(rhythm_iter)
-            melody_x, melody_y = next(melody_iter)
+            for (cur_rhythm, cur_melody) in zip(rhythm_iter, melody_iter):
+                (*rhythm_x, rhythms), rhythm_y = cur_rhythm
+                melody_x, melody_y = cur_melody
             yield [*rhythm_x, rhythms, melody_x], [rhythm_y, melody_y]
 
 

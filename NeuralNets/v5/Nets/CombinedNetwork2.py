@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from keras.layers import Input, Lambda
+from keras.layers import Input, Lambda, Dense
 from keras.models import Model, load_model
 from keras.utils import to_categorical, plot_model
 import keras.backend as K
@@ -11,8 +11,8 @@ import numpy as np
 import numpy.random as rand
 
 
-from Nets.RhythmNetwork import BarEmbedding, RhythmNetwork
-from Nets.MelodyNetwork import MelodyNetwork
+from Nets.RhythmNetwork3 import BarEmbedding, RhythmNetwork
+from Nets.MelodyNetwork2 import MelodyNetwork
 
 from Data.DataGenerators import CombinedGenerator
 
@@ -25,6 +25,7 @@ class CombinedNetwork(Model):
     def from_network_parameters(cls, context_size, melody_bar_len, meta_len,
                                 bar_embed_params, rhythm_net_params, melody_net_params, 
                                 generation=False, compile_now=True):
+        
         bar_embedder = BarEmbedding(*bar_embed_params, compile_now=False)
         rhythm_net = RhythmNetwork(bar_embedder, 
                                         *rhythm_net_params, compile_now=False)
@@ -37,12 +38,23 @@ class CombinedNetwork(Model):
         
         return combined_net
     
+    
     def __init__(self, context_size, melody_bar_len, meta_len,
                                bar_embedder, rhythm_net, melody_net, 
                                generation=False, compile_now=True):
         if generation and compile_now:
             raise ValueError("Cannot be used to generate"  
                              " and train at the same time!")
+            
+        if not rhythm_net.use_meta and not melody_net.use_meta:
+            raise NotImplementedError("Neither RhythmNet nor MelodyNet are using metaData."+
+                                      " This is not implemented!")
+        
+        self.n_voices = 6
+        if not rhythm_net.n_voices == melody_net.n_voices == self.n_voices:
+            raise ValueError("n_voices not the same for all networks:" + 
+                             str(rhythm_net.n_voices) + str(melody_net.n_voices) + 
+                             str(self.n_voices))
         
         
         rhythm_contexts = [Input(shape=(None,), 
@@ -53,9 +65,14 @@ class CombinedNetwork(Model):
                                 name="melody_contexts")
         
         meta = Input(shape=(meta_len,), name="metaData")
+        meta_cat = Dense(self.n_voices, activation="softmax")(meta)
         
         
-        rhythm_preds = rhythm_net([*rhythm_contexts, meta])
+        if rhythm_net.use_meta:
+            rhythm_preds = rhythm_net([*rhythm_contexts, meta_cat])
+        else:
+            rhythm_preds = rhythm_net(rhythm_contexts)
+        
         
         if generation:
             rhythms_from_net = Lambda(lambda probs: K.argmax(probs),
@@ -65,8 +82,13 @@ class CombinedNetwork(Model):
             rhythms = Input(shape=(None,), name="rhythms")
             rhythms_embedded = bar_embedder(rhythms)
             
-        melody_preds = melody_net([melody_contexts, rhythms_embedded, meta])
-               
+            
+        if melody_net.use_meta:
+            melody_preds = melody_net([melody_contexts, rhythms_embedded, meta_cat])
+        else:
+            melody_preds = melody_net([melody_contexts, rhythms_embedded])
+          
+            
         if generation:
             super().__init__(inputs=[*rhythm_contexts, melody_contexts, meta], 
                              outputs=[rhythm_preds, melody_preds])
@@ -177,3 +199,33 @@ class CombinedNetwork(Model):
 #
 #
 #
+
+
+
+
+#%%
+#context_size = 3  
+#m = 48          
+#            
+#rhythm_embed_size = 2
+#
+#be = BarEmbedding(V=50, beat_embed_size=2, 
+#                  embed_lstm_size=2, out_size=rhythm_embed_size)            
+#
+#
+#rn = RhythmNetwork(bar_embedder=be, context_size=context_size, 
+#                 enc_lstm_size=2, dec_lstm_size=2, 
+#                 enc_use_meta=False, dec_use_meta=True, compile_now=False)
+#
+#
+#mn = MelodyNetwork(m=m, V=24, rhythm_embed_size=rhythm_embed_size,
+#                 conv_f=2, conv_win_size=2, 
+#                 enc_lstm_size=2, dec_lstm_1_size=2,
+#                 enc_use_meta=False, dec_use_meta=True,
+#                 compile_now=False)
+#            
+##%%
+#            
+#cn = CombinedNetwork(context_size=context_size, melody_bar_len=m, meta_len=9,
+#                               bar_embedder=be, rhythm_net=rn, melody_net=mn, 
+#                               generation=False, compile_now=True)            

@@ -2,9 +2,9 @@
 
 from Data.DataGenerators import CombinedGenerator
 
-from Nets.RhythmNetwork import BarEmbedding, RhythmNetwork
-from Nets.MelodyNetwork import MelodyNetwork
-from Nets.CombinedNetwork import CombinedNetwork
+from Nets.RhythmNetwork3 import BarEmbedding, RhythmNetwork
+from Nets.MelodyNetwork2 import MelodyNetwork
+from Nets.CombinedNetwork2 import CombinedNetwork
 
 
 
@@ -17,15 +17,17 @@ from tensorflow.python.keras.callbacks import TensorBoard
 
 if __name__ == "__main__":
 
-    num_epochs = 4
-    j = 1
+    num_epochs = 20
+    j = 2
         
     #
     cg = CombinedGenerator("Data/files", save_conversion_params=1)
     cg.get_num_pieces()
     rc_size = 5
-    data_iter = cg.generate_forever(rhythm_context_size=rc_size, melody_context_size=3, 
-                                 with_metaData=True, to_list=True)
+    mc_size = 5
+    data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
+                                    melody_context_size=mc_size, 
+                                 with_metaData=True, to_list=False)
     print("\nData generator set up...\n")
     
     
@@ -42,6 +44,7 @@ if __name__ == "__main__":
     rhythm_dec_lstm_size = 28
     
     
+    
     #melody params
     m = 48
     V_melody = cg.melody_V
@@ -54,16 +57,18 @@ if __name__ == "__main__":
     meta_data_len = 9
     
     # INDIVIDUAL NETS
-    be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, embed_lstm_size=embed_lstm_size, out_size=out_size)
+    be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 
+                      embed_lstm_size=embed_lstm_size, out_size=out_size)
     
     rhythm_net = RhythmNetwork(bar_embedder=be, context_size=context_size, 
-                               enc_lstm_size=rhythm_enc_lstm_size, dec_lstm_size=rhythm_dec_lstm_size, meta_len=meta_data_len)
+                               enc_lstm_size=rhythm_enc_lstm_size, dec_lstm_size=rhythm_dec_lstm_size, 
+                               enc_use_meta=False, dec_use_meta=True)
     
     melody_net = MelodyNetwork(m=m, V=V_melody,
                                rhythm_embed_size=out_size,
-                               conv_f=conv_f, conv_win_size=conv_win_size, enc_lstm_size=melody_enc_lstm_size,
-                               dec_lstm_1_size=melody_dec_lstm_1_size, dec_lstm_2_size=melody_dec_lstm_2_size, 
-                               meta_len=meta_data_len)
+                               conv_f=conv_f, conv_win_size=conv_win_size, 
+                               enc_lstm_size=melody_enc_lstm_size, dec_lstm_1_size=melody_dec_lstm_1_size, 
+                               enc_use_meta=False, dec_use_meta=True)
     
     print("Individual networks set up...\n")
     
