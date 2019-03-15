@@ -27,7 +27,7 @@ if __name__ == "__main__":
     mc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
                                     melody_context_size=mc_size, 
-                                 with_metaData=True, to_list=False)
+                                 with_metaData=True, to_list=True)
     print("\nData generator set up...\n")
     
     
