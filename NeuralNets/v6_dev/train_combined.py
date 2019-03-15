@@ -2,9 +2,9 @@
 
 from Data.DataGenerators import CombinedGenerator
 
-from Nets.RhythmNetwork import BarEmbedding, RhythmNetwork
-from Nets.MelodyNetwork import MelodyNetwork
-from Nets.CombinedNetwork import CombinedNetwork
+from Nets.RhythmNetwork3 import BarEmbedding, RhythmNetwork
+from Nets.MelodyNetwork2 import MelodyNetwork
+from Nets.CombinedNetwork2 import CombinedNetwork
 
 
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     mc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
                                     melody_context_size=mc_size, 
-                                 with_metaData=True, to_list=True)
+                                 with_metaData=True, to_list=False)
     print("\nData generator set up...\n")
     
     

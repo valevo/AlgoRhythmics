@@ -44,62 +44,40 @@ class BarEmbedding(Model):
 
 class RhythmNetwork(Model):
     def __init__(self, bar_embedder, context_size, 
-                 enc_lstm_size, dec_lstm_size, 
-                 enc_use_meta=False, dec_use_meta=False, compile_now=False):
+                 enc_lstm_size, dec_lstm_size, meta_len, compile_now=False):
+        self.num_calls = 0
         self.n_voices = 6
 
 
         prev_bars = [Input(shape=(None,), name="context_" + str(i)) 
                             for i in range(context_size)]
+        meta_data = Input(shape=(meta_len,), name="metaData")
+        meta_cat = Dense(self.n_voices, activation="softmax")(meta_data)
         
-        if enc_use_meta or dec_use_meta:
-            meta_cat = Input(shape=(None,), name="metaData")
-        
-        
-        embeddings = [bar_embedder(pb) for pb in prev_bars]
-        embed_size = bar_embedder.embedding_size
-
-        
-        
-        if enc_use_meta:     
-            embeddings = [Concat([emb, meta_cat]) for emb in embeddings]
-            embed_size = bar_embedder.embedding_size + self.n_voices                  
-        
+        # embed
+        embeddings_with_meta = [Concat([bar_embedder(pb), meta_cat]) for pb in prev_bars]
         embeddings_stacked = Lambda(lambda ls: K.stack(ls, axis=1), 
                            output_shape=(context_size, 
-                                         embed_size)
-                           )(embeddings)
+                                         bar_embedder.embedding_size + self.n_voices)
+                           )(embeddings_with_meta)
                         
         # encode        
         embeddings_processed = LSTM(enc_lstm_size)(embeddings_stacked)
 
 
-        encoded_size = enc_lstm_size
-        
-        # decode
-        if dec_use_meta:
-            encoded_size += self.n_voices
-            embeddings_processed = Concat([embeddings_processed, meta_cat])
-        
-            repeated = Lambda(self._repeat, output_shape=(None, encoded_size))\
-                                ([prev_bars[0], embeddings_processed])
+        # decode        
+        repeated = Lambda(self._repeat, output_shape=(None, enc_lstm_size))\
+                            ([prev_bars[0], embeddings_processed])
 
         decoded = LSTM(dec_lstm_size, 
                        return_sequences=True, name='dec_lstm')(repeated)
 
-        preds = TimeDistributed(Dense(bar_embedder.vocab_size, activation='softmax'), 
+        pred = TimeDistributed(Dense(bar_embedder.vocab_size, activation='softmax'), 
                                name='softmax_layer')(decoded)
     
-        if enc_use_meta or dec_use_meta:
-            super().__init__(inputs=[*prev_bars, meta_cat], outputs=preds)  
-        else:
-            super().__init__(inputs=prev_bars, outputs=preds)  
-            
-        self.params = [context_size, enc_lstm_size, dec_lstm_size,
-                       enc_use_meta, dec_use_meta]
+        super().__init__(inputs=[*prev_bars, meta_data], outputs=pred)  
         
-        self.use_meta = enc_use_meta or dec_use_meta
-
+        self.params = [context_size, enc_lstm_size, dec_lstm_size, meta_len]
         
         if compile_now:
             self.compile_default()
@@ -114,21 +92,3 @@ class RhythmNetwork(Model):
         some_bar, vec = args
         bar_len = K.shape(some_bar)[-1]
         return RepeatVector(bar_len)(vec)
-    
-    
-#%%
-#        
-#V = 5
-#
-#test_data = rand.randint(V, size=(3, 4))
-#
-##%%
-#
-#be = BarEmbedding(V, beat_embed_size=3, embed_lstm_size=2, out_size=2)
-#
-#
-##%%
-#
-#rn = RhythmNetwork(be, context_size=1, enc_lstm_size=2, dec_lstm_size=2, 
-#                 enc_use_meta=True, dec_use_meta=True, compile_now=False)
-

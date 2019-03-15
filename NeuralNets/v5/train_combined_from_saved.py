@@ -27,56 +27,62 @@ if __name__ == "__main__":
     mc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
                                     melody_context_size=mc_size, 
-                                 with_metaData=True, to_list=True)
+                                 with_metaData=True, to_list=False)
     print("\nData generator set up...\n")
     
     
     # PARAMS
     
-    #rhythm params
-    V_rhythm = cg.rhythm_V
-    beat_embed_size = 12
-    embed_lstm_size = 24
-    out_size = 16
+#    #rhythm params
+#    V_rhythm = cg.rhythm_V
+#    beat_embed_size = 12
+#    embed_lstm_size = 24
+#    out_size = 16
+#    
+#    context_size = rc_size
+#    rhythm_enc_lstm_size = 32 
+#    rhythm_dec_lstm_size = 28
+#    
+#    
+#    
+#    #melody params
+#    m = 48
+#    V_melody = cg.melody_V
+#    conv_f = 4
+#    conv_win_size = 3
+#    melody_enc_lstm_size = 52
+#    melody_dec_lstm_1_size = 32
+#    melody_dec_lstm_2_size = 32
+#    
+#    meta_data_len = 9
+#    
+#    # INDIVIDUAL NETS
+#    be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 
+#                      embed_lstm_size=embed_lstm_size, out_size=out_size)
+#    
+#    rhythm_net = RhythmNetwork(bar_embedder=be, context_size=context_size, 
+#                               enc_lstm_size=rhythm_enc_lstm_size, dec_lstm_size=rhythm_dec_lstm_size, 
+#                               enc_use_meta=False, dec_use_meta=True)
+#    
+#    melody_net = MelodyNetwork(m=m, V=V_melody,
+#                               rhythm_embed_size=out_size,
+#                               conv_f=conv_f, conv_win_size=conv_win_size, 
+#                               enc_lstm_size=melody_enc_lstm_size, dec_lstm_1_size=melody_dec_lstm_1_size, 
+#                               enc_use_meta=False, dec_use_meta=True)
+#    
+#    print("Individual networks set up...\n")
+#    
+#    
+#    #
+#    comb_net = CombinedNetwork(context_size, m, meta_data_len, be, rhythm_net, melody_net)
+#    
     
-    context_size = rc_size
-    rhythm_enc_lstm_size = 32 
-    rhythm_dec_lstm_size = 28
     
     
-    
-    #melody params
-    m = 48
-    V_melody = cg.melody_V
-    conv_f = 4
-    conv_win_size = 3
-    melody_enc_lstm_size = 52
-    melody_dec_lstm_1_size = 32
-    melody_dec_lstm_2_size = 32
-    
-    meta_data_len = 9
-    
-    # INDIVIDUAL NETS
-    be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 
-                      embed_lstm_size=embed_lstm_size, out_size=out_size)
-    
-    rhythm_net = RhythmNetwork(bar_embedder=be, context_size=context_size, 
-                               enc_lstm_size=rhythm_enc_lstm_size, dec_lstm_size=rhythm_dec_lstm_size, 
-                               enc_use_meta=False, dec_use_meta=True)
-    
-    melody_net = MelodyNetwork(m=m, V=V_melody,
-                               rhythm_embed_size=out_size,
-                               conv_f=conv_f, conv_win_size=conv_win_size, 
-                               enc_lstm_size=melody_enc_lstm_size, dec_lstm_1_size=melody_dec_lstm_1_size, 
-                               enc_use_meta=False, dec_use_meta=True)
-    
-    print("Individual networks set up...\n")
+    comb_net = CombinedNetwork.from_saved_custom("Nets/weights/Fri_Mar_15_05-50-18_2019")
     
     
-    #
-    comb_net = CombinedNetwork(context_size, m, meta_data_len, be, rhythm_net, melody_net)
-    
-    print("Combined network set up...\n")
+    print("Combined network loaded...\n")
     
     #
     top_dir = "Nets/"
