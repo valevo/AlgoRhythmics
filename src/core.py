@@ -347,14 +347,14 @@ def parseMelodyData(part, verbose=False):
             if c: m_chords.append(tuple(c))
 
         ## fill in the gaps...
-        for i in range(RES):
-            if m_notes[i]:
-                continue
-            else:
-                m_notes[i] = random.sample(notePool, 1)[0]
-                #if np.random.rand() < chordPercent:
+        #for i in range(RES):
+        #    if m_notes[i]:
+        #        continue
+        #    else:
+        #        m_notes[i] = random.sample(notePool, 1)[0]
+        #        #if np.random.rand() < chordPercent:
 
-                m_octaves[i] = random.sample(octavePool, 1)[0]
+        #        m_octaves[i] = random.sample(octavePool, 1)[0]
 
         notes.append(tuple(m_notes))
         octaves.append(tuple(m_octaves))
@@ -456,6 +456,8 @@ def metaAnalysis(part, rhythm, melody):
     measures = part.recurse().getElementsByClass(m21.stream.Measure)
 
     for i in range(3, len(measures)):
+        pos = i/len(measures)
+
         analysis = {'ts': '4/4',
                     'span': 1,
                     'jump': 1,
@@ -463,22 +465,24 @@ def metaAnalysis(part, rhythm, melody):
                     'cDepth': 1,
                     'tCent': 60,
                     'rDens': 1,
+                    'pos': = pos,
                     'expression': 0}
 
         section = part.measures(i-3, i, indicesNotNumbers=True)
-
-        notes = section.flat.notes
-
-        if len(notes) == 0:
-            # have a score in Chord notation? skip it...
-            md.append(analysis)
-            continue
 
         timeSig = section.recurse().timeSignature
         if timeSig:
             ts = timeSig.ratioString
         else:
             ts = '4/4'
+
+        notes = section.flat.notes
+
+        if len(notes) == 0:
+            # have a score in Chord notation? skip it...
+            analysis['ts'] = ts
+            md.append(analysis)
+            continue
 
         midiPitches = list(map(get_pitch, notes))
 
