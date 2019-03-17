@@ -8,8 +8,7 @@ from fractions import Fraction
 
 from utils import *
 
-from v4.Nets.CombinedNetwork import CombinedNetwork
-#from keras.models import load_model
+from v5.Nets.CombinedNetwork import CombinedNetwork
 
 class Network():
     def __init__(self, name):
@@ -20,7 +19,7 @@ class Network():
         pass
 
 
-class PlayerV4():
+class NNPlayer():
     ''' Neural Net Player '''
     def __init__(self, _id, ins_panel=None):
         self._id = _id
@@ -34,12 +33,13 @@ class PlayerV4():
 
         print('Loading Player', _id)
 
-        with open('./v4/Nets/rhythmDict.pkl', 'rb') as f:
-            self.rhythmDict = pkl.load(f)
+        with open('./v5/Data/DataGenerator.conversion_params', 'rb') as f:
+            conversion_params = pkl.load(f)
+            self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        weights_folder = "./v4/Nets/weights/Wed_Mar_13_23-08-08_2019/"
+        weights_folder = "./v5/Nets/weights/Fri_Mar_15_05-50-18_2019/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
                                                      generation=True,
                                                      compile_now=False)
@@ -48,8 +48,8 @@ class PlayerV4():
 
         self.V_rhythm = self.comb_net.params["bar_embed_params"][0]
         self.m, self.V_melody = self.comb_net.params["melody_net_params"][0], self.comb_net.params["melody_net_params"][1]
-        meta_len = comb_net.params["meta_len"]
-        #self.meta_len = len(self.metaParameters)
+        #meta_len = self.comb_net.params["meta_len"]
+        self.meta_len = len(self.metaParameters)
 
         print("-"*40,  "\nINFO FOR LOADED NET:", self.comb_net)
         print(" - Used context size: ", self.context_size)
@@ -66,12 +66,22 @@ class PlayerV4():
         self.bar_length = 4
 
         quarterBeat = self.rhythmDict[(0.0,)]
-        self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
-        #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
-        #                                for _ in range(self.context_size)]
+        #self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
+
+        self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
+                                        for _ in range(self.context_size)]
 
         self.melody_contexts = rand.randint(1, 13, size=(self.batch_size, self.context_size, self.m))
 
+        # Test by loading contexts from the data...
+
+        #with open('../../Data/music21/music_data_0005.pkl', 'rb') as f:
+        #    data = pkl.load(f)
+
+        #song = data[34]
+        #self.rhythm_contexts = [np.array([[self.rhythmDict[b] for b in m]]) for m in song[0]['rhythm'][:self.context_size]]
+        #self.melody_contexts = np.array([[[0 if n is None else n for n in m] for m in song[0]['melody']['notes'][:self.context_size]]])
+        #self.metaParameters = song[0]['metaData']
         self.prepare_meta_data()
 
         print('Player {} loaded\n'.format(self._id))
@@ -84,17 +94,20 @@ class PlayerV4():
                                              self.metaData])
 
         # get rhythm and melody...
-        sampled_rhythm = np.argmax(output[0], axis=-1)
-        sampled_melody = np.argmax(output[1], axis=-1)
+        sampled_rhythm = np.array([[rand.choice(self.V_rhythm, p=curr_p) for curr_p in output[0][0]]])
+        sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
+
+        top_rhythm = np.argmax(output[0], axis=-1)
+        top_melody = np.argmax(output[1], axis=-1)
 
         print('sampled rhythm...', sampled_rhythm)
         print('sampled melody...', sampled_melody)
 
         # update history...
-        self.rhythm_contexts.append(sampled_rhythm)
+        self.rhythm_contexts.append(top_rhythm)
         self.rhythm_contexts = self.rhythm_contexts[1:]
 
-        self.melody_contexts = np.append(self.melody_contexts, [sampled_melody], axis=1)[:, 1:, :]
+        self.melody_contexts = np.append(self.melody_contexts, [top_melody], axis=1)[:, 1:, :]
 
         # convert to bar...
         rhythm = []
@@ -102,10 +115,12 @@ class PlayerV4():
             rhythm.append(self.indexDict[b])
 
         melody = [int(n) for n in sampled_melody[0]]
-        octaves =[3]*48
+        o = self.metaParameters['tCent']//12 - 1
+        octaves =[o]*48
         #octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
 
         bar = parseBarData(melody, octaves, rhythm)
+        print(bar)
 
         return bar
 
@@ -276,9 +291,9 @@ class NetworkManager(multiprocessing.Process):
                 #self.models[_id] = BasicPlayer(_id)
                 #md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
                 if len(req) > 3:
-                    self.models[_id] = PlayerV4(_id, req[3])
+                    self.models[_id] = NNPlayer(_id, req[3])
                 else:
-                    self.models[_id] = PlayerV4(_id)
+                    self.models[_id] = NNPlayer(_id)
 
             elif req[0] == 1:
                 # instument requests new bar

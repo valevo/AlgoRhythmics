@@ -20,8 +20,9 @@ import numpy as np
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
 #CLIENT_ADDR = '192.168.1.12'
-#CLIENT_ADDR = '192.168.1.15'
-CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '192.168.0.36'
+#CLIENT_ADDR = '145.109.5.179'
+#CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -86,7 +87,11 @@ class Engine(threading.Thread):
                     ins.load_bar()
                     ins.ins_panel.update_canvas()
 
-                bps = self.bpmVar.get()/60
+                try:
+                    new_bps = self.bpmVar.get()/60
+                    bps = new_bps
+                except:
+                    pass
                 while self.beat < 4 and not self.stop_request.isSet():
                     # during bar processes...
                     self.wait_event.wait(timeout=0.05)
@@ -285,17 +290,18 @@ class Instrument():
             if not current_note.played:
                 self.mute_last_notes()
                 note = current_note.midi + 12*self.transpose
+                vel = np.random.randint(70, 90)
                 if current_note.isChord():
                     self.lastNote = []
                     for c in current_note.chord:
                         cNote = note + c
-                        self.ins_manager.send_message('/noteOn', (self.chan, cNote))
+                        self.ins_manager.send_message('/noteOn', (self.chan, cNote, vel))
                         #print(self.bar_num)
                         #print('Play note {} on channel {}'.format(cNote, self.chan))
                         self.lastNote.append(cNote)
 
                 else:
-                    self.ins_manager.send_message('/noteOn', (self.chan, note))
+                    self.ins_manager.send_message('/noteOn', (self.chan, note, vel))
                     #print(self.bar_num)
                     #print('Play note {} on channel {}'.format(note, self.chan))
                     self.lastNote = [note]
@@ -613,7 +619,7 @@ class MusaicApp():
                              font='Arial 16', padx=5, pady=5)
 
         self.BPM = tk.IntVar(self.maincontrols)
-        self.BPM.set(120)
+        self.BPM.set(80)
         self.bpmBox = tk.Spinbox(self.maincontrols, from_=20, to=240, textvariable=self.BPM,
                             width=3)
 

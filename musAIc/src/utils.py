@@ -38,7 +38,8 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
 def PCOctaveToMIDI(pc, octave):
     if pc > 12:
         # chord...
-        pc -= 12
+        #pc -= 12
+        return 12*(octave+1) + pc - 13
     return 12*(octave+1) + pc - 1
 
 def MIDItoPCOctave(midi):
@@ -194,7 +195,10 @@ class Stream():
         ''' Removes all the bars from bar_num onwards '''
         start_index = self.getIndexAtOffset(bar_num * self.ts_num)
         for offset in self.offset_times[start_index:]:
-            del self.stream[offset]
+            try:
+                del self.stream[offset]
+            except KeyError:
+                pass
 
         self.offset_times = self.offset_times[:start_index]
         del self.notes[start_index:]

@@ -3,6 +3,9 @@ import music21 as m21
 from copy import deepcopy
 from fractions import Fraction
 
+#import numpy.random as rand
+import random
+
 NOTES = [str(x) for x in range(12)]
 EXP_CORPORA = ['jazzMidi']
 
@@ -15,7 +18,7 @@ def getSongData(song, corpus=None, name=None, verbose=False):
         - 'name':                   file name
         - 'instruments':            number of instruments
         - [id]:
-            - metaData:
+            - metaData:             of the last 4 bars (first 4 the same)
                 - ts:               the (initial) time signature
                 - length:           number of measures
                 - span:             range of notes
@@ -24,6 +27,7 @@ def getSongData(song, corpus=None, name=None, verbose=False):
                 - cDepth:           average number of notes in the chord
                 - tCent:            average note value
                 - rDens:            average number of events ber beat
+                - pos:              percentage progress in song
                 - expression:       1 if human player, 0 otherwise
 
             - rhythm:               nested list of all beats and their divisions
@@ -48,16 +52,15 @@ def getSongData(song, corpus=None, name=None, verbose=False):
 
         rhythmData = parseRhythmData(part, verbose=verbose)
         melodyData = parseMelodyData(part, verbose=verbose)
-        metaData   = metaAnalysis(part, rhythmData, melodyData)[0]
+        metaData   = metaAnalysis(part, rhythmData, melodyData)
 
         partData['metaData'] = metaData
-        if corpus in EXP_CORPORA:
-            partData['melodyData']['expression'] = 1
+        #if corpus in EXP_CORPORA:
+        #    partData['melodyData']['expression'] = 1
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
         songData[j] = partData
-
 
     return songData
 
@@ -275,17 +278,19 @@ def parseMelodyData(part, verbose=False):
         'octaves': [(o0, o1, ... o48), ...],
         'chords':  [ch1, ch1, ... chn]   }
 
-    where pitch_class is -1 for rests, and has (+) operator if part of chord
     '''
     notes = []
     octaves = []
     chords = []
     last_octave = 4
+    notePool = set([1])
+    octavePool = set([last_octave])
 
     # the number of divisions that have to be filled 24 = 2x3x4
     RES = 48
 
     def get_note_data(note):
+        ''' Returns pitchClass, octave, chord '''
         if isinstance(note, m21.chord.Chord):
             if len(note.normalOrder) == 1:
                 return get_note_data(note.pitches[0])
@@ -322,37 +327,28 @@ def parseMelodyData(part, verbose=False):
 
         duration = m.duration.quarterLength
 
-        #lo_o = 4
-        #hi_o = 4
-
         for n in m.flat.notesAndRests:
             # compute notes index...
             idx = round(RES*(n.offset/duration))
 
             p, o, c = get_note_data(n)
 
+            if p: notePool.add(p)
+            if o: octavePool.add(o)
+
             m_notes[idx] = p
             m_octaves[idx] = o
-            if c:
-                m_chords.append(tuple(c))
-
-        #    if o:
-        #        lo_o = min(o, lo_o)
-        #        hi_o = max(o, hi_o)
-
+            if c: m_chords.append(tuple(c))
 
         ## fill in the gaps...
-        ## complete random, of slightly more thoughtful?
+        for i in range(RES):
+            if m_notes[i]:
+                continue
+            else:
+                m_notes[i] = random.sample(notePool, 1)[0]
+                #if np.random.rand() < chordPercent:
 
-        #for i in range(RES):
-        #    if m_notes[i]:
-        #        continue
-        #    else:
-        #        m_notes[i] = str(np.random.randint(12))
-        #        if np.random.rand() < chordPercent:
-        #            m_notes[i] = m_notes[i] + '+'
-
-        #        m_octaves[i] = np.random.randint(lo_o, hi_o+1)
+                m_octaves[i] = random.sample(octavePool, 1)[0]
 
         notes.append(tuple(m_notes))
         octaves.append(tuple(m_octaves))
@@ -418,7 +414,7 @@ def parseRhythmData(part, force_ts=None, verbose=False):
     return data
 
 
-def metaAnalysis(stream, rhythm, melody):
+def metaAnalysis(part, rhythm, melody):
     '''
     Args:
         - stream: to be analysed
@@ -444,54 +440,68 @@ def metaAnalysis(stream, rhythm, melody):
 
     result = list()
 
-    if isinstance(stream, m21.stream.Score):
-        parts = stream.parts
-    else:
-        parts = [stream]
+    #mid = m21.analysis.discrete.MelodicIntervalDiversity()
 
-    mid = m21.analysis.discrete.MelodicIntervalDiversity()
+    md = []
+    measures = part.recurse().getElementsByClass(m21.stream.Measure)
 
-    for i, part in enumerate(parts):
-        analysis = dict()
+    for i in range(3, len(measures)):
+        analysis = {'ts': '4/4',
+                    'span': 1,
+                    'jump': 1,
+                    'cDens': 0,
+                    'cDepth': 1,
+                    'tCent': 60,
+                    'rDens': 1,
+                    'expression': 0}
 
-        notes = part.flat.notes
+        section = part.measures(i-3, i, indicesNotNumbers=True)
+
+        notes = section.flat.notes
 
         if len(notes) == 0:
             # have a score in Chord notation? skip it...
             continue
 
-        timeSig = part.recurse().timeSignature
+        timeSig = section.recurse().timeSignature
         if timeSig:
             ts = timeSig.ratioString
         else:
             ts = '4/4'
 
-        length = len(part.getElementsByClass(m21.stream.Measure))
+        length = len(section.getElementsByClass(m21.stream.Measure))
 
         midiPitches = list(map(get_pitch, notes))
+
+        if len(midiPitches) == 0:
+            md.append(analysis)
+            continue
 
         span = max(midiPitches) - min(midiPitches)
         tonalCenter = sum(midiPitches)/len(midiPitches)
 
-        ints = [abs(i-j) for i, j in zip(midiPitches[:-1], midiPitches[1:])]
+        ints = [abs(p1-p2) for p1, p2 in zip(midiPitches[:-1], midiPitches[1:])]
         avgInt = sum(ints)/len(ints)
 
-        #avgChord = len(part.flat.getElementsByClass(m21.chord.Chord))/len(notes)
-        avgChord = len(melody['chords']) / len(notes)
+        chords = section.flat.getElementsByClass(m21.chord.Chord)
+        avgChord = len(chords)/len(notes)
+        #avgChord = len(melody['chords']) / len(notes)
 
-        if len(melody['chords']) == 0:
+        if len(chords) == 0:
             chordDepth = 0
         else:
-            chordDepth = sum([len(c) for c in melody['chords']])/len(melody['chords'])
+            chordDepth = sum([len(c) for c in chords])/len(chords)
 
         beatCount = 0
         events = 0
-        for m in rhythm:
-            for b in m:
+        for m2 in rhythm[i-3:i]:
+            for b in m2:
                 beatCount += 1
                 events += len(b)
 
         rhythmicDensity = events/beatCount
+
+        pos = i/len(measures)
 
         analysis = {'ts': ts,
                     'span': span,
@@ -500,11 +510,17 @@ def metaAnalysis(stream, rhythm, melody):
                     'cDepth': chordDepth,
                     'tCent': tonalCenter,
                     'rDens': rhythmicDensity,
+                    'pos': pos,
                     'expression': 0}
 
-        result.append(analysis)
+        #print(analysis)
 
-    return result
+        md.append(analysis)
+        if i == 3:
+            # append three more times...
+            md *= 4
+
+    return md
 
 
 

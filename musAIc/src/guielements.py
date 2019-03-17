@@ -484,7 +484,7 @@ class InstrumentPanel(tk.Frame):
         #self.barCanvas.delete('redraw')
         self.beat_width = 25
         self.bar_width = 4 * self.beat_width
-        noteRange = (36, 85)   # +- two octaves from middle C
+        noteRange = (36, 97)   # +- two octaves from middle C
         scale = self.canvasHeight / (noteRange[0] - noteRange[1])
 
         stream = self.instrument.stream
