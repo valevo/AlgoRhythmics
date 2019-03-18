@@ -465,7 +465,7 @@ def metaAnalysis(part, rhythm, melody):
                     'cDepth': 1,
                     'tCent': 60,
                     'rDens': 1,
-                    'pos': = pos,
+                    'pos': pos,
                     'expression': 0}
 
         section = part.measures(i-3, i, indicesNotNumbers=True)

@@ -15,3 +15,11 @@ SyntaxError: invalid syntax
 STARTING
 STARTING
 STARTING
+Traceback (most recent call last):
+  File "create_data.py", line 9, in <module>
+    from core import *
+  File "/home/al165/AlgoRhythmics/src/core.py", line 468
+    'pos': = pos,
+           ^
+SyntaxError: invalid syntax
+STARTING
