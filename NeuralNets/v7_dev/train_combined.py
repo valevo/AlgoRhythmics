@@ -18,16 +18,15 @@ from tensorflow.python.keras.callbacks import TensorBoard
 if __name__ == "__main__":
 
     num_epochs = 20
-    j = 2
-        
-    #
+    j = 2   # checkpoint frequency
+
     cg = CombinedGenerator("Data/files", save_conversion_params=1)
     cg.get_num_pieces()
     rc_size = 5
     mc_size = 5
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
                                     melody_context_size=mc_size, 
-                                 with_metaData=True, to_list=True)
+                                 with_metaData=True, to_list=False)
     print("\nData generator set up...\n")
     
     

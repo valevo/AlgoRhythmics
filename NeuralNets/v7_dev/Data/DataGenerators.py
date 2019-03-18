@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-
+from copy import deepcopy
 import numpy as np
 import numpy.random as rand
+import random
 
 from keras.utils import to_categorical
 
@@ -124,7 +125,6 @@ class RhythmGenerator(DataGenerator):
         song_iter = self.get_rhythms(with_metaData=True)
 
         for rhythms, meta in song_iter:
-            #print('RhythmGenerator.generate_data: meta:', meta, '\nrhythms:', rhythms)
             bar_len = len(rhythms[0])
             rhythms_labeled = [tuple(self.label_d[b] for b in bar) for bar in rhythms]
             null_bar = (self.label_d[self.null_elem], )*bar_len
@@ -141,7 +141,6 @@ class RhythmGenerator(DataGenerator):
             if with_metaData:
                 prepared_meta = list(map(self.prepare_metaData, meta))
                 x_ls.append(prepared_meta)
-                #x_ls.append(self.prepare_metaData(meta, repeat=0))
 
             yield (x_ls, to_categorical(rhythms_mat, num_classes=self.V))
 
@@ -151,10 +150,11 @@ class MelodyGenerator(DataGenerator):
         super().__init__(path, save_conversion_params=save_conversion_params)
 
         song_iter = self.get_notevalues(with_metaData=False)
-        self.V = len(set(n for melodies in song_iter
-                         for bar in melodies for n in bar))
+        #self.V = len(set(n for melodies in song_iter
+        #                 for bar in melodies for n in bar))
+        self.V = 25
         self.null_elem = 0
-        self.notePool = set([1])
+        self.note_pool = set([1])
 
     def get_notevalues(self, with_metaData=True):
         song_iter = self.get_songs(lambda d: d["melody"]["notes"],
@@ -162,11 +162,11 @@ class MelodyGenerator(DataGenerator):
 
         if with_metaData:
             for melodies, meta in song_iter:
-                melodies_None_replaced = [tuple(0 if n is None else n for n in bar) for bar in melodies]
+                melodies_None_replaced = [list(0 if n is None else n for n in bar) for bar in melodies]
                 yield melodies_None_replaced, meta
         else:
             for melodies in song_iter:
-                melodies_None_replaced = [tuple(0 if n is None else n for n in bar) for bar in melodies]
+                melodies_None_replaced = [list(0 if n is None else n for n in bar) for bar in melodies]
                 yield melodies_None_replaced
 
 
@@ -176,25 +176,44 @@ class MelodyGenerator(DataGenerator):
             bar_len = len(melodies[0])
             null_bar = (self.null_elem, )*bar_len
 
-            padded_melodies = [null_bar]*context_size + melodies
+            # fill the empty spots in the melodies with notes from last 4 bars...
+            filled_melodies = self.fill_melodies(melodies)
+
+            padded_melodies = [null_bar]*context_size + filled_melodies
             contexts = [padded_melodies[i:-(context_size-i)] for i in range(context_size)]
+
             melodies_mat = np.asarray([list(bar) for bar in melodies])
-
-            # TODO: add seen notes in song to note pool (except None and 0!)
-            #       to fill in the gaps in the data
-
             melodies_y = to_categorical(melodies_mat, num_classes=self.V)
             melodies_y[:, :, 0] = 0.
 
             if with_metaData:
+                prepared_meta = list(map(self.prepare_metaData, meta))
                 yield ([np.transpose(np.asarray(contexts), axes=(1,0,2)),
-                        self.prepare_metaData(meta, repeat=len(melodies))],
+                        prepared_meta],
                         melodies_y)
             else:
                 yield (np.transpose(np.asarray(contexts), axes=(1,0,2)),
                        melodies_y)
 
-        self.notePool = set([1])
+        self.note_pool = set([1])
+
+
+    def fill_melodies(self, melodies):
+        filled_melodies = deepcopy(melodies)
+
+        note_pool = set([1])
+        for i, bar in enumerate(melodies):
+            note_pool = set([n for n in bar if n > 0 for bar in melodies[max(0, i-3):i]])
+            if len(note_pool) == 0:
+                note_pool.add(1)
+
+            for j, note in enumerate(bar):
+                if note > 0:
+                    self.note_pool.add(note)
+                else:
+                    filled_melodies[i][j] = random.sample(note_pool, 1)[0]
+
+        return filled_melodies
 
 
 
@@ -216,13 +235,10 @@ class CombinedGenerator(DataGenerator):
         melody_iter = self.melody_gen.generate_data(melody_context_size,
                                                     with_metaData=False)
 
-        x = 0
         if with_metaData:
             for (cur_rhythm, cur_melody) in zip(rhythm_iter, melody_iter):
                 (*rhythm_x, rhythms, meta), rhythm_y = cur_rhythm
                 melody_x, melody_y = cur_melody
-                x += 1
-                print(x)
                 yield [*rhythm_x, rhythms, melody_x, meta], [rhythm_y, melody_y]
         else:
             for (cur_rhythm, cur_melody) in zip(rhythm_iter, melody_iter):
