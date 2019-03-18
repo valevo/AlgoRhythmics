@@ -157,7 +157,7 @@ class ParseData(object):
                 logging.info(f'(OPUS of size {len(song.scores)})')
                 for s in song.scores:
                     try:
-                        songData = getSongData(s, corpus='music21')
+                        songData = getSongData(s, corpus='music21', name=path)
                         self.returnQ.put(songData)
                     except:
                         logging.exception('')

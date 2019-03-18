@@ -58,7 +58,6 @@ class DataGenerator:
         if not meta_keys == sorted(metaData.keys()):
             raise ValueError("DataGenerator.prepare_metaData received metaData with different keys!")
 
-
         for k in meta_keys:
             if k == "ts":
                 frac = Fraction(metaData[k], _normalize=False)
@@ -66,6 +65,10 @@ class DataGenerator:
             else:
                 assert isinstance(metaData[k], (float, int))
                 values.append(metaData[k])
+
+        if len(values) != 10:
+            raise ValueError("DataGenerator.prepare_metaData: Expected metaData of length 10," +
+                             " recieved length {}, \nMetaData: {}".format(len(values), metaData))
 
         if not repeat:
             return np.asarray(values, dtype="float")
