@@ -74,6 +74,7 @@ def cleanScore(score, quantise=True, verbose=False):
     - Strips unnecessary elements
     - Quantise?
     - asserts one time signature for easier batching
+    - expands repeats
     '''
 
     # what is wanted in each part
@@ -102,8 +103,14 @@ def cleanScore(score, quantise=True, verbose=False):
         p.append(score)
         s.append(p)
         score = s
-        print(score)
+        if verbose: print(score)
 
+    try:
+        if verbose: print('Expanding repeats...')
+        score = score.expandRepeats()
+    except:
+        if verbose: print('Failed to expand repeats, continuing...')
+        pass
 
     for part in score.parts:
         if verbose: print(part, '----------')
@@ -197,9 +204,6 @@ def cleanScore(score, quantise=True, verbose=False):
             new_part.append(new_m)
 
         new_part.timeSignature = ts
-        #new_part.makeMeasures(inPlace=True)
-        #new_part.makeNotation(inPlace=True)
-
         new_score.insert(part.offset, new_part)
 
     return new_score.transpose(key_diff)
@@ -292,7 +296,9 @@ def parseMelodyData(part, verbose=False):
     def get_note_data(note):
         ''' Returns pitchClass, octave, chord '''
         if isinstance(note, m21.chord.Chord):
-            if len(note.normalOrder) == 1:
+            if len(note.pitches) == 0:
+                return None, None, None
+            elif len(note.normalOrder) == 1:
                 return get_note_data(note.pitches[0])
             root = note.root()
             chordOrder = note.normalOrder
@@ -434,7 +440,11 @@ def metaAnalysis(part, rhythm, melody):
 
     def get_pitch(note):
         if isinstance(note, m21.chord.Chord):
+            if len(note.pitches) == 0:
+                return 60
             return note.root().midi
+        elif isinstance(note, m21.pitch.Pitch):
+            return note.midi
         else:
             return note.pitch.midi
 
@@ -461,6 +471,7 @@ def metaAnalysis(part, rhythm, melody):
 
         if len(notes) == 0:
             # have a score in Chord notation? skip it...
+            md.append(analysis)
             continue
 
         timeSig = section.recurse().timeSignature
@@ -468,8 +479,6 @@ def metaAnalysis(part, rhythm, melody):
             ts = timeSig.ratioString
         else:
             ts = '4/4'
-
-        length = len(section.getElementsByClass(m21.stream.Measure))
 
         midiPitches = list(map(get_pitch, notes))
 
@@ -481,11 +490,14 @@ def metaAnalysis(part, rhythm, melody):
         tonalCenter = sum(midiPitches)/len(midiPitches)
 
         ints = [abs(p1-p2) for p1, p2 in zip(midiPitches[:-1], midiPitches[1:])]
-        avgInt = sum(ints)/len(ints)
+        if len(ints) == 0:
+            # just one note...
+            avgInt = 0
+        else:
+            avgInt = sum(ints)/len(ints)
 
         chords = section.flat.getElementsByClass(m21.chord.Chord)
         avgChord = len(chords)/len(notes)
-        #avgChord = len(melody['chords']) / len(notes)
 
         if len(chords) == 0:
             chordDepth = 0
@@ -499,7 +511,10 @@ def metaAnalysis(part, rhythm, melody):
                 beatCount += 1
                 events += len(b)
 
-        rhythmicDensity = events/beatCount
+        if beatCount > 0:
+            rhythmicDensity = events/beatCount
+        else:
+            rhythmicDensity = 0
 
         pos = i/len(measures)
 

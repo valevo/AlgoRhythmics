@@ -228,6 +228,10 @@ class ParseData(object):
 
 if __name__ == '__main__':
 
+    # clear the log file...
+    with open('./createData.log', 'w'):
+        pass
+
     logging.basicConfig(filename='./createData.log', level=logging.INFO,
                        format='%(asctime)s %(message)s')
 

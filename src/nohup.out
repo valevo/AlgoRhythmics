@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "create_data.py", line 9, in <module>
+    from core import *
+  File "/home/al165/AlgoRhythmics/src/core.py", line 294
+    if len(note.pitches) == 0::
+                              ^
+SyntaxError: invalid syntax
+Traceback (most recent call last):
+  File "create_data.py", line 9, in <module>
+    from core import *
+  File "/home/al165/AlgoRhythmics/src/core.py", line 439
+    else isinstance(note, m21.pitch.Pitch):
+                  ^
+SyntaxError: invalid syntax
+STARTING
+STARTING
+STARTING
