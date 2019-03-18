@@ -20,10 +20,10 @@ if __name__ == "__main__":
     num_epochs = 20
     j = 2   # checkpoint frequency
 
-    cg = CombinedGenerator("Data/files", save_conversion_params=1)
+    cg = CombinedGenerator("../../Data/music21/", save_conversion_params=1)
     cg.get_num_pieces()
-    rc_size = 5
-    mc_size = 5
+    rc_size = 4
+    mc_size = 4
     data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
                                     melody_context_size=mc_size, 
                                  with_metaData=True, to_list=False)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     melody_dec_lstm_1_size = 32
     melody_dec_lstm_2_size = 32
     
-    meta_data_len = 9
+    meta_data_len = 10
     
     # INDIVIDUAL NETS
     be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 

@@ -139,7 +139,7 @@ class RhythmGenerator(DataGenerator):
                 x_ls.append(np.asarray(rhythms_labeled))
 
             if with_metaData:
-                prepared_meta = list(map(self.prepare_metaData, meta))
+                prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
                 x_ls.append(prepared_meta)
 
             yield (x_ls, to_categorical(rhythms_mat, num_classes=self.V))
@@ -187,7 +187,7 @@ class MelodyGenerator(DataGenerator):
             melodies_y[:, :, 0] = 0.
 
             if with_metaData:
-                prepared_meta = list(map(self.prepare_metaData, meta))
+                prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
                 yield ([np.transpose(np.asarray(contexts), axes=(1,0,2)),
                         prepared_meta],
                         melodies_y)
