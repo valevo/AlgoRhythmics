@@ -158,14 +158,20 @@ class ParseData(object):
                 for s in song.scores:
                     try:
                         songData = getSongData(s, corpus='music21', name=path)
-                        self.returnQ.put(songData)
+                        if not songData:
+                            continue
+                        else:
+                            self.returnQ.put(songData)
                     except:
                         logging.exception('')
 
             else:
                 try:
                     songData = getSongData(song, corpus='music21', name=path)
-                    self.returnQ.put(songData)
+                    if not songData:
+                        continue
+                    else:
+                        self.returnQ.put(songData)
                 except:
                     logging.exception('')
 

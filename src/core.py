@@ -60,6 +60,12 @@ def getSongData(song, corpus=None, name=None, verbose=False):
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
+        if not len(metaData) == len(rhythmData) == len(melodyData):
+            return None
+
+        if len(metaData) == len(rhythmData) == len(melodyData) == 0:
+            return None
+
         songData[j] = partData
 
     return songData
