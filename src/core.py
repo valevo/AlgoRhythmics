@@ -60,10 +60,18 @@ def getSongData(song, corpus=None, name=None, verbose=False):
         partData['rhythm']   = rhythmData
         partData['melody']   = melodyData
 
-        if not len(metaData) == len(rhythmData) == len(melodyData):
+        if not len(metaData) == len(rhythmData) == len(melodyData['notes']):
+            print('Inconsistant lengths...({}, {}, {})'.format(len(metaData),
+                        len(rhythmData), len(melodyData['notes'])))
             return None
 
-        if len(metaData) == len(rhythmData) == len(melodyData) == 0:
+        if len(metaData) == len(rhythmData) == len(melodyData['notes']) == 0:
+            print('Zero lengths... ({}, {}, {})'.format(len(metaData),
+                        len(rhythmData), len(melodyData)['notes']))
+            return None
+
+        if len(rhythmData) <= 4:
+            print('Song {} is too short ({} bars)'.format(name, len(rhythmData)))
             return None
 
         songData[j] = partData
