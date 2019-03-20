@@ -48,7 +48,6 @@ class DataGenerator:
         return instrument_nums
 
     def prepare_metaData(self, metaData, repeat=0):
-        values = []
         if not "metaData" in self.conversion_params:
             self.conversion_params["metaData"] = sorted(metaData.keys())
             if self.save_params_eager:
@@ -58,13 +57,19 @@ class DataGenerator:
         if not meta_keys == sorted(metaData.keys()):
             raise ValueError("DataGenerator.prepare_metaData received metaData with different keys!")
 
+        values = np.zeros(shape=(10,))
+
+        i = 0
         for k in meta_keys:
             if k == "ts":
                 frac = Fraction(metaData[k], _normalize=False)
-                values.extend([frac.numerator, frac.denominator])
+                #values.extend([frac.numerator, frac.denominator])
+                values[i: i+2] = [frac.numerator, frac.denominator]
+                i += 2
             else:
                 assert isinstance(metaData[k], (float, int))
-                values.append(metaData[k])
+                values[i] = metaData[k]
+                i += 1
 
         if len(values) != 10:
             raise ValueError("DataGenerator.prepare_metaData: Expected metaData of length 10," +
@@ -143,6 +148,19 @@ class RhythmGenerator(DataGenerator):
 
             if with_metaData:
                 prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
+                if not prepared_meta.size == len(rhythms)*10:
+                    raise ValueError('[RhythmGenerator.generateData: Prepared metaData ' +
+                            'has wrong number of elements. Expected {} but got {}'.format(len(rhythms)*10, 
+                                prepared_meta.size),
+                            '\nprepared_meta: ', prepared_meta,
+                            '\nmeta: ', meta)
+
+                if not prepared_meta.shape == (len(rhythms),10):
+                    raise ValueError('[RhythmGenerator.generateData: Prepared metaData ' +
+                            'is the wrong shape, expected (10,) but got {}'.format(prepared_meta.shape),
+                            '\nprepared_meta: ', prepared_meta,
+                            '\nmeta: ', meta)
+                
                 x_ls.append(prepared_meta)
 
             yield (x_ls, to_categorical(rhythms_mat, num_classes=self.V))
@@ -191,6 +209,19 @@ class MelodyGenerator(DataGenerator):
 
             if with_metaData:
                 prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
+
+                if not prepared_meta.size == len(melodies)*10:
+                    raise ValueError('[MelodyGenerator.generateData: Prepared metaData ' +
+                            'has wrong number of elements. Expected {} but got {}'.format(len(melodies)*10, 
+                                prepared_meta.size),
+                            '\nprepared_meta: ', prepared_meta,
+                            '\nmeta: ', meta)
+                if not prepared_meta.shape == (10,):
+                    raise ValueError('[MelodyGenerator.generateData: Prepared metaData ' +
+                            'is the wrong shape, expected (10,) but got {}'.format(prepared_meta.shape),
+                            '\nprepared_meta: ', prepared_meta,
+                            '\nmeta:', meta)
+
                 yield ([np.transpose(np.asarray(contexts), axes=(1,0,2)),
                         prepared_meta],
                         melodies_y)

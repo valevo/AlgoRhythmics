@@ -1,25 +1,78 @@
-Traceback (most recent call last):
-  File "create_data.py", line 9, in <module>
-    from core import *
-  File "/home/al165/AlgoRhythmics/src/core.py", line 294
-    if len(note.pitches) == 0::
-                              ^
-SyntaxError: invalid syntax
-Traceback (most recent call last):
-  File "create_data.py", line 9, in <module>
-    from core import *
-  File "/home/al165/AlgoRhythmics/src/core.py", line 439
-    else isinstance(note, m21.pitch.Pitch):
-                  ^
-SyntaxError: invalid syntax
 STARTING
 STARTING
-STARTING
-Traceback (most recent call last):
-  File "create_data.py", line 9, in <module>
-    from core import *
-  File "/home/al165/AlgoRhythmics/src/core.py", line 468
-    'pos': = pos,
-           ^
-SyntaxError: invalid syntax
-STARTING
+Inconsistant lengths...(104, 107, 107)
+Inconsistant lengths...(68, 71, 71)
+Inconsistant lengths...(19, 22, 22)
+Inconsistant lengths...(54, 57, 57)
+Inconsistant lengths...(57, 60, 60)
+Inconsistant lengths...(599, 602, 602)
+Inconsistant lengths...(0, 2, 2)
+Inconsistant lengths...(114, 117, 117)
+Inconsistant lengths...(131, 134, 134)
+Inconsistant lengths...(247, 250, 250)
+Inconsistant lengths...(77, 80, 80)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/altdeu20.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
+Inconsistant lengths...(77, 80, 80)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(65, 68, 68)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_c.krn is too short (4 bars)
+Inconsistant lengths...(124, 127, 127)
+Inconsistant lengths...(170, 173, 173)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(236, 239, 239)
+Inconsistant lengths...(32, 35, 35)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_g.krn is too short (4 bars)
+Inconsistant lengths...(71, 74, 74)
+Inconsistant lengths...(0, 2, 2)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad40.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad40.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
+Inconsistant lengths...(48, 51, 51)
+Inconsistant lengths...(53, 56, 56)
+Inconsistant lengths...(22, 25, 25)
+Inconsistant lengths...(140, 143, 143)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad30.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk10.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/zuccal0.abc is too short (4 bars)
+Inconsistant lengths...(23, 26, 26)
+Inconsistant lengths...(31, 34, 34)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_c.krn is too short (4 bars)
+Inconsistant lengths...(66, 69, 69)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
+Inconsistant lengths...(59, 62, 62)
+Inconsistant lengths...(42, 45, 45)
+Inconsistant lengths...(16, 19, 19)
+Inconsistant lengths...(183, 186, 186)
+Inconsistant lengths...(6, 9, 9)
+Inconsistant lengths...(449, 452, 452)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lot.abc is too short (4 bars)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(209, 212, 212)
+Inconsistant lengths...(409, 412, 412)
+Inconsistant lengths...(58, 61, 61)
+Inconsistant lengths...(96, 99, 99)
+Inconsistant lengths...(228, 231, 231)

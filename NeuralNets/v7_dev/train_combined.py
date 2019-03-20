@@ -96,7 +96,7 @@ if __name__ == "__main__":
                                steps_per_epoch=cg.num_pieces, 
                                epochs=cur_iteration*j+j, 
                                initial_epoch=cur_iteration*j,
-                               verbose=1, callbacks=[tb])
+                               verbose=2, callbacks=[tb])
     
         cur_folder_name = cur_date_time + "/_checkpoint_" + str(cur_iteration)
         os.makedirs(top_dir + weight_dir + cur_folder_name)
