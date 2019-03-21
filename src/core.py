@@ -496,12 +496,14 @@ def metaAnalysis(part, rhythm, melody):
             # have a score in Chord notation? skip it...
             analysis['ts'] = ts
             md.append(analysis)
+            if i == 3: md *= 4
             continue
 
         midiPitches = list(map(get_pitch, notes))
 
         if len(midiPitches) == 0:
             md.append(analysis)
+            if i == 3: md *= 4
             continue
 
         span = max(midiPitches) - min(midiPitches)

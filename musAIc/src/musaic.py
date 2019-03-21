@@ -20,9 +20,9 @@ import numpy as np
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
 #CLIENT_ADDR = '192.168.1.12'
-CLIENT_ADDR = '192.168.0.36'
+#CLIENT_ADDR = '192.168.0.36'
 #CLIENT_ADDR = '145.109.5.179'
-#CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -188,10 +188,14 @@ class Instrument():
         self.lead = False                 # Lead instrument that others follow
 
         self.current_bar = None           # currently playing bar
-        self.lastNote = []                # last note played for muting
+        #self.lastNote = []                # last note played for muting
+        self.noteOffEvents = dict()       # a queue of noteOff events: (time, note)
+        self.offMode = 0                  # note off mode: 0 - hold to noteOn
+                                          #                1 - hold for exactly one beat
 
         self.loopLevel = 0                # number of bars to loop 
         self.loopEnd = 0                  # bar the loop number offsets from
+        self.rhythmLoopLevel = 0          # what level to loop the rhythm information in generation
 
         # SHOULD BE QUEUE?
         self.noteOn = None                # any noteOn events placed here
@@ -200,8 +204,6 @@ class Instrument():
         # request some bars
         for _ in range(4):
             self.request_new_bar()
-
-        #self.load_bar()
 
     def set_ins_panel(self, ins_panel):
         self.ins_panel = ins_panel
@@ -282,6 +284,8 @@ class Instrument():
 
         current_note = self.stream.getNotePlaying(self.bar_num, beat)
 
+        #self.check_note_off(beat)
+
         if current_note:
             if current_note.midi < 0:
                 # rest...
@@ -299,6 +303,7 @@ class Instrument():
                         #print(self.bar_num)
                         #print('Play note {} on channel {}'.format(cNote, self.chan))
                         self.lastNote.append(cNote)
+                        #self.noteOffStack.append()
 
                 else:
                     self.ins_manager.send_message('/noteOn', (self.chan, note, vel))
@@ -308,7 +313,21 @@ class Instrument():
 
                 current_note.played = True
 
-    def mute_last_notes(self):
+    def check_note_off(self, beat):
+        if self.offMode == 0:
+            # noteOff on next noteOn
+            pass
+        elif self.offMode == 1:
+            # noteOff after one beat 
+            keyList = []
+            for n, t in self.noteOffEvents.items():
+                if t < self.bar_num + beat:
+                    keyList.append(n)
+                    self.ins_manager.send_message('/noteOff', (self.chan, n.))
+
+
+
+    def mute_last_notes(self, beat):
         for n in self.lastNote:
             self.ins_manager.send_message('/noteOff', (self.chan, n))
 
@@ -316,7 +335,11 @@ class Instrument():
         self.ins_manager.send_message('/allOff', self.chan)
 
     def request_new_bar(self):
-        self.request_queue.put((1, self.ins_id, self.confidence))
+        msg = {
+            'confidence': self.confidence,
+            'loopRhythm': self.rhythmLoopLevel,
+        }
+        self.request_queue.put((1, self.ins_id, msg))
 
     def check_updates(self):
         '''Checks if any news from network'''
@@ -418,6 +441,13 @@ class Instrument():
         print(self.loopLevel, self.loopEnd)
 
         self.ins_panel.update_highlighted_bars()
+
+    def toggle_rhythm_loop(self, level):
+        if self.rhythmLoopLevel == level:
+            self.rhythmLoopLevel = 0
+        else:
+            self.rhythmLoopLevel = level
+        print('Rhythm loop level set to ', self.rhythmLoopLevel)
 
     def toggle_mute(self):
         self.mute = not self.mute
@@ -738,6 +768,39 @@ class MusaicApp():
         else:
             self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
         print('Server updated', self.sv_ip, self.sv_port)
+
+    def parseOSC(self, addr, *args):
+        items = addr.split('/')
+
+        print('OSC Recieved:', (add, args))
+        print('   Items: ', items)
+
+        if len(items) == 0:
+            return
+
+        if items[0] == 'armSelect':
+            # arm selected instrument...
+            pass
+        elif items[0] == 'killAll':
+            self.panic()
+        elif items[0] == 'globalPlay':
+            self.controls.play()
+        elif items[0] == 'bpm':
+            # deal with BPM change...
+            pass
+        elif items[0] in range(8):
+            # instrument control
+            _id = items[0]
+            ctrl = items[1]
+
+            if ctrl in 
+
+        else:
+            print('Unknown OSC message...')
+
+
+
+
 
     def ccRecieve(self, *msg):
         print('CC Recieve:', msg)

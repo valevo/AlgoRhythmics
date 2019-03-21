@@ -33,13 +33,13 @@ class NNPlayer():
 
         print('Loading Player', _id)
 
-        with open('./v5/Data/DataGenerator.conversion_params', 'rb') as f:
+        with open('./v7/Data/DataGenerator.conversion_params', 'rb') as f:
             conversion_params = pkl.load(f)
             self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        weights_folder = "./v5/Nets/weights/Fri_Mar_15_05-50-18_2019/"
+        weights_folder = "./v7/Nets/weights/Tue_Mar_19_23-01-52_2019/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder,
                                                      generation=True,
                                                      compile_now=False)
@@ -66,12 +66,21 @@ class NNPlayer():
         self.bar_length = 4
 
         quarterBeat = self.rhythmDict[(0.0,)]
-        #self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
+        self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
 
-        self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
-                                        for _ in range(self.context_size)]
+        #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
+        #                                for _ in range(self.context_size)]
 
-        self.melody_contexts = rand.randint(1, 13, size=(self.batch_size, self.context_size, self.m))
+        #self.melody_contexts = rand.randint(1, 13, size=(self.batch_size, self.context_size, self.m))
+
+        # seed with major scale...
+        self.melody_contexts = rand.choice([1, 3, 5, 6, 8, 10, 12], size=(self.batch_size, self.context_size, self.m))
+
+        # seed with minor scale...
+        #self.melody_contexts = rand.choice([1, 3, 4, 6, 8, 10, 11], size=(self.batch_size, self.context_size, self.m))
+
+        # seed with simple root/fifth...
+        #self.melody_contexts = rand.choice([1, 8], size=(self.batch_size, self.context_size, self.m))
 
         # Test by loading contexts from the data...
 
@@ -89,16 +98,35 @@ class NNPlayer():
     def generate_bar(self, **kwargs):
         # asterisk on example_rhythm_contexts is important
         # predict...
+
+        if 'leadBar' in kwargs:
+            # TODO: recieved the bar of the lead instrument
+            # input into model
+            pass
+
+        #print('MetaData for ins {}:'.format(self._id))
+        #print(self.metaData)
+
         output = self.comb_net.predict(x=[*self.rhythm_contexts,
                                              self.melody_contexts,
                                              self.metaData])
 
         # get rhythm and melody...
-        sampled_rhythm = np.array([[rand.choice(self.V_rhythm, p=curr_p) for curr_p in output[0][0]]])
-        sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
-
         top_rhythm = np.argmax(output[0], axis=-1)
         top_melody = np.argmax(output[1], axis=-1)
+
+        if False:
+            sampled_rhythm = top_rhythm
+            sampled_melody = top_melody
+        else:
+            sampled_rhythm = np.array([[rand.choice(self.V_rhythm, p=curr_p) for curr_p in output[0][0]]])
+            sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
+
+        if 'loopRhythm' in kwargs:
+            # ignore the sampled rhythm
+            num = min(len(self.rhythm_contexts), kwargs['loopRhythm'])
+            if num > 0:
+                sampled_rhythm = self.rhythm_contexts[-num]
 
         print('sampled rhythm...', sampled_rhythm)
         print('sampled melody...', sampled_melody)
@@ -110,17 +138,14 @@ class NNPlayer():
         self.melody_contexts = np.append(self.melody_contexts, [top_melody], axis=1)[:, 1:, :]
 
         # convert to bar...
-        rhythm = []
-        for b in sampled_rhythm[0]:
-            rhythm.append(self.indexDict[b])
-
+        rhythm = [self.indexDict[b] for b in sampled_rhythm[0]]
         melody = [int(n) for n in sampled_melody[0]]
-        o = self.metaParameters['tCent']//12 - 1
-        octaves =[o]*48
+        octave = [self.metaParameters['tCent']//12 - 1] * 48
+
         #octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
 
-        bar = parseBarData(melody, octaves, rhythm)
-        print(bar)
+        bar = parseBarData(melody, octave, rhythm)
+        print('Output bar:\n', bar)
 
         return bar
 
@@ -154,6 +179,7 @@ class NNPlayer():
                 self.ins_panel.updateMetaParams(self.metaParameters)
 
     def prepare_meta_data(self):
+        ''' Updates the metaData for the network to use '''
         values = []
         for k in sorted(self.metaParameters.keys()):
             if k == 'ts':
@@ -298,7 +324,7 @@ class NetworkManager(multiprocessing.Process):
             elif req[0] == 1:
                 # instument requests new bar
                 _id = req[1]
-                bar = self.models[_id].generate_bar(confidence=req[2])
+                bar = self.models[_id].generate_bar(**req[2])
                 #bar = self.create_bar(_id, req[2])
                 self.return_queues[_id].put({'bar': bar})
 
@@ -327,4 +353,4 @@ class NetworkManager(multiprocessing.Process):
                 del self.return_queues[_id]
 
 
-TEST_MD = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
+TEST_MD = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'pos': 0.5, 'expression': 0}

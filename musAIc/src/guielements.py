@@ -321,6 +321,7 @@ class InstrumentPanel(tk.Frame):
         self.cDepVar = tk.DoubleVar()
         self.jumpVar = tk.DoubleVar()
         self.rDenVar = tk.DoubleVar()
+        self.sPosVar = tk.DoubleVar()
 
         self.spanVar.trace('w', self.updateSpan)
         self.centVar.trace('w', self.updateCent)
@@ -328,6 +329,7 @@ class InstrumentPanel(tk.Frame):
         self.cDepVar.trace('w', self.updateCDep)
         self.jumpVar.trace('w', self.updateJump)
         self.rDenVar.trace('w', self.updateRDen)
+        self.sPosVar.trace('w', self.updateSPos)
 
         self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar,
                              name='span', min_=1, max_=60, default=20)
@@ -341,6 +343,8 @@ class InstrumentPanel(tk.Frame):
                              name='jump', min_=0.1, max_=6.0, default=3.0)
         self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar,
                              name='rDen', min_=0, max_=4, default=1)
+        self.sPosKnob = Knob(self.playerParamFrame, 10, self.sPosVar,
+                             name='sPos', min_=0, max_=1, default=0)
 
         self.spanKnob.grid(row=0, column=0, sticky='ew')
         self.centKnob.grid(row=0, column=1, sticky='ew')
@@ -348,6 +352,7 @@ class InstrumentPanel(tk.Frame):
         self.cDepKnob.grid(row=0, column=3, sticky='ew')
         self.jumpKnob.grid(row=0, column=4, sticky='ew')
         self.rDenKnob.grid(row=0, column=5, sticky='ew')
+        self.sPosKnob.grid(row=0, column=6, sticky='ew')
 
 
         # ------ Redundant controls for now...
@@ -377,12 +382,17 @@ class InstrumentPanel(tk.Frame):
         self.repeatVar = tk.StringVar(self.controlFrame)
         self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
                                           4, [1, 2, 4, 8], self.loopUpdate,
-                                          'loop:')
+                                          'loop:', colour='#cc7722')
 
         self.recVar = tk.StringVar(self.controlFrame)
         self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4,
                                        [1, 2, 4, 8], self.recUpdate,
-                                       ' rec:', colour='#cc1010')
+                                       ' rec:', colour='#881010')
+
+        self.rhythmVar = tk.StringVar(self.controlFrame)
+        self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
+                                          4, [1, 2, 3, 4], self.rhythmUpdate,
+                                          'rhythm:', colour='#cc7722')
 
         # ------ Controls
 
@@ -418,7 +428,8 @@ class InstrumentPanel(tk.Frame):
         self.chanLabel.grid(row=0, column=3, sticky='ew')
         self.repeatSelect.grid(row=2, column=1, )
         self.recSelect.grid(row=3, column=1)
-        self.pauseButton.grid(row=2, column=2, rowspan=2)
+        self.rhythmSelect.grid(row=2, column=2)
+        #self.pauseButton.grid(row=2, column=2, rowspan=2)
 
         # initialise bar display...
         self.update_canvas()
@@ -580,6 +591,9 @@ class InstrumentPanel(tk.Frame):
     def updateRDen(self, *args):
         self.instrument.update_params({'rDens': self.rDenVar.get()})
 
+    def updateSPos(self, *args):
+        self.instrument.update_params({'pos': self.sPosVar.get()})
+
     def transUpdate(self, event):
         self.instrument.transpose = self.transposeVar.get()
 
@@ -592,6 +606,10 @@ class InstrumentPanel(tk.Frame):
     def recUpdate(self, variable):
         num = int(variable.get())
         self.ins_manager.set_recording_instrument(self.instrument, num)
+
+    def rhythmUpdate(self, variable):
+        num = int(variable.get())
+        self.instrument.toggle_rhythm_loop(num)
 
     def remove(self, event):
         self.instrument.delete()
@@ -608,7 +626,8 @@ class InstrumentPanel(tk.Frame):
                 'cDens': self.cDenKnob,
                 'cDepth': self.cDepKnob,
                 'jump': self.jumpKnob,
-                'rDens': self.rDenKnob}
+                'rDens': self.rDenKnob,
+                'pos': self.sPosKnob}
 
         KEYS[param].update_percent(percent)
 
@@ -619,7 +638,8 @@ class InstrumentPanel(tk.Frame):
                 'cDens':  self.cDenKnob.val,
                 'cDepth': self.cDepKnob.val,
                 'jump':   self.jumpKnob.val,
-                'rDens':  self.rDenKnob.val}
+                'rDens':  self.rDenKnob.val,
+                'pos':    self.sPosKnob.val}
 
     def updateMetaParams(self, params):
         if 'span' in params:
@@ -645,4 +665,8 @@ class InstrumentPanel(tk.Frame):
         if 'rDens' in params:
             self.rDenKnob.val = params['rDens']
             self.rDenKnob.update_line()
+
+        if 'pos' in params:
+            self.sPosKnob.val = params['pos']
+            self.sPosKnob.update_line()
 
