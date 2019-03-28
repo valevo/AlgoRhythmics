@@ -102,11 +102,13 @@ class Knob(tk.Frame):
         self.variable.set(self.val)
 
     def update_percent(self, p):
+        old_p = (self.val - self.min_) / (self.max_ - self.min_)
+        if abs(p - old_p) < 0.02:
+            return
+
         self.val = self.min_ + p*(self.max_ - self.min_)
         self.update_line()
-        #self.canvas.itemconfig(self.line, fill='orange')
-        #self.canvas.itemconfig(self.arc, outline='orange')
-        #self.lastChangeTime = time.time()
+        self.variable.set(self.val)
 
     def update_line(self):
         if self.val < self.min_:
@@ -114,7 +116,7 @@ class Knob(tk.Frame):
         elif self.val > self.max_:
             self.val = self.max_
 
-        self.variable.set(self.val)
+        #self.variable.set(self.val)
 
         p = (self.val - self.min_)/(self.max_ - self.min_)
         a = 4.18879 - p*5.23599
@@ -355,6 +357,7 @@ class InstrumentPanel(tk.Frame):
         self.sPosKnob.grid(row=0, column=6, sticky='ew')
 
 
+
         # ------ Redundant controls for now...
         self.continuousVar = tk.IntVar(self.controlFrame)
         self.continuousVar.set(1)
@@ -383,21 +386,32 @@ class InstrumentPanel(tk.Frame):
         self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
                                           4, [1, 2, 4, 8], self.loopUpdate,
                                           'loop:', colour='#cc7722')
+        self.repeatVar.trace('w', self.repeatVarUpdate)
 
         self.recVar = tk.StringVar(self.controlFrame)
         self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4,
                                        [1, 2, 4, 8], self.recUpdate,
                                        ' rec:', colour='#881010')
+        self.recVar.trace('w', self.recVarUpdate)
 
         self.rhythmVar = tk.StringVar(self.controlFrame)
         self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
                                           4, [1, 2, 3, 4], self.rhythmUpdate,
                                           'rhythm:', colour='#cc7722')
+        self.rhythmVar.trace('w', self.rhythmVarUpdate)
 
         # ------ Controls
+        self.holdButton = tk.Button(self.controlFrame, text='hold')
+        self.holdButton['command'] = self.instrument.toggle_hold
 
-        self.pauseButton = tk.Button(self.controlFrame, text='Pause')
-        self.pauseButton['command'] = lambda: self.toggle_playback(self.pauseButton)
+        self.pauseButton = tk.Button(self.controlFrame, text='pause')
+        self.pauseButton['command'] = self.instrument.toggle_paused
+
+        self.lengthVar = tk.DoubleVar(self.controlFrame)
+        self.lengthVar.trace('w', self.lengthUpdate)
+        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1,
+                                     orient=tk.HORIZONTAL, resolution=0.1,
+                                     showvalue=False, variable=self.lengthVar)
 
         # ------ Display track
         self.update()
@@ -421,15 +435,17 @@ class InstrumentPanel(tk.Frame):
         self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
         self.removeButton.grid(row=0, column=1, sticky='ew')
         self.nameLabel.grid(row=0, column=2, columnspan=1, sticky='ew')
-        self.playerParamFrame.grid(row=1, column=1, columnspan=3, sticky='ew')
+        self.playerParamFrame.grid(row=1, column=1, columnspan=4, sticky='ew')
         #self.confidenceOption.grid(row=1, column=1)
         #self.transpose.grid(row=1, column=2)
         #self.continuousButton.grid(row=1, column=3)
         self.chanLabel.grid(row=0, column=3, sticky='ew')
         self.repeatSelect.grid(row=2, column=1, )
         self.recSelect.grid(row=3, column=1)
-        self.rhythmSelect.grid(row=2, column=2)
-        #self.pauseButton.grid(row=2, column=2, rowspan=2)
+        self.rhythmSelect.grid(row=2, column=3)
+        self.holdButton.grid(row=2, column=2, sticky='ew')
+        self.pauseButton.grid(row=3, column=2, sticky='ew')
+        self.lengthSlider.grid(row=3, column=3, sticky='ew')
 
         # initialise bar display...
         self.update_canvas()
@@ -439,6 +455,26 @@ class InstrumentPanel(tk.Frame):
 
     def onConfigure(self, event):
         self.barCanvas.configure(width=self.winfo_width())
+
+    def update_buttons(self):
+        if self.instrument.status == PAUSED:
+            self.pauseButton.config(text='pause')
+            self.pauseButton.config(foreground='white')
+        elif self.instrument.status == PAUSE_WAIT:
+            self.pauseButton.config(text='pausing')
+            self.pauseButton.config(foreground='orange')
+        elif self.instrument.status == PLAY_WAIT:
+            self.pauseButton.config(text='playing')
+            self.pauseButton.config(foreground='orange')
+        elif self.instrument.status == PLAYING:
+            self.pauseButton.config(text='play')
+            self.pauseButton.config(foreground='white')
+
+        if self.instrument.hold:
+            self.holdButton.config(relief='sunken')
+        else:
+            self.holdButton.config(relief='raised')
+
 
     def update_highlighted_bars(self):
         if self.instrument.loopLevel > 0:
@@ -498,10 +534,12 @@ class InstrumentPanel(tk.Frame):
         noteRange = (36, 97)   # +- two octaves from middle C
         scale = self.canvasHeight / (noteRange[0] - noteRange[1])
 
+        bar = self.instrument.bar_num
+
         stream = self.instrument.stream
 
         # draw bars
-        for i in range(-self.null_bars, len(stream)+20):
+        for i in range(bar - self.null_bars - 1, len(stream)+20):
             x = i * self.bar_width
             self.barCanvas.create_line(x, 0, x, 100, fill='#aaaaaa',
                                        tags='redraw')
@@ -536,6 +574,9 @@ class InstrumentPanel(tk.Frame):
 
     def move_canvas(self, beat):
         # update cursor position
+        if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
+            return
+
         x = self.instrument.bar_num * self.bar_width + beat*self.beat_width
         self.barCanvas.coords(self.cursor, x, 0, x, 100)
 
@@ -572,6 +613,22 @@ class InstrumentPanel(tk.Frame):
         self.chan.set(new_chan)
         self.instrument.chan = new_chan
         entry.destroy()
+
+    def repeatVarUpdate(self, *args):
+        val = self.repeatVar.get()
+        x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
+        self.ins_manager.send_touchOSC_message('/{}/loopBars'.format(self.instrument.ins_id+1), (1, x, 1))
+
+    def recVarUpdate(self, *args):
+        val = self.recVar.get()
+        x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
+        self.ins_manager.send_touchOSC_message('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
+        print('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
+
+    def rhythmVarUpdate(self, *args):
+        val = self.rhythmVar.get()
+        x = int(val)+1
+        self.ins_manager.send_touchOSC_message('/{}/loopRhythm'.format(self.instrument.ins_id+1), (1, x, 1))
 
     def updateSpan(self, *args):
         self.instrument.update_params({'span': self.spanVar.get()})
@@ -611,10 +668,13 @@ class InstrumentPanel(tk.Frame):
         num = int(variable.get())
         self.instrument.toggle_rhythm_loop(num)
 
+    def lengthUpdate(self, *args):
+        self.instrument.offMode = self.lengthVar.get()
+
     def remove(self, event):
         self.instrument.delete()
 
-    def toggle_playback(self, button):
+    def toggle_playback(self):
         self.instrument.toggle_paused()
 
     def continuous(self):

@@ -261,6 +261,15 @@ class Stream():
         else:
             return None
 
+    def getNextNotePlaying(self, bar, beat):
+        ''' Returns the next note at or beyond bar, beat '''
+        offset = self.ts_num * bar + beat
+        later_notes = [o for o in self.stream.keys() if o >= offset]
+        if len(later_notes) > 0:
+            return self.stream[min(later_notes)]
+        else:
+            return None
+
     def getMetaAnalysis(self):
         '''
         Meta analysis is :
@@ -339,7 +348,6 @@ class Note():
         '''
 
         self.rest = False
-        #print(type(note))
         if isinstance(note, int) or isinstance(note, float):
             if note < 0:
                 self.rest = True
@@ -347,10 +355,8 @@ class Note():
             else:
                 self.midi = note
         else:
-            if isinstance(note, int) or isinstance(note, float):
-                self.midi = note
-            else:
-                self.midi = PCOctaveToMIDI(note[0], note[1])
+            self.midi = PCOctaveToMIDI(note[0], note[1])
+
         self.bar = bar
         self.beat = round(division*beat) / division
         if chord:
@@ -403,9 +409,9 @@ class Note():
 
     def __str__(self):
         if self.rest:
-            return f'Rest  @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
+            return f'Rest  @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord}, {self.next_note.midi})'
         else:
-            return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
+            return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord}, {self.next_note.midi})'
 
 import random
 

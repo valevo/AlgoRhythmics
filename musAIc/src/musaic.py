@@ -19,20 +19,28 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-#CLIENT_ADDR = '192.168.1.12'
+#CLIENT_ADDR = '192.168.0.31'
+CLIENT_ADDR = '146.50.249.176'
 #CLIENT_ADDR = '192.168.0.36'
 #CLIENT_ADDR = '145.109.5.179'
-CLIENT_ADDR = '100.75.0.230'
+#CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
+
 
 # Address and port of guest machine to listen for incoming messages:
 #   - run ifconfig (or `ip addr` in Arch) and use Host-Only IP (same as listed on Windows ipconfig)
 #   - port can be arbitrary, but SuperCollider must know!
-SERVER_ADDR = '192.168.56.102'
 #SERVER_ADDR = '192.168.56.102'
+SERVER_ADDR = '192.168.56.102'
 #SERVER_ADDR = '127.0.0.1'
 SERVER_PORT = 7121
+
+TOUCH_OSC_CLIENT = ('192.168.0.32', 8000)  # Address that TouchOSC is recieving messages from (check app)
+TOUCH_OSC_SERVER = ('10.0.2.15', 7121)       # Address from where TouchOSC messages will arrive from 
+                                             #   (check NAT, Port Forwarding in VBox)
+
+META_PARAMS = ['span', 'tCent', 'cDens', 'cDepth', 'jump', 'rDens', 'sPos']
 
 APP_NAME = 'musAIc LIVE (v0.4)'
 
@@ -53,11 +61,12 @@ class MessageListener(threading.Thread):
 
 class Engine(threading.Thread):
     """Controls the clock and instument playback"""
-    def __init__(self, app, ins_manager, bpmVar):
+    def __init__(self, app, ins_manager, bpmVar, touchOSCClient=None):
         threading.Thread.__init__(self)
         self.app = app
         self.ins_manager = ins_manager
         self.bpmVar = bpmVar
+        self.touchOSCClient = touchOSCClient
 
         self.stop_request = threading.Event()
         self.play_request = threading.Event()
@@ -72,35 +81,36 @@ class Engine(threading.Thread):
     def run(self):
         while not self.stop_request.isSet():
             if self.play_request.isSet():
+                # start bar process...
                 if self.start_playing:
-                    # start bar process...
                     self.is_playing.set()
                     time_bar_start = time.time()
                     self.start_playing = False
                     if self.record:
                         self.app.sendCC(1, 127)
 
-                    self.ins_manager.set_playing()
-
-                # before bar processes
+                # before bar processes...
                 for ins in self.ins_manager.get_instruments():
                     ins.load_bar()
-                    ins.ins_panel.update_canvas()
 
                 try:
                     new_bps = self.bpmVar.get()/60
                     bps = new_bps
                 except:
                     pass
-                while self.beat < 4 and not self.stop_request.isSet():
-                    # during bar processes...
-                    self.wait_event.wait(timeout=0.05)
-                    self.beat = min(4, bps*(time.time() - time_bar_start))
-                    self.ins_manager.play_instruments(self.bar, self.beat)
-                    for ins in self.ins_manager.instrumentPanels.values():
-                        ins.move_canvas(self.beat)
 
-                # after bar processes
+                # during bar processes...
+                while self.beat < 3.98 and not self.stop_request.isSet():
+                    self.wait_event.wait(timeout=0.05)
+                    self.beat = min(3.99, bps*(time.time() - time_bar_start))
+                    self.ins_manager.play_instruments(self.bar, self.beat)
+                    #for ins in self.ins_manager.instrumentPanels.values():
+                    #    ins.move_canvas(self.beat)
+
+                    if self.touchOSCClient:
+                        self.touchOSCClient.send_message('/metronome', tuple([1 if n < self.beat else 0 for n in range(4)]))
+
+                # after bar processes...
                 for ins in self.ins_manager.get_instruments():
                     ins.close_bar()
                     ins.increment_bar_num()
@@ -114,6 +124,8 @@ class Engine(threading.Thread):
                 # after stopping playback...
                 self.is_playing.clear()
                 if not self.start_playing:
+                    if self.touchOSCClient:
+                        self.touchOSCClient.send_message('/metronome', (0, 0, 0, 0))
                     self.app.sendCC(1, 0)
                     self.app.sendCC(2, 127)
                     self.record = False
@@ -129,7 +141,7 @@ class Engine(threading.Thread):
                     self.app.controls.update_buttons()
                     self.start_playing = True
                     self.ins_manager.set_stopped()
-                    self.ins_manager.update_gui()
+                    #self.ins_manager.update_gui()
 
             # update instruments if they have requested new bars...
             for ins in self.ins_manager.get_instruments():
@@ -158,10 +170,10 @@ class Engine(threading.Thread):
             self.play_request.set()
 
 
-PAUSED = 2
-PLAY_WAIT = -1
-PAUSE_WAIT = -2
-PLAYING = 1
+PAUSED = 2          # currently paused and not playing
+PLAY_WAIT = -1      # currently paused but will play at next bar
+PAUSE_WAIT = -2     # currently playing but will pause at end of bar
+PLAYING = 1         # currently playing
 
 
 class Instrument():
@@ -177,7 +189,7 @@ class Instrument():
         self.confidence = 0               # the rank of which note to play
         self.bar_num = 0                  # current bar number
         self.stream = utils.Stream()      # the musical stream of notes / chords
-        self.status = PAUSED              # current playing status
+        self.status = PLAYING             # current playing status
         self.armed = False                # is armed (recording) instrument
         self.active = True                # is selected instrument
         self.mute = False                 # mute the output
@@ -187,11 +199,15 @@ class Instrument():
 
         self.lead = False                 # Lead instrument that others follow
 
+        self.next_note = None             # the current note object
         self.current_bar = None           # currently playing bar
-        #self.lastNote = []                # last note played for muting
-        self.noteOffEvents = dict()       # a queue of noteOff events: (time, note)
         self.offMode = 0                  # note off mode: 0 - hold to noteOn
                                           #                1 - hold for exactly one beat
+        self.heldNotes = {}               # a dict of current notes being held, {MIDI: note}
+
+        self.hold = False                 # holds current context
+
+        self.request_GUI_update = True    # lets GUI thread know it needs to recalc canvas
 
         self.loopLevel = 0                # number of bars to loop 
         self.loopEnd = 0                  # bar the loop number offsets from
@@ -207,6 +223,7 @@ class Instrument():
 
     def set_ins_panel(self, ins_panel):
         self.ins_panel = ins_panel
+        self.update_params(self.ins_panel.getMetaParams())
 
     def delete(self):
         '''Deletes this instrument'''
@@ -220,7 +237,6 @@ class Instrument():
 
     def load_bar(self):
         '''Loads the current bar into memory to be played, called at start of bar'''
-        print('LOAD BAR', self.bar_num)
         if self.status == PAUSED or self.status == PAUSE_WAIT:
             return
 
@@ -236,11 +252,7 @@ class Instrument():
                 self.bar_num = self.loopEnd - self.loopLevel + 1
                 self.bar_num = max(0, self.bar_num)
 
-                # reset played attribute of notes...
-                for i in range(self.loopLevel):
-                    bar = self.stream.getBar(self.bar_num + i)
-                    for n in bar.values():
-                        n.played = False
+        print('LOAD BAR', self.bar_num)
 
         if self.record_bars:
             if self.bar_num >= self.record_bars[0] and \
@@ -250,26 +262,22 @@ class Instrument():
             self.recording = False
             try:
                 self.current_bar = self.stream.getBar(self.bar_num)
+                self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
+
+                print(self.next_note)
 
             except Exception as e:
                 # no bar left to load...
                 print(e)
                 self.current_bar = None
+                self.next_note = None
 
-        if self.ins_panel:
-            self.ins_panel.update_canvas()
 
     def play_bar(self, bar, beat):
         '''Checks if have to play any notes in current bar'''
         #print('PLAY BAR', self.bar_num, bar, beat)
-        # check if any new bars are ready...
         self.check_updates()
-        #print(bar, beat)
 
-        #if self.current_bar == None and len(self.bars) > 0:
-        #    self.current_bar = self.bars_queue.get(block=False)
-
-        #print(self.status, self.mute, self.current_bar)
         if self.status == PAUSED or self.mute:# or self.current_bar == None:
             return
 
@@ -282,54 +290,60 @@ class Instrument():
                 self.noteOn = None
             return
 
-        current_note = self.stream.getNotePlaying(self.bar_num, beat)
+        # check if have to mute any notes...
+        muted = []
+        curr_offset = self.bar_num*4 + beat
+        for m, n in self.heldNotes.items():
+            if self.offMode < 0.1:
+                # hold to noteOn
+                offTime = n.getOffset() + n.getDuration()
+                if curr_offset > offTime:
+                    self.mute_note(n)
+                    muted.append(m)
 
-        #self.check_note_off(beat)
+            else:
+                # hold for one quarter beat
+                offTime = n.getOffset() + self.offMode
+                if curr_offset > offTime:
+                    self.mute_note(n)
+                    muted.append(m)
 
-        if current_note:
-            if current_note.midi < 0:
-                # rest...
+        for m in muted:
+            del self.heldNotes[m]
+
+        if self.next_note:
+            if beat < self.next_note.beat or self.bar_num != self.next_note.bar:
                 return
 
-            if not current_note.played:
-                self.mute_last_notes()
-                note = current_note.midi + 12*self.transpose
-                vel = np.random.randint(70, 90)
-                if current_note.isChord():
-                    self.lastNote = []
-                    for c in current_note.chord:
-                        cNote = note + c
-                        self.ins_manager.send_message('/noteOn', (self.chan, cNote, vel))
-                        #print(self.bar_num)
-                        #print('Play note {} on channel {}'.format(cNote, self.chan))
-                        self.lastNote.append(cNote)
-                        #self.noteOffStack.append()
+            if self.next_note.midi < 0:
+                # rest...
+                self.next_note = self.next_note.next_note
+                return
 
-                else:
-                    self.ins_manager.send_message('/noteOn', (self.chan, note, vel))
-                    #print(self.bar_num)
-                    #print('Play note {} on channel {}'.format(note, self.chan))
-                    self.lastNote = [note]
+            #self.mute_last_notes(beat)
+            note = self.next_note.midi + 12*self.transpose
+            vel = np.random.randint(70, 100)
+            if self.next_note.isChord():
+                for c in self.next_note.chord:
+                    cNote = note + c
+                    self.ins_manager.send_message('/noteOn', (self.chan, cNote, vel))
+                    #print('Play note {} on channel {}'.format(cNote, self.chan))
 
-                current_note.played = True
+            else:
+                self.ins_manager.send_message('/noteOn', (self.chan, note, vel))
+                print('Play note {} on channel {}'.format(note, self.chan))
 
-    def check_note_off(self, beat):
-        if self.offMode == 0:
-            # noteOff on next noteOn
-            pass
-        elif self.offMode == 1:
-            # noteOff after one beat 
-            keyList = []
-            for n, t in self.noteOffEvents.items():
-                if t < self.bar_num + beat:
-                    keyList.append(n)
-                    self.ins_manager.send_message('/noteOff', (self.chan, n.))
+            self.heldNotes[self.next_note.midi] = self.next_note
+            self.next_note = self.next_note.next_note
 
-
-
-    def mute_last_notes(self, beat):
-        for n in self.lastNote:
-            self.ins_manager.send_message('/noteOff', (self.chan, n))
+    def mute_note(self, note):
+        print('Muting note ', note)
+        m = note.midi
+        self.ins_manager.send_message('/noteOff', (self.chan, m))
+        if note.isChord():
+            for c in note.chord:
+                cNote = m + c
+                self.ins_manager.send_message('/noteOff', (self.chan, cNote))
 
     def mute_all_notes(self):
         self.ins_manager.send_message('/allOff', self.chan)
@@ -338,6 +352,7 @@ class Instrument():
         msg = {
             'confidence': self.confidence,
             'loopRhythm': self.rhythmLoopLevel,
+            'hold':       self.hold
         }
         self.request_queue.put((1, self.ins_id, msg))
 
@@ -354,7 +369,9 @@ class Instrument():
 
                     self.stream.appendBar(new_bar)
                     if self.ins_panel:
-                        self.ins_panel.update_canvas()
+                        # should be offloaded to GUI loop no?
+                        #self.ins_panel.update_canvas()
+                        self.request_GUI_update = True
 
                 if 'md' in msg:
                     self.ins_panel.updateMetaParams(msg['md'])
@@ -388,7 +405,8 @@ class Instrument():
                 self.init_record(self.bar_num, 0)
                 self.stream.recalculate()
                 self.stream.show()
-                self.ins_panel.update_canvas()
+                self.request_GUI_update = True
+                #self.ins_panel.update_canvas()
                 self.ins_panel.update_highlighted_bars()
                 self.request_queue.put((2, self.ins_id, self.stream))
 
@@ -424,22 +442,28 @@ class Instrument():
 
     def update_params(self, parameters):
         self.request_queue.put((3, self.ins_id, parameters))
+        for p, v in parameters.items():
+            self.ins_manager.send_touchOSC_message('/{}/{}'.format(self.ins_id+1, p), (v))
+            print('/{}/{}'.format(self.ins_id, p), (v))
 
     def toggle_paused(self):
         if self.status == PAUSED or self.status == PAUSE_WAIT:
             self.status = PLAY_WAIT
+            self.ins_manager.send_touchOSC_message('/{}/muteLED'.format(self.ins_id+1), (0))
         else:
+            self.ins_manager.send_touchOSC_message('/{}/muteLED'.format(self.ins_id+1), (1))
             self.status = PAUSE_WAIT
 
     def toggle_loop(self, level):
         if self.loopLevel == level:
             self.loopLevel = 0
+            #self.ins_manager.send_touchOSC_message('/{}/loopLED/{}'.format(self.ins_id, level), 0)
         else:
             self.loopLevel = level
             self.loopEnd = self.bar_num
+            #self.ins_manager.send_touchOSC_message('/{}/loopLED/{}'.format(self.ins_id, level), 1)
 
-        print(self.loopLevel, self.loopEnd)
-
+        #print(self.loopLevel, self.loopEnd)
         self.ins_panel.update_highlighted_bars()
 
     def toggle_rhythm_loop(self, level):
@@ -455,13 +479,18 @@ class Instrument():
     def toggle_continuous(self):
         self.continuous = not self.continuous
 
+    def toggle_hold(self):
+        self.hold = not self.hold
+        print('HOLD set to ', self.hold)
+        self.ins_manager.send_touchOSC_message('/{}/holdLED'.format(self.ins_id+1), int(self.hold))
+
 
 class InstrumentManager():
     """
     Holds all the instruments and manages their processes
     Midi player and GUI threads use this
     """
-    def __init__(self, ins_box, client, request_queue, queue_manager):
+    def __init__(self, ins_box, client, request_queue, queue_manager, touchOSCClient=None):
         self.instruments = {}               # contains the instruments by ID
         self.instrumentPanels = {}          # the GUI display panels
         self.ins_box = ins_box              # where the panels are displayed
@@ -472,6 +501,7 @@ class InstrumentManager():
         self.armed_ins = None               # if any instruments set to record
         self.selected_ins = None            # the currently selected instrument
         self.lead_ins = None                # the lead instrumet
+        self.touchOSCClient = touchOSCClient
 
     def addInstrument(self):
         print('adding instrument {}...'.format(self.ins_counter))
@@ -539,8 +569,10 @@ class InstrumentManager():
             ins.status = PLAYING
 
     def set_stopped(self):
-        for ins in self.instruments.values():
-            ins.status = PAUSED
+        pass
+        #for ins in self.instruments.values():
+        #    ins.status = PLAY_WAIT
+        #    pass
 
     def update_gui(self):
         for ins_panel in self.instrumentPanels.values():
@@ -596,13 +628,20 @@ class InstrumentManager():
 
         self.set_selected_instrument(self.instruments[new_id])
 
-    def send_message(self, add, msg):
+    def send_message(self, addr, msg):
         try:
-            self.client.send_message(add, msg)
+            self.client.send_message(addr, msg)
         except OSError:
             print('[OS Error] Instrument manager cannot send message {}:{}'.format(
-                      add, msg))
-            return
+                      addr, msg))
+
+    def send_touchOSC_message(self, addr, msg):
+        try:
+            if self.touchOSCClient:
+                self.touchOSCClient.send_message(addr, msg)
+        except OSError:
+            print('[OS Error] Instrument manager cannot send TouchOSC message {}:{}'.format(
+                      addr, msg))
 
 
 class MusaicApp():
@@ -627,6 +666,14 @@ class MusaicApp():
         #self.client = udp_client.SimpleUDPClient(self.cl_ip, self.cl_port)
         self.updateClient()
 
+        # for TouchOSC app...
+        self.touchOSCdisp = dispatcher.Dispatcher()
+        self.touchOSCdisp.map('/*', self.parseOSC)
+
+        self.touchOSCServer = osc_server.BlockingOSCUDPServer(TOUCH_OSC_SERVER, self.touchOSCdisp)
+        self.touchOSCClient = udp_client.SimpleUDPClient(*TOUCH_OSC_CLIENT)
+
+        # setup managers...
         self.queue_manager = multiprocessing.Manager()
         self.request_queue = self.queue_manager.Queue()
         self.network_manager = NetworkManager(self.request_queue)
@@ -649,6 +696,7 @@ class MusaicApp():
                              font='Arial 16', padx=5, pady=5)
 
         self.BPM = tk.IntVar(self.maincontrols)
+        self.BPM.trace('w', self.BPMchange)
         self.BPM.set(80)
         self.bpmBox = tk.Spinbox(self.maincontrols, from_=20, to=240, textvariable=self.BPM,
                             width=3)
@@ -669,17 +717,18 @@ class MusaicApp():
 
         self.ins_manager = InstrumentManager(self.instrumentsBox, self.client,
                                              self.request_queue,
-                                             self.queue_manager)
+                                             self.queue_manager,
+                                             self.touchOSCClient)
         self.ins_manager.addInstrument()
 
         # add engine...
-        self.engine = Engine(self, self.ins_manager, self.BPM)
+        self.engine = Engine(self, self.ins_manager, self.BPM, touchOSCClient=self.touchOSCClient)
 
         # add controls...
         self.controls = PlayerControls(self.maincontrols, self.engine)
         self.controls.grid(row=0, column=0, rowspan=2)
 
-        # add status bar
+        # add status bar...
         self.statusBar = tk.Frame(self.mainframe, relief='sunken', bd=2)
         self.statusLabel = tk.Label(self.statusBar,
             text='Connecting too: {}, Port:{}'.format(self.cl_ip, self.cl_port))
@@ -687,21 +736,23 @@ class MusaicApp():
         self.statusLabel.pack(side='right')
         self.statusBar.pack(side='bottom', fill='x')
 
-        # add OSC listener...
+        # add OSC listeners...
         self.disp = dispatcher.Dispatcher()
         self.disp.map('/pingReply', self.pingReply, self.statusLabel)
         self.disp.map('/cc', self.ccRecieve)
         self.disp.map('/noteOn', self.noteOn)
         self.joystick_moved = False
 
-        #self.server = osc_server.BlockingOSCUDPServer((self.sv_ip, self.sv_port), self.disp)
+
         self.updateServer()
         self.listener = MessageListener(self.server)
+        self.touchOSCListener = MessageListener(self.touchOSCServer)
 
         # start the loops...
         self.engine.daemon = True
         self.engine.start()
         self.listener.start()
+        self.touchOSCListener.start()
         self.checkConnection()
         self.updateGUI()
 
@@ -712,6 +763,7 @@ class MusaicApp():
         self.ins_manager.send_message('/panic', 0)
         self.engine.join(timeout=1)
         self.listener.join(timeout=1)
+        self.touchOSCListener.join(timeout=1)
         self.network_manager.terminate()
         self.network_manager.join(timeout=1)
 
@@ -722,6 +774,16 @@ class MusaicApp():
         beat = self.engine.beat
         text = '{:2}:{}'.format(bar, int(min(4, beat+1)))
         self.timeLabel.configure(text=text)
+
+        # check if need to redraw canvases...
+        for ins in self.ins_manager.instruments.values():
+            if ins.request_GUI_update:
+                ins.ins_panel.update_canvas()
+                ins.request_GUI_update = False
+
+            ins.ins_panel.move_canvas(beat)
+            ins.ins_panel.update_buttons()
+
 
         #if self.engine.record:
         #    self.recButton['relief'] = 'sunken'
@@ -770,10 +832,11 @@ class MusaicApp():
         print('Server updated', self.sv_ip, self.sv_port)
 
     def parseOSC(self, addr, *args):
-        items = addr.split('/')
+        items = addr.split('/')[1:]
 
-        print('OSC Recieved:', (add, args))
+        print('OSC Recieved:', (addr, args))
         print('   Items: ', items)
+        print('   Args:  ', *args)
 
         if len(items) == 0:
             return
@@ -784,22 +847,65 @@ class MusaicApp():
         elif items[0] == 'killAll':
             self.panic()
         elif items[0] == 'globalPlay':
-            self.controls.play()
-        elif items[0] == 'bpm':
+            self.controls.play(None)
+        elif items[0] == 'tempo':
             # deal with BPM change...
-            pass
-        elif items[0] in range(8):
+            bpm = self.engine.bpmVar.get()
+            if args[0] > 0.5:
+                if bpm > 180:
+                    return
+                self.engine.bpmVar.set(int(bpm) + 1)
+            else:
+                if bpm < 20:
+                    return
+                self.engine.bpmVar.set(int(bpm) - 1)
+        elif items[0] in '123456789':
             # instrument control
-            _id = items[0]
-            ctrl = items[1]
+            if args[0] < 0.5:
+                return
+            _id = int(items[0]) - 1
+            if _id not in self.ins_manager.instruments.keys():
+                return
 
-            if ctrl in 
+            ins = self.ins_manager.instruments[_id]
+
+            if len(items) == 1:
+                # set armed instrument?
+                return
+
+            ctrl = items[1]
+            if ctrl == 'loopBars':
+                if items[-1] == '1':
+                    level = 0
+                else:
+                    level = 2**(int(items[-1])-2)
+
+                ins.repeatSelect.set(level)
+            elif ctrl == 'recBars':
+                if items[-1] == '1':
+                    level = 0
+                else:
+                    level = 2**(int(items[-1])-2)
+
+                ins.recSelect.set(level)
+            elif ctrl == 'loopRhythm':
+                if items[-1] == '1':
+                    level = 0
+                else:
+                    level = int(items[-1])-1
+
+                ins.rhythmSelect.set(level)
+            elif ctrl == 'hold':
+                ins.toggle_hold()
+
+            elif ctrl == 'mute':
+                ins.toggle_mute()
+
+            elif ctrl in META_PARAMS:
+                ins.updateMetaParams({ctrl: args[0]})
 
         else:
             print('Unknown OSC message...')
-
-
-
 
 
     def ccRecieve(self, *msg):
@@ -826,7 +932,7 @@ class MusaicApp():
                     28: self.CC_change_parameter,
                     29: self.CC_change_parameter,
                     30: self.CC_change_parameter,
-                    #31: self.CC_change_parameter,
+                    31: self.CC_change_parameter,
                     #32: self.CC_change_parameter
                    }
 
@@ -902,7 +1008,8 @@ class MusaicApp():
                 27: 'cDens',
                 28: 'cDepth',
                 29: 'jump',
-                30: 'rDens'}
+                30: 'rDens',
+                31: 'pos'}
 
         try:
             selected_ins = self.ins_manager.selected_ins.ins_id
@@ -929,6 +1036,11 @@ class MusaicApp():
 
     def sendCC(self, num, val):
         self.client.send_message('/midiCC', (num, val))
+
+    def BPMchange(self, *args):
+        #print('BPM change: ', args)
+        self.touchOSCClient.send_message('/bpm', self.BPM.get())
+
 
 class DialogOSCParams(Dialog):
     def body(self, root):

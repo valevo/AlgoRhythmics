@@ -116,9 +116,11 @@ class NNPlayer():
         top_melody = np.argmax(output[1], axis=-1)
 
         if False:
+            # Deterministic playback...
             sampled_rhythm = top_rhythm
             sampled_melody = top_melody
         else:
+            # Random playback...
             sampled_rhythm = np.array([[rand.choice(self.V_rhythm, p=curr_p) for curr_p in output[0][0]]])
             sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
 
@@ -128,14 +130,26 @@ class NNPlayer():
             if num > 0:
                 sampled_rhythm = self.rhythm_contexts[-num]
 
-        print('sampled rhythm...', sampled_rhythm)
-        print('sampled melody...', sampled_melody)
+        #print('sampled rhythm...', sampled_rhythm)
+        #print('sampled melody...', sampled_melody)
 
         # update history...
-        self.rhythm_contexts.append(top_rhythm)
-        self.rhythm_contexts = self.rhythm_contexts[1:]
+        if 'hold' in kwargs:
+            if not kwargs['hold']:
+                self.rhythm_contexts.append(top_rhythm)
+                #self.rhythm_contexts.append(sampled_rhythm)
+                self.rhythm_contexts = self.rhythm_contexts[1:]
+        else:
+            self.rhythm_contexts.append(top_rhythm)
+            #self.rhythm_contexts.append(sampled_rhythm)
+            self.rhythm_contexts = self.rhythm_contexts[1:]
 
+
+        # update with top context
         self.melody_contexts = np.append(self.melody_contexts, [top_melody], axis=1)[:, 1:, :]
+
+        # update with actual context
+        #self.melody_contexts = np.append(self.melody_contexts, [sampled_melody], axis=1)[:, 1:, :]
 
         # convert to bar...
         rhythm = [self.indexDict[b] for b in sampled_rhythm[0]]
@@ -145,7 +159,7 @@ class NNPlayer():
         #octaves =[int(x) for x in rand.choice([2, 3, 4], 48, p=[0.2, 0.7, 0.1])]
 
         bar = parseBarData(melody, octave, rhythm)
-        print('Output bar:\n', bar)
+        #print('Output bar:\n', bar)
 
         return bar
 
@@ -276,7 +290,7 @@ class DataReader():
 
         self.current_bar += 1
 
-        print('Bar generated', bar)
+        #print('Bar generated', bar)
         return bar
 
 
@@ -313,13 +327,12 @@ class NetworkManager(multiprocessing.Process):
                 # new instrument id
                 _id = req[1]
                 self.return_queues[_id] = req[2]
-                #self.models[_id] = DataReader(_id)
+                self.models[_id] = DataReader(_id)
                 #self.models[_id] = BasicPlayer(_id)
-                #md = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'expression': 0}
-                if len(req) > 3:
-                    self.models[_id] = NNPlayer(_id, req[3])
-                else:
-                    self.models[_id] = NNPlayer(_id)
+                #if len(req) > 3:
+                #    self.models[_id] = NNPlayer(_id, req[3])
+                #else:
+                #    self.models[_id] = NNPlayer(_id)
 
             elif req[0] == 1:
                 # instument requests new bar
