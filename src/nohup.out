@@ -1,78 +1,1510 @@
 STARTING
 STARTING
-Inconsistant lengths...(104, 107, 107)
-Inconsistant lengths...(68, 71, 71)
-Inconsistant lengths...(19, 22, 22)
-Inconsistant lengths...(54, 57, 57)
-Inconsistant lengths...(57, 60, 60)
-Inconsistant lengths...(599, 602, 602)
-Inconsistant lengths...(0, 2, 2)
-Inconsistant lengths...(114, 117, 117)
-Inconsistant lengths...(131, 134, 134)
-Inconsistant lengths...(247, 250, 250)
-Inconsistant lengths...(77, 80, 80)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(0, 1, 1)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/altdeu20.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
-Inconsistant lengths...(77, 80, 80)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(65, 68, 68)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_c.krn is too short (4 bars)
-Inconsistant lengths...(124, 127, 127)
-Inconsistant lengths...(170, 173, 173)
-Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(236, 239, 239)
-Inconsistant lengths...(32, 35, 35)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_g.krn is too short (4 bars)
-Inconsistant lengths...(71, 74, 74)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv130.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv250.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv69.6.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv846.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus132.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/cpebach/h186.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lot.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/joplin/maple_leaf_rag.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.10.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.11.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.13.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.19.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.7.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.10.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.13.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.20.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.9.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k156/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_01.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_05.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_III_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_III_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_03_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_05.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_31.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_42.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_51.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_60.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_69.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_73.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_79.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_15.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_20.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_24.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_33.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_39.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_46.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_53.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_65.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_71.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_79.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_08_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_11_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_14_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_20_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_23_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_27.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no3/movement3.mxl has different length parts
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han2.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han2.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han2.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.15.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.18.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k155/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k458/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_03.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_06.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_15.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_III_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_01.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_03_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_10_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_17_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_20.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_24.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_30.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_38.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_43.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_48.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_54.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_59.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_65.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_72.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_78.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_16.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_30.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_43.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_52.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_59.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_66.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_73.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_80.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_08_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_13_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_15_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_19_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_26_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_29_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_33.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_40_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_44_b.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv171.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv190.7-inst.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv248.23-2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv248.64-6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv79.3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement1.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no3/movement1.mxl has different length parts
 Inconsistant lengths...(0, 2, 2)
 Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad40.abc is too short (4 bars)
 Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad40.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
-Inconsistant lengths...(0, 3, 3)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
-Inconsistant lengths...(48, 51, 51)
-Inconsistant lengths...(53, 56, 56)
-Inconsistant lengths...(22, 25, 25)
-Inconsistant lengths...(140, 143, 143)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad30.abc is too short (4 bars)
-Inconsistant lengths...(0, 3, 3)
 Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk10.abc is too short (4 bars)
 Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/zuccal0.abc is too short (4 bars)
-Inconsistant lengths...(23, 26, 26)
-Inconsistant lengths...(31, 34, 34)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_c.krn is too short (4 bars)
-Inconsistant lengths...(66, 69, 69)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k458/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k80/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_06.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_11.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_16.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_29.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_34.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_40.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_46.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_52.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_56.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_63.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_67.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_03.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_26.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_44.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_49.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_56.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_61.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_69.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_01_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_05_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_09_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_13_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_16.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_21_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_25_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_31_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_34_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_40_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_43_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_50.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_53_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_59_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_61_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_69_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_74.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_83_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_87_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_92_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_97.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_03_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_04_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_07_a.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k156/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k80/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_11.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_16.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_12_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_17_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_27.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_35.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_41.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_45.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_50.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_57.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_64.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_70.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_74.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_28.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_32.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_40.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_47.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_54.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_62.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_68.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_77.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_05_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_18_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_21_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_25_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_31_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_32_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_36_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_41_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_46_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_52_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_56.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_62.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_68_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_72_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_77_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_79_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_85_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_89_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_92_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_96.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_03_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_04_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_05_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_07_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_11_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_11_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_13_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_15_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_17_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_18_c.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
 Inconsistant lengths...(0, 3, 3)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Inconsistant lengths...(0, 3, 3)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Inconsistant lengths...(0, 3, 3)
-Inconsistant lengths...(0, 3, 3)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad50.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
-Inconsistant lengths...(59, 62, 62)
-Inconsistant lengths...(42, 45, 45)
-Inconsistant lengths...(16, 19, 19)
-Inconsistant lengths...(183, 186, 186)
-Inconsistant lengths...(6, 9, 9)
-Inconsistant lengths...(449, 452, 452)
-Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lot.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/lux.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.9.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.11.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.14.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.17.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.8.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.8.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k156/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k80/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_15.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_19.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_26.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_33.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_39.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_47.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_53.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_62.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_71.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_77.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_01.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_05.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_11.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_19.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_27.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_34.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_42.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_50.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_57.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_64.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_70.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_75.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_81.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_09_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_14_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_15_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_19_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_23_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_26_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_29_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_36_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_38_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_42_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_46_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_51_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_55.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_60.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_73_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_80_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_84_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_87_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_90_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_93_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_02_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_05_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_09_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_13_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_16_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_19_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_22_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_23_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_28_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_c.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no1/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no2/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no2/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no3/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus1no1/movement5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus74no1/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus74no1/movement4.mxl has different length parts
 Inconsistant lengths...(0, 1, 1)
-Inconsistant lengths...(209, 212, 212)
-Inconsistant lengths...(409, 412, 412)
-Inconsistant lengths...(58, 61, 61)
-Inconsistant lengths...(96, 99, 99)
-Inconsistant lengths...(228, 231, 231)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.5.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k155/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k458/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k80/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_28.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_32.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_44.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_49.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_55.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_61.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_68.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_75.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_II_80.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_06.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_31.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_38.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_45.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_51.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_63.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_72.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_78.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_03_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_20_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_24_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_30.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_35_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_39_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_43_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_48.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_57_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_63.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_70_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_75.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_81.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_93_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_08_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_11_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_15_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_27.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_37_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_37_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_39_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_43_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_46_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_48_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_52_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_e.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv29.8.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no2/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus74.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_29.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_35.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_41.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_48.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_55.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_60.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_67.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Agnus_I_74.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_01_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_03_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_06.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_24_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_28_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_32_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_35_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_39_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_42_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_45.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_51_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_54_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_59_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_64_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_67.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_72_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_79_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_82.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_88_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_91.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_03_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_05_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_09_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_12_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_13_c.krn has different length parts
+Inconsistant lengths...(0, 2, 2)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_16_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_18_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_19_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_22_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_25_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_29_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_29_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_33_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_38_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_41_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_44_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_47_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_50_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_53_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_58_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_61_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_e.krn has different length partsSong /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv120.8-a.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv149.7.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv19.7.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv248.42-4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv79.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv91.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beach/prayer_of_a_tired_child.musicxml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no1/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no1/movement4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus59no3/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/ballad30.abc is too short (4 bars)
+Inconsistant lengths...(0, 3, 3)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/han1.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.14.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.16.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.18.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.1_old.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.20.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.3.8.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.12.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.16.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/monteverdi/madrigal.4.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k155/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/mozart/k458/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_64_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_69_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_71_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_83_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_86.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_90_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_95.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_03_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_08_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_09_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_12_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_18_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_19_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_23_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_28_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_37_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_39_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_42_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_46_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_51_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_54_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_56_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_59_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_63_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_74_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_77_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_81_b.krn has different length parts
+Inconsistant lengths...(0, 1, 1)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_81_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_83_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_34_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_38_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_41_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_44_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_49.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_54_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_57_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_61_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_70_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_73_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_78.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_84_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_88_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_94_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_02_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_04_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_08_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_12_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_15_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_16_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_18_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_20_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_22_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_24_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_28_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_29_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_33_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_38_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_39_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_40_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_44_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_46_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_48_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_51_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_53_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_57_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_59_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_62_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_69_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_72_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_77_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_80_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_81_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_85_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_86_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_86_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_88_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_92_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_95_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_47.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_53_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_65.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_71_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_77_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_80_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_85_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_89_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_94_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Benedictus_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_04_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_06_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_07_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_12_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_15_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_16_b.krn has different length parts
+Inconsistant lengths...(0, 1, 1)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_17_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_19_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_22_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_23_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_25_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_29_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_41_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_43_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_45_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_47_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_50_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_51_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_54_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_60_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_63_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_64_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_68_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_73_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_75_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_78_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_83_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_85_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_89_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_90_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_91_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_94_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_97_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_03.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_20_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_24_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_25_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_29_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_g.krn is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_33_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_34.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_41_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_44_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_48_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_52_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_54_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_56_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_59_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_62_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_68_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_73_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_79_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_84_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_88_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_90_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_93_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_96_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_19_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_31_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_44_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_47.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_56_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_62_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_67.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_77_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_79.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_81_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_85.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_90_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_90_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_92.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_of_1600.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_27_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_34_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_38.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_30_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_31_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_32_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_35_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_39_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_40_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_42_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_45_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_47_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_49_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_51_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_53_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_55_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_57_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_60_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_64_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_69_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_73_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_78_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_80_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_83_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_86_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_89_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_92_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_96_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_20_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_28_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_41.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_49_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_54.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_64.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_c.krn is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_78_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_80.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_90_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_96.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_19_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_26_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_29.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_35_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_39.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_45_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_46.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_53_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_57_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_61_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_64_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_68.krn has different length partsInconsistant lengths...(0, 1, 1)
+Inconsistant lengths...(0, 1, 1)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/chopin/mazurka06-2.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/essenFolksong/erk30.abc is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/handel/rinaldo/Lascia_chio_pianga.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus1no1/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus1no1/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/haydn/opus74no1/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_35_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_38_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_42_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_45_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_47_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_49_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_50_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_54_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_56_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_58_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_60_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_60_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_62_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_63_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_68_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_72_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_75_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_78_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_80_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_82.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_90_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_94_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_97_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_05.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_13_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_20_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_30.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_39.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_45.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_55.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_60.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_66_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_77_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_84.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_95_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_03_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_05_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_06_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_101.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_19_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_34_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_50.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_60.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_70_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_75.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_81_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_84.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_89.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_01.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_10_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_11_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_15_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_17_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_20_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_24_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_26.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_35_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_40_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_43_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_46_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_47_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_49_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_52_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_57_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_60_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_61_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_65_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_66_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_69_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_74_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_77_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_80_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_85_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_89_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_92_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_94_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_96_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_97_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_06_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_11.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_26.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_29.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_42.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_50.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_59.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_78_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_81_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_88.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_95_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_97.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_100.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_28.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_42_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_48.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_56.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_67.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_77.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_88_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_95_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_98_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_05_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_56_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_58_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_61_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_63_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_64_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_72_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_75_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_80_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_84_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_85_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_86_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_90_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_92_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_93_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_95_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_13_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_19_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_24.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_31_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_49_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_49_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_51.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_57.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_72.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_83.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_98.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_11.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_16_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_27_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_33.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_40.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_49.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_54_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_73.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_81_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_85.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_92_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_97.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_03.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_11_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_00_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_02_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_03_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_09_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_15_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_20.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_27.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_41.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_47_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_50_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_55_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_67_c.krn is too short (4 bars)
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_68_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_70_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_71_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_74_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_81_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_84_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_88_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_91_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_92_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_93_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_97_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_28_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_40.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_48.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_61_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_62_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_65_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_75.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_87.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_93_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_99.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_26_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_30.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_42_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_55.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_63.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_86.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_94.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_05.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_24_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_00_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_11_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_26_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_30_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_39.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_47_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_49_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_54_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_56_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_61_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_63_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_68_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_27.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_33_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_34_e.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_38.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_43_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_49_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_52.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_61_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_g.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_91.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_104.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_16_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_31_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_47.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_57_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_61_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_64_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_70_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_74.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_83.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_96.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_02_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_06_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_12_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_28_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_33.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_37.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_45_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_47_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_52.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_60_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_62_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_64.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_69_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_72_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_78.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_84.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_87_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_91.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_95.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_02_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schubert/Lindenbaum.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_01-Vos Qui Admiramini Gratissima virginis species.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06-Jacopo-02-Con-Gran-Furor.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-04_De_Come_Dolce_Mente.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_12-Credo Bartholus.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_6-Gloria Gratiosus.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_09-Gloria Anglicana.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_14-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_20-Padu... serenans.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_77_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_83_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_89_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_92_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_96_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_98_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_02_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus41no1/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-02-Apress_un_fiume_a.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_08-Gloria (Ad Ongni Vento).xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_19-Credo Scabroso.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_43.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_53_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_54_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_59.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_66_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_72.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_80.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_87.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_91.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_99.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_11_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_19.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_03_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_06_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_12_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_14.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_16_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_24_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_28_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_31_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_40.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_48_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_53.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_60_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_62_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_65_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_68_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_73_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_79_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_85.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_89_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_96_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann_clara/opus17/movement3.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06-Jacopo-03b-Di_Novo.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-05_Donna_Gia_Fu_Leggiadra.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-07_In_Sulla_Ripa.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_11a-Credo PMFC12.11a.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_15-Sanctus Lorenzo.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_18-Sanctus Mediolano.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_8-Gloria London 29987.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_07-Gloria Laus Honor.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_13-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_20-Kyrie O Sacra Virgo Beata.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_1-Gloria Ciconia 1.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_21-O proles hispanie.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_4-Credo Ciconia 4.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_16.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_01_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_08.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_15_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_19.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_30_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_34.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_42.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_48_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_50_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_54_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_56_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_60_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_62_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_66_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_70_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_72_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_74.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_80.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_87_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_90.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/dichterliebe_no2.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_01-Lugentium siccentur.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_8-In Verde Prato.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Piero_6a-Quando_laire_comenca.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_19-Sanctus Barbitonsoris.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_7-Gloria Egardus.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_06-Gloria Fior Gentil.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_10-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_23-Kyrie Rex Inmense Maiestasis.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_2-Credo Ciconia 2.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_07.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_11_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_22_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_26_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_30_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_32.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_36.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_45_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_48_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_50_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_54_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_56_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_61_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_68_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_71_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_75_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_79_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_83_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_88.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_94_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_98_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schoenberg/opus19/movement2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus41no1/movement5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_12-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_17-Gloria Spiritus et Alme.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_26-Kyrie O Virgo Sacrata Maria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_17-Doctorum principem-Melodia suavissima-Vir mitis.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_79.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_88_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_92_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_95_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_00.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_06.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_20.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_03_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_09_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_11_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_17.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_24_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_28_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_31_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_38.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_46.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_51.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_60_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_65_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_67_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_70_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_73_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_77_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_82.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_93.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus41no1/movement4.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06-Jacopo-01-Aquila-Altera.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_9-Gloria Clementiae Pax.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_18-Gloria Spiritus et Alme.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_15-O virum omnimoda.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_8-Gloria Ciconia 8.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv137.5.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv195.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv248.9-1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/bach/bwv41.6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement2.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement3.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no1/movement4.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/beethoven/opus18no4.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schoenberg/opus19/movement6.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus48no2.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_01-Virtutibus laudabilis.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_04-Si dolce non sono.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-01-Angnel_son_biancho.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Piero_2-Chavalcando.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_11b-Credo PMFC12.11b.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_17-Sanctus Gratiosus.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_4-Gloria Rvat 1419.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_03-Gloria Micinella.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_10-Credo Ciconia 10.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/verdi/laDonnaEMobile.mxl has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_5-Gloria Ciconia 5 Spiritus et alme.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_85_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_87_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_91_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_95_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Credo_97_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_02.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_06_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_14_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_15_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_16_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_22.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_32.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_44_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_53.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_63.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_70_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_73_i.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_74_f.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_78_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_82_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_89.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_93_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_03_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_05_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_06_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_103.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_18.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_23.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_32.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_44.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_51.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_62_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_66_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_71.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_82.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_93.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_09.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_15.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_24_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_01_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_05_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_09_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_13.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_15_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_22_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_26_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_30_d.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_35.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_44.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_49_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_55_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_59.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_65_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_69_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_72_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_76.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_86.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_92_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_97.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus41no1/movement1.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_17-Kyrie Principum Effectivum.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_6-Gloria Ciconia 6 Spiritus et alme.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_17_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_21.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_31_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_35.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_43_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_46.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_56_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_65_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_68_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_69_h.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_71.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_86.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Gloria_94.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_06_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_102.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_15.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_20.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_31_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_35_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_41.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_45_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_52.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_62_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_65.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_78.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_90.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_98_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_04.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_12.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Kyrie_II_25.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_01_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_06_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_10.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_16_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_24_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_29.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_31_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_43.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_49_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_55_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_58.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_63_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_67_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_71_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_75_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_79_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_83_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_89_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_94_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_02_b.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/schumann/opus41no1/movement3.mxl has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06-Jacopo-03a-Di_Novo.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Giovanni-03-Chon_brachi_assai.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_16-Sanctus PMFC12.16.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_12_4-Gloria Rvat 1419_bak.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_05-Gloria Rosetta.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_16-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_18-Kyrie Chipre.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_23_24-Kyrie Ave Desiderii.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_19-Ut te per omnes celitus- Ingens alumnus padue.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_7-Gloria Suscipe, trinitas.xml has different length parts
+
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_57.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_63_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_67_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_70_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_73_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_75_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_81.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_87_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_92_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_98_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_01_c.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/palestrina/Sanctus_rpt_a.krn has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_01-Rex quem metrorum.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_10-I senti gia come l_arco.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_06_Piero_1-All_onbra d_un perlato.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_04-Credo Cursor.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_13_15-Gloria.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_16-Albane misse celitus.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/trecento/PMFC_24_3-Gloria Ciconia 3.xml has different length parts
+Song /home/al165/.local/lib/python3.7/site-packages/music21/corpus/weber/concertino_clarinet.mxl has different length parts

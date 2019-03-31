@@ -129,7 +129,6 @@ def cleanScore(score, quantise=True, expandRepeats=True, verbose=False):
             score = score.expandRepeats()
         except:
             if verbose: print('Failed to expand repeats, continuing...')
-            score = s
 
     for part in score.parts:
         if verbose: print(part, '----------')
