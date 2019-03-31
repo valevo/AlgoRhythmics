@@ -76,10 +76,14 @@ def getSongData(song, corpus=None, name=None, verbose=False):
 
         songData[j] = partData
 
+    if len(set(len(songData[j]['rhythm']) for j in range(len(cSong.parts)))) != 1:
+        print('Song {} has different length parts'.format(name))
+        return None
+
     return songData
 
 
-def cleanScore(score, quantise=True, verbose=False):
+def cleanScore(score, quantise=True, expandRepeats=True, verbose=False):
     '''
     - Transposes to key of C
     - Sets simultaneous notes to a chord object (chordifies parts, any problems?)
@@ -119,12 +123,13 @@ def cleanScore(score, quantise=True, verbose=False):
         score = s
         if verbose: print(score)
 
-    try:
-        if verbose: print('Expanding repeats...')
-        score = score.expandRepeats()
-    except:
-        if verbose: print('Failed to expand repeats, continuing...')
-        pass
+    if expandRepeats:
+        try:
+            if verbose: print('Expanding repeats...')
+            score = score.expandRepeats()
+        except:
+            if verbose: print('Failed to expand repeats, continuing...')
+            score = s
 
     for part in score.parts:
         if verbose: print(part, '----------')
