@@ -120,7 +120,8 @@ class MetaTrainer(Model):
         
         
         
-def get_meta_embedder(meta_samples, embed_size, epochs=1000, evaluate=True):
+def get_meta_embedder(meta_samples, embed_size, epochs=1000, 
+                      evaluate=True, verbose=1):
     N, meta_len = meta_samples.shape
     meta_samples = rand.permutation(meta_samples)
     
@@ -129,10 +130,10 @@ def get_meta_embedder(meta_samples, embed_size, epochs=1000, evaluate=True):
     meta_trainer = MetaTrainer(meta_emb)
     
     if evaluate:
-        train_n = int(N*0.7)
+        train_n = int(N*0.8)
         meta_trainer.fit(x=meta_samples[:train_n], 
                          y=meta_samples[:train_n], 
-                         epochs=epochs, verbose=0)
+                         epochs=epochs, verbose=verbose)
         eval_results = meta_trainer.evaluate(x=meta_samples[train_n:],
                                              y=meta_samples[train_n:],
                                              verbose=0)

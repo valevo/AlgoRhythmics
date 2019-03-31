@@ -71,7 +71,8 @@ if __name__ == "__main__":
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
                                                embed_size=9, 
-                                               epochs=20, evaluate=True)
+                                               epochs=20, 
+                                               evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
           eval_results)
