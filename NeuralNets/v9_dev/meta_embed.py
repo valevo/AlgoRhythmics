@@ -39,7 +39,7 @@ class MetaEmbedding(Model):
         
         preprocess = Dense(embed_size, activation="relu")
         categorise = Dense(embed_size, activation="softmax", name="vales_embedding",
-                           activity_regularizer=EntropyRegulariser(factor=0.005, 
+                           activity_regularizer=EntropyRegulariser(factor=0.01, 
                                                                    V=embed_V))
 
         meta = Input(shape=(meta_len, ))        
