@@ -108,8 +108,8 @@ class MetaPredictor(Model):
     
 #%%
         
-paramd = {"rhythm_params": (None, 407), "melody_params": (48, 25), 
-          "meta_embed_size": 9, "lstm_size": 8, "dense_size": 12}
-
-
-mp = MetaPredictor(**paramd)
+#paramd = {"rhythm_params": (None, 407), "melody_params": (48, 25), 
+#          "meta_embed_size": 9, "lstm_size": 8, "dense_size": 12}
+#
+#
+#mp = MetaPredictor(**paramd)

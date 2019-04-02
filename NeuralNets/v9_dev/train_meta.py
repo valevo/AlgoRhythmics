@@ -71,7 +71,7 @@ if __name__ == "__main__":
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
                                                embed_size=8, 
-                                               epochs=200, 
+                                               epochs=1000, 
                                                evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
@@ -85,13 +85,13 @@ if __name__ == "__main__":
     m_params = (48, cg.melody_V)
     
     mp = MetaPredictor(r_params, m_params, meta_emb.embed_size,
-                       12, 13)
+                       8, 12)
     
 #%%
     
     mp.fit_generator(pred_meta_gen, 
                      steps_per_epoch=cg.num_pieces, 
-                     epochs=50)
+                     epochs=70)
     
 
 
