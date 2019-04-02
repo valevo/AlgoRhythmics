@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
+
 import numpy as np
 import numpy.random as rand
 import random
@@ -14,21 +14,41 @@ import os
 
 from fractions import Fraction
 
+
+
+from copy import deepcopy
+
+
 class DataGenerator:
-    def __init__(self, path, save_conversion_params=True):
+    def __init__(self, path, save_conversion_params=True, to_list=False):
         self.path = path
         self.num_pieces = None
+        self.to_list = to_list
+        self.raw_songs = None
+
         self.conversion_params = dict()
         self.save_params_eager = save_conversion_params
         self.params_saved = False
 
     def load_songs(self):
+        if self.raw_songs:
+            if self.raw_songs and not self.to_list:
+                raise ValueError("DataGenerator.load_songs:"+
+                                 "self.raw_songs but not self.to_list!")
+            return self.raw_songs        
+        
         files = os.listdir(self.path)
-
+        
+        if self.to_list:
+            self.raw_songs = []
+        
+        
         for f in files:
             with open(self.path + "/"  + f, "rb") as handle:
                 songs = pickle.load(handle)
                 for s in songs:
+                    if self.to_list:
+                        self.raw_songs.append(s)
                     yield s
 
     def get_songs(self, getitem_function, with_metaData=True):
@@ -78,19 +98,15 @@ class DataGenerator:
             return np.repeat(np.asarray([values], dtype="float"), repeat, axis=0)
 
 
-    def generate_forever(self, to_list=False, **generate_params):
-        if to_list:
-            data_list = list(self.generate_data(**generate_params))
+    def generate_forever(self, **generate_params):        
+        rand_inds = self.random_stream()
+        data_gen = self.generate_data(random_stream=rand_inds, **generate_params)
 
-            while True:
-                yield from data_list
-
-        else:
-            data_gen = self.generate_data(**generate_params)
-
-            while True:
-                yield from data_gen
-                data_gen = self.generate_data(**generate_params)
+        while True:
+            yield from data_gen
+                
+            rand_inds = self.random_stream()
+            data_gen = self.generate_data(random_stream=rand_inds, **generate_params)
 
 
     def save_conversion_params(self, filename=None):
@@ -108,8 +124,10 @@ class DataGenerator:
 
 
 class RhythmGenerator(DataGenerator):
-    def __init__(self, path, save_conversion_params=True):
-        super().__init__(path, save_conversion_params=save_conversion_params)
+    def __init__(self, path, save_conversion_params=True, to_list=False):
+        super().__init__(path, 
+             save_conversion_params=save_conversion_params,
+             to_list=to_list)
         song_iter = self.get_rhythms(with_metaData=False)
         label_f, self.label_d = label([beat
                                   for s in song_iter
@@ -123,57 +141,46 @@ class RhythmGenerator(DataGenerator):
             self.save_conversion_params()
 
     def get_rhythms(self, with_metaData=True):
-        yield from self.get_songs(lambda d: d.__getitem__("rhythm"), with_metaData=with_metaData)
+        yield from self.get_songs(lambda d: d.__getitem__("rhythm"), 
+                                  with_metaData=with_metaData)
 
 
     def generate_data(self, context_size=1, with_rhythms=True, with_metaData=True):
         song_iter = self.get_rhythms(with_metaData=True)
 
         for rhythms, meta in song_iter:
-            bar_len = len(rhythms[0])
-            rhythms_labeled = [tuple(self.label_d[b] for b in bar) for bar in rhythms]
-            null_bar = (self.label_d[self.null_elem], )*bar_len
-
-            padded_rhythms = [null_bar]*context_size + rhythms_labeled
-            contexts = [padded_rhythms[i:-(context_size-i)] for i in range(context_size)]
-            rhythms_mat = [list(bar) for bar in rhythms_labeled]
-
-            x_ls = list(map(np.asarray, contexts))
+            rhythms_labeled, context_ls = self.prepare_piece(rhythms,
+                                                               context_size)
 
             if with_rhythms:
-                x_ls.append(np.asarray(rhythms_labeled))
+                context_ls.append(rhythms_labeled)
 
             if with_metaData:
                 prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
-                if not prepared_meta.size == len(rhythms)*10:
-                    raise ValueError('[RhythmGenerator.generateData: Prepared metaData ' +
-                            'has wrong number of elements. Expected {} but got {}'.format(len(rhythms)*10, 
-                                prepared_meta.size),
-                            '\nprepared_meta: ', prepared_meta,
-                            '\nmeta: ', meta)
+                context_ls.append(prepared_meta)
 
-                if not prepared_meta.shape == (len(rhythms),10):
-                    raise ValueError('[RhythmGenerator.generateData: Prepared metaData ' +
-                            'is the wrong shape, expected (10,) but got {}'.format(prepared_meta.shape),
-                            '\nprepared_meta: ', prepared_meta,
-                            '\nmeta: ', meta)
+                yield (context_ls, to_categorical(rhythms_labeled, num_classes=self.V))
 
-                x_ls.append(prepared_meta)
 
-            yield (x_ls, to_categorical(rhythms_mat, num_classes=self.V))
+    def prepare_piece(self, rhythms, context_size):
+        bar_len = len(rhythms[0])
+        rhythms_labeled = [tuple(self.label_d[b] for b in bar) for bar in rhythms]
+        null_bar = (self.label_d[self.null_elem], )*bar_len
+
+        padded_rhythms = [null_bar]*context_size + rhythms_labeled
+        contexts = [padded_rhythms[i:-(context_size-i)] for i in range(context_size)]
+        return np.asarray(rhythms_labeled), list(map(np.asarray, contexts))
+
 
 
 class MelodyGenerator(DataGenerator):
-    def __init__(self, path, save_conversion_params=True):
-        super().__init__(path, save_conversion_params=save_conversion_params)
-
-        song_iter = self.get_notevalues(with_metaData=False)
-        #self.V = len(set(n for melodies in song_iter
-        #                 for bar in melodies for n in bar))
+    def __init__(self, path, save_conversion_params=True, to_list=False):
+        super().__init__(path, 
+             save_conversion_params=save_conversion_params,
+             to_list=to_list)
         self.V = 25
         self.null_elem = 0
-        self.note_pool = set([1])
-
+            
     def get_notevalues(self, with_metaData=True):
         song_iter = self.get_songs(lambda d: d["melody"]["notes"],
                                   with_metaData=with_metaData)
@@ -189,46 +196,36 @@ class MelodyGenerator(DataGenerator):
 
 
     def generate_data(self, context_size=1, with_metaData=True):
-        song_iter = self.get_notevalues(with_metaData=True)
+        song_iter = self.get_notevalues(with_metaData=True)        
         for melodies, meta in song_iter:
-            bar_len = len(melodies[0])
-            null_bar = (self.null_elem, )*bar_len
+            melodies_mat, contexts = self.prepare_piece(melodies,
+                                                        context_size)
 
-            # fill the empty spots in the melodies with notes from last 4 bars...
-            filled_melodies = self.fill_melodies(melodies)
-
-            padded_melodies = [null_bar]*context_size + filled_melodies
-            contexts = [padded_melodies[i:-(context_size-i)] for i in range(context_size)]
-
-            melodies_mat = np.asarray([list(bar) for bar in melodies])
             melodies_y = to_categorical(melodies_mat, num_classes=self.V)
             melodies_y[:, :, 0] = 0.
 
             if with_metaData:
                 prepared_meta = np.array(list(map(self.prepare_metaData, meta)))
 
-                if not prepared_meta.size == len(melodies)*10:
-                    raise ValueError('[MelodyGenerator.generateData: Prepared metaData ' +
-                            'has wrong number of elements. Expected {} but got {}'.format(len(melodies)*10, 
-                                prepared_meta.size),
-                            '\nprepared_meta: ', prepared_meta,
-                            '\nmeta: ', meta)
-                if not prepared_meta.shape == (10,):
-                    raise ValueError('[MelodyGenerator.generateData: Prepared metaData ' +
-                            'is the wrong shape, expected (10,) but got {}'.format(prepared_meta.shape),
-                            '\nprepared_meta: ', prepared_meta,
-                            '\nmeta:', meta)
-
-                yield ([np.transpose(np.asarray(contexts), axes=(1,0,2)),
+                yield ([contexts,
                         prepared_meta],
                         melodies_y)
             else:
-                yield (np.transpose(np.asarray(contexts), axes=(1,0,2)),
-                       melodies_y)
+                yield (contexts,
+                        melodies_y)
 
-        self.note_pool = set([1])
+    def prepare_piece(self, melodies, context_size):
+        bar_len = len(melodies[0])
+        null_bar = (self.null_elem, )*bar_len
 
+        filled_melodies = self.fill_melodies(melodies)
+        melodies_mat = np.asarray(filled_melodies)
 
+        padded_melodies = [null_bar]*context_size + filled_melodies
+        contexts = [padded_melodies[i:-(context_size-i)] for i in range(context_size)]
+        contexts = np.transpose(np.asarray(contexts), axes=(1,0,2))
+        return melodies_mat, contexts
+    
     def fill_melodies(self, melodies):
         filled_melodies = deepcopy(melodies)
 
@@ -240,19 +237,26 @@ class MelodyGenerator(DataGenerator):
 
             for j, note in enumerate(bar):
                 if note > 0:
-                    self.note_pool.add(note)
+                    note_pool.add(note)
                 else:
                     filled_melodies[i][j] = random.sample(note_pool, 1)[0]
 
         return filled_melodies
 
 
-
 class CombinedGenerator(DataGenerator):
-    def __init__(self, path, save_conversion_params=True):
-        super().__init__(path, save_conversion_params=save_conversion_params)
-        self.rhythm_gen = RhythmGenerator(path, save_conversion_params=save_conversion_params)
-        self.melody_gen = MelodyGenerator(path, save_conversion_params=save_conversion_params)
+    def __init__(self, path, 
+                 save_conversion_params=True,
+                 to_list=False):
+        super().__init__(path, 
+             save_conversion_params=save_conversion_params,
+             to_list=to_list)
+        self.rhythm_gen = RhythmGenerator(path, 
+                                          save_conversion_params=save_conversion_params,
+                                          to_list=to_list)
+        self.melody_gen = MelodyGenerator(path, 
+                                          save_conversion_params=save_conversion_params,
+                                          to_list=to_list)
 
         self.rhythm_V = self.rhythm_gen.V
         self.melody_V = self.melody_gen.V

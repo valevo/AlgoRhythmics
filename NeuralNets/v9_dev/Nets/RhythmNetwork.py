@@ -39,7 +39,7 @@ class RhythmNetwork(Model):
     
     def __init__(self, rhythm_encoder, dec_lstm_size, V,  
                  enc_use_meta=False, dec_use_meta=False, compile_now=False):
-        self.n_voices = 6
+        self.n_voices = 9
 
         context_size = rhythm_encoder.context_size
         encoded_size = rhythm_encoder.encoding_size
@@ -105,12 +105,12 @@ class RhythmNetwork(Model):
 
 #%%
         
-V = 127
-
-bemb = BarEmbedding(V=V, beat_embed_size=12, 
-                    embed_lstm_size=12, out_size=9)
-
-renc = RhythmEncoder(bemb, context_size=4, lstm_size=14)
-
-rn = RhythmNetwork(V=V, rhythm_encoder=renc, dec_lstm_size=10,
-                   dec_use_meta=True, compile_now=True)
+#V = 127
+#
+#bemb = BarEmbedding(V=V, beat_embed_size=12, 
+#                    embed_lstm_size=12, out_size=9)
+#
+#renc = RhythmEncoder(bemb, context_size=4, lstm_size=14)
+#
+#rn = RhythmNetwork(V=V, rhythm_encoder=renc, dec_lstm_size=10,
+#                   dec_use_meta=True, compile_now=True)

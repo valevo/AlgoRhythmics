@@ -77,7 +77,7 @@ class RhythmEncoder(Model):
     
     
 #%%
-        
-be = BarEmbedding(375, 12, 12, 8)
-
-renc = RhythmEncoder(be, 4, 28)
+#        
+#be = BarEmbedding(375, 12, 12, 8)
+#
+#renc = RhythmEncoder(be, 4, 28)

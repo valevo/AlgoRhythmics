@@ -119,17 +119,7 @@ class DataGenerator:
             yield rand.randint(n_ins)
             
             
-    def generate_forever(self, to_list=False, **generate_params):
-#        if to_list:
-#            raise ValueError("DataGenerator.generate_forever:\n\t" + 
-#                             "to_list=True not implement with random stream!")
-#            data_list = list(self.generate_data(**generate_params))
-#
-#            while True:
-#                yield from data_list
-#
-#        else:
-        
+    def generate_forever(self, **generate_params):        
         rand_inds = self.random_stream()
         data_gen = self.generate_data(random_stream=rand_inds, **generate_params)
 
@@ -229,10 +219,7 @@ class MelodyGenerator(DataGenerator):
 #                         for melodies in instruments
 #                         for bar in melodies for n in bar))
         self.V = 25
-        
         self.null_elem = 0
-
-
 
     def get_notevalues_together(self, with_metaData=True):
         song_iter = self.get_songs_together(lambda d: d["melody"]["notes"],
@@ -292,9 +279,8 @@ class MelodyGenerator(DataGenerator):
         bar_len = len(melodies[0])
         null_bar = (self.null_elem, )*bar_len
 
-        melodies_mat = np.asarray([list(bar) for bar in melodies])
-
         filled_melodies = self.fill_melodies(melodies, instrument_ls)
+        melodies_mat = np.asarray(filled_melodies)
 
         padded_melodies = [null_bar]*context_size + filled_melodies
         contexts = [padded_melodies[i:-(context_size-i)] for i in range(context_size)]
@@ -389,3 +375,8 @@ class CombinedGenerator(DataGenerator):
                 (melody_x, melody_lead), melody_y = cur_melody
             yield ([*rhythm_x, rhythms, melody_x, rhythm_lead, melody_lead],
                    [rhythm_y, melody_y])
+            
+            
+            
+            
+            

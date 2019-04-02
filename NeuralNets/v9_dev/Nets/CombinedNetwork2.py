@@ -15,6 +15,7 @@ from Nets.RhythmEncoder import BarEmbedding, RhythmEncoder
 from Nets.RhythmNetwork import RhythmNetwork
 from Nets.MelodyEncoder import MelodyEncoder
 from Nets.MelodyNetwork import MelodyNetwork
+from Nets.MetaPredictor import MetaPredictor
 
 from Data.DataGenerators import CombinedGenerator
 
@@ -24,27 +25,24 @@ import json
 
 class CombinedNetwork(Model):
     @classmethod
-    def from_network_parameters(cls, context_size, melody_bar_len, meta_len,
+    def from_network_parameters(cls, context_size, melody_bar_len, meta_embed_size,
                                 bar_embed_params, rhythm_net_params, melody_net_params,
-                                generation=False, compile_now=True):
+                                meta_predictor, generation=False, compile_now=True):
 
         bar_embedder = BarEmbedding(*bar_embed_params, compile_now=False)
         rhythm_net = RhythmNetwork(bar_embedder,
                                         *rhythm_net_params, compile_now=False)
         melody_net = MelodyNetwork(*melody_net_params, compile_now=False)
-        
-        meta_net = MetaNetwork()
-        raise NotImplementedError("MetaNetowrk")
 
-        combined_net = cls(context_size, melody_bar_len, meta_len,
-                           bar_embedder, rhythm_net, melody_net,
+        combined_net = cls(context_size, melody_bar_len, meta_embed_size,
+                           bar_embedder, rhythm_net, melody_net, meta_predictor,
                            generation=generation, compile_now=compile_now)
 
         return combined_net
 
 
     def __init__(self, context_size, melody_bar_len, meta_embed_size,
-                               bar_embedder, rhythm_net, melody_net, meta_net,
+                               bar_embedder, rhythm_net, melody_net, meta_predictor,
                                generation=False, compile_now=True):
         if generation and compile_now:
             raise ValueError("Cannot be used to generate and train at the same time!")
@@ -53,11 +51,11 @@ class CombinedNetwork(Model):
             raise NotImplementedError("Neither RhythmNet nor MelodyNet are using metaData."+
                                       " This is not implemented!")
 
-        self.n_voices = 6
-        if not rhythm_net.n_voices == melody_net.n_voices == self.n_voices:
+        if not rhythm_net.n_voices == melody_net.n_voices == meta_embed_size:
             raise ValueError("n_voices not the same for all networks:" +
-                             str(rhythm_net.n_voices) + str(melody_net.n_voices) +
-                             str(self.n_voices))
+                             " ,".join((str(rhythm_net.n_voices), 
+                                        str(melody_net.n_voices),
+                                        str(meta_embed_size))))
 
         rhythm_contexts = [Input(shape=(None,),
                                  name="rythm_context_"+str(i))
@@ -85,9 +83,6 @@ class CombinedNetwork(Model):
         melody_preds = melody_net([melody_contexts, rhythms_embedded, meta_embedded])
 
 
-        
-
-
 
         if generation:
             super().__init__(inputs=[*rhythm_contexts, melody_contexts, meta_embedded],
@@ -95,9 +90,9 @@ class CombinedNetwork(Model):
         else:
             meta_embedded_prev = Input(shape=(meta_embed_size, ))
             
-            meta_embedded_recon = meta_net([rhythm_preds, 
-                                            melody_preds, 
-                                            meta_embedded_prev])
+            meta_embedded_recon = meta_predictor([rhythm_preds, 
+                                                  melody_preds, 
+                                                  meta_embedded_prev])
             
             super().__init__(inputs=[*rhythm_contexts, rhythms, melody_contexts, 
                                      meta_embedded, meta_embedded_prev],
@@ -107,15 +102,14 @@ class CombinedNetwork(Model):
         self.bar_embedder = bar_embedder
         self.rhythm_net = rhythm_net
         self.melody_net = melody_net
-        self.meta_net = meta_net
+        self.meta_predictor = meta_predictor
 
         self.params = {"context_size": context_size,
                        "melody_bar_len": melody_bar_len,
                        "meta_embed_size": meta_embed_size,
                        "bar_embed_params": self.bar_embedder.params,
                        "rhythm_net_params": self.rhythm_net.params,
-                       "melody_net_params": self.melody_net.params,
-                       "meta_net_params": self.meta_net.params}
+                       "melody_net_params": self.melody_net.params}
 
         if compile_now:
             self.compile_default()
@@ -125,15 +119,15 @@ class CombinedNetwork(Model):
         self.compile("adam",
                        loss={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
-                             repr(self.meta_net):"categorical_crossentropy"},
+                             repr(self.meta_predictor):"categorical_crossentropy"},
                        metrics={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
-                             repr(self.meta_net):"mean_absolute_erro"})
+                             repr(self.meta_predictor):"mean_absolute_error"})
 
 
 
     @classmethod
-    def from_saved_custom(cls, save_dir, generation=False, compile_now=True):
+    def from_saved_custom(cls, save_dir, meta_predictor, generation=False, compile_now=True):
         with open(save_dir + "/parameters", "r") as handle:
             param_dict = json.load(handle)
 

@@ -43,7 +43,7 @@ class MelodyNetwork(Model):
                  enc_use_meta=False, dec_use_meta=False,
                  compile_now=False):
 
-        self.n_voices = 6
+        self.n_voices = 9
         self.use_meta = enc_use_meta or dec_use_meta
         m = melody_encoder.m
 
@@ -94,10 +94,10 @@ class MelodyNetwork(Model):
         return "MelodyNetwork_" + "_".join(map(str, self.params))
 
 #%%
-        
-menc = MelodyEncoder(m=48, conv_f=4, conv_win_size=3,enc_lstm_size=52)
-
-mnet = MelodyNetwork(V=25, rhythm_embed_size=16, melody_encoder=menc, 
-                     dec_lstm_size=32, dec_use_meta=True, compile_now=True)
-
+#        
+#menc = MelodyEncoder(m=48, conv_f=4, conv_win_size=3,enc_lstm_size=52)
+#
+#mnet = MelodyNetwork(V=25, rhythm_embed_size=16, melody_encoder=menc, 
+#                     dec_lstm_size=32, dec_use_meta=True, compile_now=True)
+#
 
