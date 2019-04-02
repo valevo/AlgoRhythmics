@@ -62,7 +62,7 @@ if __name__ == "__main__":
     
     cg = CombinedGenerator("Data/lessfiles",
                            save_conversion_params=False,
-                           to_list=False)
+                           to_list=True)
     
     cg.get_num_pieces()
     
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     mp.fit_generator(pred_meta_gen, 
                      steps_per_epoch=cg.num_pieces, 
-                     epochs=70)
+                     epochs=100)
     
 
 
