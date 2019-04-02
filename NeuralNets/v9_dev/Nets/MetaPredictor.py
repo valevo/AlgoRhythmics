@@ -15,7 +15,7 @@ from keras.utils import to_categorical
 import numpy as np
 import numpy.random as rand
 
-from meta_embed import MetaEmbedding, get_meta_embedder
+#from meta_embed import MetaEmbedding, get_meta_embedder
 
 import json 
 

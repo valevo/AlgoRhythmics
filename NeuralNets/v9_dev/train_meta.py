@@ -70,8 +70,8 @@ if __name__ == "__main__":
     meta_examples = rand.permutation(np.vstack(list(gen_meta(cg))))
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
-                                               embed_size=8, 
-                                               epochs=500, 
+                                               embed_size=9, 
+                                               epochs=300, 
                                                evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     mp.fit_generator(pred_meta_gen, 
                      steps_per_epoch=cg.num_pieces, 
-                     epochs=70)
+                     epochs=14)
     
 
 #%%

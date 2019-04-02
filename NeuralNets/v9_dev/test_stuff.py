@@ -3,6 +3,7 @@ import numpy.random as rand
 
 from Data.DataGeneratorsLead import CombinedGenerator as CGLead
 from Data.DataGenerators import CombinedGenerator
+from Data.DataGeneratorsLeadMeta import CombinedGenerator as CGLeadMeta
 
 from Nets.CombinedNetwork2 import BarEmbedding, RhythmEncoder, RhythmNetwork,\
                                     MelodyEncoder, MelodyNetwork,\
@@ -11,19 +12,24 @@ from Nets.CombinedNetwork2 import BarEmbedding, RhythmEncoder, RhythmNetwork,\
 from Nets.MetaEmbedding import MetaEmbedding
 from Nets.MetaPredictor import MetaPredictor
 
+
+#%% META
+
+meta_embedder = MetaEmbedding.from_saved_custom("meta_saved")
+meta_embed_size = meta_embedder.embed_size
+meta_predictor = MetaPredictor.from_saved_custom("meta_saved")
+meta_predictor.freeze()
+
+
 #%%
 
-cg = CombinedGenerator("Data/lessfiles", save_conversion_params=False)
+cg = CGLeadMeta("Data/lessfiles", save_conversion_params=False, to_list=False,
+                meta_prep_f=meta_embedder.predict)
 
 data_gen = cg.generate_data(rhythm_context_size=1,
                             melody_context_size=1,
                             with_metaData=True)
 
-#%% META
-meta_embedder = MetaEmbedding.from_saved_custom("meta_saved")
-meta_embed_size = meta_embedder.embed_size
-meta_predictor = MetaPredictor.from_saved_custom("meta_saved")
-meta_predictor.freeze()
 
 #%% RHYTHM
 rc = 4
@@ -61,13 +67,15 @@ combined_net = CombinedNetwork(context_size=rc, melody_bar_len=m,
 
 #%% TRAIN
 
-
+combined_net.fit_generator
 
 
 
 
 
 #%% TODO
-#   MetaPredictor currently has 17,000 parameters -> cut by half
-#   RhythmEncoder & Network: init_with_Encoder needs to initialise BarEmbedding as well
+# NOT NOW  RhythmEncoder & Network: init_with_Encoder needs to initialise BarEmbedding as well
 #   CombinedNetwork: fix save_custom and from_saved_custom
+
+#   CombinedGenerator needs to include meta_{i-1}
+#   CombinedGenerator needs to yield embedded metaData
