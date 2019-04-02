@@ -30,7 +30,8 @@ rc = 4
 rV = cg.rhythm_V
 r_embed_size = 10
 
-bar_embedder = BarEmbedding(V=rV, beat_embed_size=12, embed_lstm_size=14, out_size=r_embed_size)
+bar_embedder = BarEmbedding(V=rV, beat_embed_size=12, 
+                            embed_lstm_size=14, out_size=r_embed_size)
 rhythm_encoder = RhythmEncoder(bar_embedder=bar_embedder,
                                context_size=rc,
                                lstm_size=18)

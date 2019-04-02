@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 #%%
     
-    cg = CombinedGenerator("Data/lessfiles",
+    cg = CombinedGenerator("Data/files",
                            save_conversion_params=False,
                            to_list=False)
     

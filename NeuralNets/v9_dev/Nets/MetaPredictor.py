@@ -104,12 +104,3 @@ class MetaPredictor(Model):
         meta_pred.load_weights(save_dir + "/meta_predictor_weights")
         
         return meta_pred
-    
-    
-#%%
-        
-#paramd = {"rhythm_params": (None, 407), "melody_params": (48, 25), 
-#          "meta_embed_size": 9, "lstm_size": 8, "dense_size": 12}
-#
-#
-#mp = MetaPredictor(**paramd)
