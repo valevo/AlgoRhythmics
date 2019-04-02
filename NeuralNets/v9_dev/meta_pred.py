@@ -4,7 +4,7 @@
 
 
 from keras.layers import Dense, Input, LSTM, TimeDistributed, Lambda, Concatenate,\
-                Bidirectional, Dropout
+                Bidirectional, Dropout, Embedding
 from keras.models import Model
 
 from keras.metrics import categorical_crossentropy, mean_absolute_error,\
@@ -212,3 +212,36 @@ def dirichlet_noise(one_hot, prep_f=lambda v: v*10+1):
 #print(pred_meta_emb, "\n")
 #print(meta_emb.predict(test_meta[rand_i]), "\n")
 #print(test_meta[rand_i], "\n")
+
+#%%
+    
+class Test(Model):
+    def __init__(self, s, l):
+        i = Input(shape=s)
+        
+#        emb = Embedding(input_dim=s[-1],
+#                        output_dim=10,
+#                        input_length=s[0])(i)
+        
+#        emb = TimeDistributed(Dense(10))(i)
+        
+        
+#        out = Bidirectional(LSTM(l), merge_mode="ave")(i)
+        
+        out = LSTM(l)(i)
+        
+        super().__init__(i, out)
+        
+        
+class Test2(Model):
+    def __init__(self, s, l):
+        i = Input(shape=s)
+        emb = Embedding(input_dim=4,
+                        output_dim=l)(i)
+        
+        super().__init__(i, emb)
+        
+        
+        
+        
+

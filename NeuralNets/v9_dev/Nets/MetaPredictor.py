@@ -27,21 +27,26 @@ def dirichlet_noise(one_hot, prep_f=lambda v: v*10+1):
 #  => MetaPredictor needs to be function of both (rythm, melody) and
 #  previous metaData
 class MetaPredictor(Model):
-    def __init__(self, rhythm_params, melody_params, meta_embed_size, 
+    def __init__(self, rhythm_params, melody_params, meta_embed_size,
                  lstm_size, dense_size, compile_now=True):
         
         rhythms_dist = Input(shape=rhythm_params)
         melodies_dist = Input(shape=melody_params)
-        prev_meta = Input(shape=(meta_embed_size, ))
         
-        prev_meta_dropped = Dropout(0.5)(prev_meta)
+        rhythms_embed = TimeDistributed(Dense(16))(rhythms_dist)
         
-        rhythms_processed = Bidirectional(LSTM(lstm_size), merge_mode="concat")(rhythms_dist)
-        melodies_processed = Bidirectional(LSTM(lstm_size), merge_mode="concat")(melodies_dist)
+        rhythms_processed = Bidirectional(LSTM(lstm_size), 
+                                          merge_mode="concat")(rhythms_embed)
+        melodies_processed = Bidirectional(LSTM(lstm_size), 
+                                           merge_mode="concat")(melodies_dist)
         
         processed_concat = Concatenate()([rhythms_processed, melodies_processed])
         
         pre_meta = Dense(dense_size)(processed_concat)
+        
+        
+        prev_meta = Input(shape=(meta_embed_size, ))
+        prev_meta_dropped = Dropout(0.5)(prev_meta)
         
         metas_combined = Concatenate()([prev_meta_dropped, pre_meta])
         
@@ -99,3 +104,12 @@ class MetaPredictor(Model):
         meta_pred.load_weights(save_dir + "/meta_predictor_weights")
         
         return meta_pred
+    
+    
+#%%
+        
+paramd = {"rhythm_params": (None, 407), "melody_params": (48, 25), 
+          "meta_embed_size": 9, "lstm_size": 8, "dense_size": 12}
+
+
+mp = MetaPredictor(**paramd)
