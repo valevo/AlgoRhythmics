@@ -62,7 +62,7 @@ if __name__ == "__main__":
     
     cg = CombinedGenerator("Data/lessfiles",
                            save_conversion_params=False,
-                           to_list=True)
+                           to_list=False)
     
     cg.get_num_pieces()
     
