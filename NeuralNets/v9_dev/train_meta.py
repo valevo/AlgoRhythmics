@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 #%%
     
-    cg = CombinedGenerator("Data/files",
+    cg = CombinedGenerator("Data/lessfiles",
                            save_conversion_params=False,
                            to_list=False)
     
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
                                                embed_size=9, 
-                                               epochs=300, 
+                                               epochs=30, 
                                                evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     mp.fit_generator(pred_meta_gen, 
                      steps_per_epoch=cg.num_pieces, 
-                     epochs=14)
+                     epochs=4)
     
 
 #%%
