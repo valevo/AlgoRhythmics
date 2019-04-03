@@ -43,7 +43,7 @@ class MelodyNetwork(Model):
                  enc_use_meta=False, dec_use_meta=False,
                  compile_now=False):
 
-        self.n_voices = 8
+        self.n_voices = 9
         self.use_meta = enc_use_meta or dec_use_meta
         m = melody_encoder.m
 
