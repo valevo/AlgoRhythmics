@@ -34,7 +34,7 @@ def without_lead(cg_inst, rc, mc):
 
 if __name__ == "__main__":
 
-    num_epochs = 1
+    num_epochs = 10
     j = 1   # checkpoint frequency
     
     
