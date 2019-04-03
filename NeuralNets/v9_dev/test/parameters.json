@@ -1,0 +1,1 @@
+{"context_size": 2, "melody_bar_len": 48, "meta_embed_size": 8, "bar_embed_params": [127, 12, 14, 10], "rhythm_net_params": [[2, 18], 18, 127, false, true], "melody_net_params": [[48, 4, 2, 16], 10, 16, 25, false, true]}

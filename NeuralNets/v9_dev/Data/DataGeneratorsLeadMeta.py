@@ -31,7 +31,6 @@ class DataGenerator:
         self.save_params_eager = save_conversion_params
         self.params_saved = False
         
-        print("GOT PREP FUN ", meta_prep_f, " AS ", repr(self))
         self.meta_f = meta_prep_f
                     
     def load_songs(self):
@@ -114,14 +113,9 @@ class DataGenerator:
             cur_meta = np.asarray(values, dtype="float")
         else:
             cur_meta = np.repeat(np.asarray([values], dtype="float"), repeat, axis=0)
-        
-        print("PREPARING...")
-        
+                
         if self.meta_f:
-            print("APPLYING FUNCTION: ", self.meta_f)
-            print(cur_meta)
             cur_meta = self.meta_f(cur_meta.reshape(1, -1)).reshape((-1,))
-            print(cur_meta)
         return cur_meta
             
 

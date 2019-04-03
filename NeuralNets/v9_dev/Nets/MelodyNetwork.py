@@ -29,7 +29,7 @@ class MelodyNetwork(Model):
                           enc_use_meta=False, dec_use_meta=False,
                           compile_now=False):
         
-        melody_enc = MelodyEncoder(*encoder_params)
+        melody_enc = MelodyEncoder(*encoder_params, compile_now=False)
         
         return cls(melody_encoder=melody_enc,
                  rhythm_embed_size=rhythm_embed_size, 
@@ -43,7 +43,7 @@ class MelodyNetwork(Model):
                  enc_use_meta=False, dec_use_meta=False,
                  compile_now=False):
 
-        self.n_voices = 9
+        self.n_voices = 8
         self.use_meta = enc_use_meta or dec_use_meta
         m = melody_encoder.m
 
@@ -68,9 +68,12 @@ class MelodyNetwork(Model):
         preds = TimeDistributed(Dense(V, activation="softmax"))(lstm_outputs)
 
 
-        self.params = [V, rhythm_embed_size,
-                       dec_lstm_size,
-                       enc_use_meta, dec_use_meta]
+        self.params = [melody_encoder.params, rhythm_embed_size,
+                       dec_lstm_size, V, enc_use_meta, dec_use_meta]
+
+#        self.params = [V, rhythm_embed_size,
+#                       dec_lstm_size,
+#                       enc_use_meta, dec_use_meta]
 
         if self.use_meta:
             super().__init__(inputs=[prev_melodies, bar_embedding, meta_cat], 
@@ -91,7 +94,7 @@ class MelodyNetwork(Model):
                      metrics=[categorical_accuracy])
 
     def __repr__(self):
-        return "MelodyNetwork_" + "_".join(map(str, self.params))
+        return "MelodyNetwork_" + "_".join(map(str, self.params[1:]))
 
 #%%
 #        

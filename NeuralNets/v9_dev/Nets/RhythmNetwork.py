@@ -25,12 +25,13 @@ from Nets.RhythmEncoder import BarEmbedding, RhythmEncoder
 
 class RhythmNetwork(Model):
     @classmethod
-    def init_with_Encoder(cls, encoder_params, 
+    def init_with_Encoder(cls, bar_embedder, encoder_params, 
                           dec_lstm_size, V,
                           enc_use_meta=False, dec_use_meta=False,
                           compile_now=False):
         
-        rhythm_enc = RhythmEncoder(*encoder_params)
+        rhythm_enc = RhythmEncoder(bar_embedder, *encoder_params,
+                                   compile_now=False)
         
         return cls(rhythm_encoder=rhythm_enc,
                  dec_lstm_size=dec_lstm_size, V=V,
@@ -39,7 +40,7 @@ class RhythmNetwork(Model):
     
     def __init__(self, rhythm_encoder, dec_lstm_size, V,  
                  enc_use_meta=False, dec_use_meta=False, compile_now=False):
-        self.n_voices = 9
+        self.n_voices = 8
 
         context_size = rhythm_encoder.context_size
         encoded_size = rhythm_encoder.encoding_size
@@ -70,8 +71,11 @@ class RhythmNetwork(Model):
                                name='softmax_layer')(decoded)
     
     
-        self.params = [V, context_size, dec_lstm_size,
+        self.params = [rhythm_encoder.params, dec_lstm_size, V,
                        enc_use_meta, dec_use_meta]
+    
+#        self.params = [V, context_size, dec_lstm_size,
+#                       enc_use_meta, dec_use_meta]
         
         self.use_meta = enc_use_meta or dec_use_meta
     
@@ -82,9 +86,6 @@ class RhythmNetwork(Model):
         else:
             super().__init__(inputs=prev_bars, outputs=preds,
                  name=repr(self))  
-            
-
-
         
         if compile_now:
             self.compile_default()
@@ -101,7 +102,7 @@ class RhythmNetwork(Model):
         return RepeatVector(bar_len)(vec)
 
     def __repr__(self):
-        return "RhythmNetwork_" + "_".join(map(str, self.params))
+        return "RhythmNetwork_" + "_".join(map(str, self.params[1:]))
 
 #%%
         

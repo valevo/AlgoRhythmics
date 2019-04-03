@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from Data.DataGenerators import CombinedGenerator
+from Data.DataGeneratorsLeadMeta import CombinedGenerator
 
-from Nets.RhythmNetwork import BarEmbedding, RhythmNetwork
+from Nets.MetaEmbedding import MetaEmbedding
+from Nets.MetaPredictor import MetaPredictor
+
+from Nets.RhythmEncoder import BarEmbedding, RhythmEncoder
+from Nets.RhythmNetwork import RhythmNetwork
+from Nets.MelodyEncoder import MelodyEncoder
 from Nets.MelodyNetwork import MelodyNetwork
 from Nets.CombinedNetwork import CombinedNetwork
 
@@ -13,20 +18,45 @@ import os
 
 from tensorflow.python.keras.callbacks import TensorBoard
 
+def without_lead(cg_inst, rc, mc):
+    data_gen = cg.generate_data(rhythm_context_size=rc,
+                            melody_context_size=mc,
+                            with_metaData=True)
+    
+    while True:
+        for x, y in data_gen:
+            yield (x[:-2], y)
+        
+        data_gen = cg.generate_data(rhythm_context_size=rc,
+                            melody_context_size=mc,
+                            with_metaData=True)
 
 
 if __name__ == "__main__":
 
-    num_epochs = 20
-    j = 2   # checkpoint frequency
+    num_epochs = 1
+    j = 1   # checkpoint frequency
+    
+    
+    # META
+    meta_embedder = MetaEmbedding.from_saved_custom("meta_saved")
+    meta_embed_size = meta_embedder.embed_size
+    meta_predictor = MetaPredictor.from_saved_custom("meta_saved")
+    meta_predictor.freeze()
 
-    cg = CombinedGenerator("../../Data/music21/", save_conversion_params=1)
+    # CHANGE
+    music_dir = "../../Data/music21/"
+    cg = CombinedGenerator(music_dir, save_conversion_params=1,
+                           to_list=0, meta_prep_f=meta_embedder.predict)
     cg.get_num_pieces()
+    
     rc_size = 4
     mc_size = 4
-    data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
-                                    melody_context_size=mc_size, 
-                                 with_metaData=True, to_list=False)
+#    data_iter = cg.generate_forever(rhythm_context_size=rc_size, 
+#                                    melody_context_size=mc_size, 
+#                                 with_metaData=True, to_list=False)
+    
+    data_iter = without_lead(cg, rc_size, mc_size)
     print("\nData generator set up...\n")
     
     
@@ -50,30 +80,39 @@ if __name__ == "__main__":
     conv_f = 4
     conv_win_size = 3
     melody_enc_lstm_size = 52
-    melody_dec_lstm_1_size = 32
-    melody_dec_lstm_2_size = 32
+    melody_dec_lstm_size = 32
     
     meta_data_len = 10
     
     # INDIVIDUAL NETS
-    be = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 
-                      embed_lstm_size=embed_lstm_size, out_size=out_size)
     
-    rhythm_net = RhythmNetwork(bar_embedder=be, context_size=context_size, 
-                               enc_lstm_size=rhythm_enc_lstm_size, dec_lstm_size=rhythm_dec_lstm_size, 
-                               enc_use_meta=False, dec_use_meta=True)
+    bar_embedder = BarEmbedding(V=V_rhythm, beat_embed_size=beat_embed_size, 
+                                embed_lstm_size=embed_lstm_size, 
+                                out_size=out_size)
+    rhythm_encoder = RhythmEncoder(bar_embedder=bar_embedder,
+                                   context_size=rc_size,
+                                   lstm_size=rhythm_enc_lstm_size)
+    rhythm_net = RhythmNetwork(rhythm_encoder=rhythm_encoder,
+                               dec_lstm_size=rhythm_dec_lstm_size, V=V_rhythm, 
+                               dec_use_meta=True, compile_now=True)
     
-    melody_net = MelodyNetwork(m=m, V=V_melody,
+
+    # ATTENTION: conv_win_size must not be greater than context size!
+    melody_encoder = MelodyEncoder(m=m, conv_f=conv_f, conv_win_size=min(mc_size, conv_win_size), 
+                                   enc_lstm_size=melody_enc_lstm_size)
+    melody_net = MelodyNetwork(melody_encoder=melody_encoder, 
                                rhythm_embed_size=out_size,
-                               conv_f=conv_f, conv_win_size=conv_win_size, 
-                               enc_lstm_size=melody_enc_lstm_size, dec_lstm_1_size=melody_dec_lstm_1_size, 
-                               enc_use_meta=False, dec_use_meta=True)
+                               dec_lstm_size=melody_dec_lstm_size, V=V_melody,
+                               dec_use_meta=True, compile_now=True)
+
     
     print("Individual networks set up...\n")
     
     
     #
-    comb_net = CombinedNetwork(context_size, m, meta_data_len, be, rhythm_net, melody_net)
+    comb_net = CombinedNetwork(context_size, m, meta_embed_size, 
+                               bar_embedder, rhythm_net, melody_net, meta_predictor,
+                               generation=False, compile_now=True)
     
     print("Combined network set up...\n")
     
