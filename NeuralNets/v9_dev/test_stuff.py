@@ -123,6 +123,3 @@ comb_net2.fit_generator(data_gen, steps_per_epoch=cg.num_pieces, epochs=1)
 def f(x, y=0):
     return x+y
 
-#%% TODO
-# NOT NOW  RhythmEncoder & Network: init_with_Encoder needs to initialise BarEmbedding as well
-#   CombinedNetwork: fix save_custom and from_saved_custom
