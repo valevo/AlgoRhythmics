@@ -617,7 +617,6 @@ class InstrumentManager():
         for ins in self.instruments.values():
             ins.check_updates()
 
-
     def check_generate_bars(self):
         # first generate lead instruments bar, then pass to others
 
@@ -894,7 +893,7 @@ class MusaicApp():
         self.ins_manager.check_generate_bars()
         self.ins_manager.update_ins()
 
-        self.root.after(1000//25, self.check_ins_updates)
+        self.root.after(1000//20, self.check_ins_updates)
 
     def updateGUI(self):
         # only need to update if playing...

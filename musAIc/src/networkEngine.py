@@ -115,6 +115,10 @@ class NNPlayer9(Player):
             if lc:
                 lead_r_context = lc[0]
                 lead_m_context = lc[1]
+            else:
+                print('No lead, using own previous...')
+                lead_r_context = lead_r_context[-1]
+                lead_m_context = lead_m_context[:, -1, :]
 
         #print('MetaData for ins {}:'.format(self._id))
         #print(self.metaData)
