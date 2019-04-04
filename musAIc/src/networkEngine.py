@@ -73,8 +73,8 @@ class NNPlayer9(Player):
         self.batch_size = 1
         self.bar_length = 4
 
-        quarterBeat = self.rhythmDict[(0.0, 0.3333, 0.6667)]
-        #quarterBeat = self.rhythmDict[(0.0,)]
+        #quarterBeat = self.rhythmDict[(0.0, 0.3333, 0.6667)]
+        quarterBeat = self.rhythmDict[(0.0,)]
         self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
 
         #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
@@ -110,8 +110,8 @@ class NNPlayer9(Player):
         lead_r_context = self.rhythm_contexts
         lead_m_context = self.melody_contexts
 
-        if 'lead_contexts' in kwargs:
-            lc = kwargs['lead_contexts']
+        if 'lead_bar' in kwargs:
+            lc = kwargs['lead_bar']
             if lc:
                 lead_r_context = lc[0]
                 lead_m_context = lc[1]
@@ -131,14 +131,33 @@ class NNPlayer9(Player):
         top_rhythm = np.argmax(output[0], axis=-1)
         top_melody = np.argmax(output[1], axis=-1)
 
-        if False:
+        sample_mode = {0: 'argmax', 1: 'dist', 2: 'top_dist'}[2]
+
+        if sample_mode == 'argmax':
             # Deterministic playback...
             sampled_rhythm = top_rhythm
             sampled_melody = top_melody
-        else:
+        elif sample_mode == 'dist':
             # Random playback...
             sampled_rhythm = np.array([[rand.choice(self.V_rhythm, p=curr_p) for curr_p in output[0][0]]])
             sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
+        elif sample_mode == 'top_dist':
+            # Random from top 5 predictions....
+            r = []
+            for i in range(4):
+                top5_rhythm_indices = np.argsort(output[0][0][i], axis=-1)[-5:]
+
+                r_probs = output[0][0][i][top5_rhythm_indices]
+                r_probs /= sum(r_probs)
+
+                r.append(rand.choice(top5_rhythm_indices, p=r_probs))
+
+                print(top5_rhythm_indices, r_probs, r[-1])
+
+            sampled_rhythm = np.array([r])
+            sampled_melody = np.array([[rand.choice(self.V_melody, p=curr_p) for curr_p in output[1][0]]])
+
+        print([self.indexDict[r] for r in sampled_rhythm[0]])
 
         if 'loopRhythm' in kwargs:
             # ignore the sampled rhythm
@@ -173,7 +192,7 @@ class NNPlayer9(Player):
 
         bar = parseBarData(melody, octave, rhythm)
 
-        return bar, (self.rhythm_contexts[-1], self.melody_contexts[0, -1, :])
+        return bar, (sampled_rhythm, sampled_melody)
 
     def get_contexts(self):
         return (self.rhythm_contexts, self.melody_contexts)
