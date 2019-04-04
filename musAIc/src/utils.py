@@ -45,7 +45,7 @@ def PCOctaveToMIDI(pc, octave):
 def MIDItoPCOctave(midi):
     return (midi%12+1, midi//12-1)
 
-def convertStreamToData(stream):
+def convertStreamToData(stream, with_md=True):
     ''' Converts a dictionary of input data to separate rhythm, melody, chords  '''
     RES = 48
 
@@ -82,8 +82,13 @@ def convertStreamToData(stream):
         octave.append(b_octave)
         chords.append(b_chords)
 
+    if with_md:
+        md = stream.getMetaAnalysis()
+    else:
+        md = None
+
     return {
-        'metaData': stream.getMetaAnalysis(),
+        'metaData': md,
         'rhythm': rhythm,
         'melody': {
             'notes': melody,
@@ -166,7 +171,7 @@ class Stream():
         return words
 
     def appendBar(self, bar):
-        '''Append a bar of the form {offset time: MIDI value}'''
+        '''Append a bar of the form {beat: MIDI value}'''
         next_bar = self.getNextBarNumber()
 
         if len(bar) == 0:

@@ -19,8 +19,8 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-#CLIENT_ADDR = '192.168.0.31'
-CLIENT_ADDR = '146.50.249.176'
+CLIENT_ADDR = '192.168.0.31'
+#CLIENT_ADDR = '146.50.249.176'
 #CLIENT_ADDR = '192.168.0.36'
 #CLIENT_ADDR = '145.109.5.179'
 #CLIENT_ADDR = '100.75.0.230'
@@ -83,7 +83,7 @@ class Engine(threading.Thread):
             if self.play_request.isSet():
                 # start bar process...
                 if self.start_playing:
-                    self.is_playing.set()
+                    #self.ins_manager.send_message()
                     time_bar_start = time.time()
                     self.start_playing = False
                     if self.record:
@@ -101,21 +101,19 @@ class Engine(threading.Thread):
 
                 # during bar processes...
                 while self.beat < 3.98 and not self.stop_request.isSet():
-                    self.wait_event.wait(timeout=0.05)
+                    self.ins_manager.send_message('/clock', 1)
                     self.beat = min(3.99, bps*(time.time() - time_bar_start))
                     self.ins_manager.play_instruments(self.bar, self.beat)
-                    #for ins in self.ins_manager.instrumentPanels.values():
-                    #    ins.move_canvas(self.beat)
 
                     if self.touchOSCClient:
                         self.touchOSCClient.send_message('/metronome', tuple([1 if n < self.beat else 0 for n in range(4)]))
+
+                    self.wait_event.wait(timeout=1/(bps*24))
 
                 # after bar processes...
                 for ins in self.ins_manager.get_instruments():
                     ins.close_bar()
                     ins.increment_bar_num()
-
-                #self.ins_manager.load_nextbar()
 
                 self.bar += 1
                 self.beat = 0.0
@@ -124,6 +122,7 @@ class Engine(threading.Thread):
                 # after stopping playback...
                 self.is_playing.clear()
                 if not self.start_playing:
+                    self.ins_manager.send_message('/clockStop', 1)
                     if self.touchOSCClient:
                         self.touchOSCClient.send_message('/metronome', (0, 0, 0, 0))
                     self.app.sendCC(1, 0)
@@ -147,7 +146,7 @@ class Engine(threading.Thread):
             for ins in self.ins_manager.get_instruments():
                 ins.check_updates()
 
-            self.play_request.wait(timeout=0.1)
+            self.play_request.wait(timeout=0.05)
 
     def join(self, timeout=None):
         self.stop_request.set()
@@ -160,6 +159,8 @@ class Engine(threading.Thread):
             self.play_request.clear()
         else:
             self.play_request.set()
+            self.ins_manager.send_message('/clockStart', 1)
+            print('clock start')
 
     def toggle_stop(self, stop_button=None):
         if not self.stop:
@@ -188,7 +189,10 @@ class Instrument():
         self.transpose = 0                # number of octaves to shift output
         self.confidence = 0               # the rank of which note to play
         self.bar_num = 0                  # current bar number
+        self.global_bar_num = 0           # global bar number
         self.stream = utils.Stream()      # the musical stream of notes / chords
+        self.context_stream = dict()      # the bar in 'context' form
+        self.context_size = 4             # number of contexts needed
         self.status = PLAYING             # current playing status
         self.armed = False                # is armed (recording) instrument
         self.active = True                # is selected instrument
@@ -200,9 +204,8 @@ class Instrument():
         self.lead = False                 # Lead instrument that others follow
 
         self.next_note = None             # the current note object
-        self.current_bar = None           # currently playing bar
         self.offMode = 0                  # note off mode: 0 - hold to noteOn
-                                          #                1 - hold for exactly one beat
+                                          #               >0 - hold for this time
         self.heldNotes = {}               # a dict of current notes being held, {MIDI: note}
 
         self.hold = False                 # holds current context
@@ -216,6 +219,8 @@ class Instrument():
         # SHOULD BE QUEUE?
         self.noteOn = None                # any noteOn events placed here
         self.recorded_bar = {}            # currently recorded bar
+
+        self.check_updates()
 
         # request some bars
         for _ in range(4):
@@ -251,6 +256,7 @@ class Instrument():
             if self.bar_num > self.loopEnd:
                 self.bar_num = self.loopEnd - self.loopLevel + 1
                 self.bar_num = max(0, self.bar_num)
+                self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
 
         print('LOAD BAR', self.bar_num)
 
@@ -261,15 +267,16 @@ class Instrument():
         else:
             self.recording = False
             try:
-                self.current_bar = self.stream.getBar(self.bar_num)
-                self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
+                #self.current_bar = self.stream.getBar(self.bar_num)
+                if not self.next_note:
+                    self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
 
-                print(self.next_note)
+                #print(self.next_note)
 
             except Exception as e:
                 # no bar left to load...
                 print(e)
-                self.current_bar = None
+                #self.current_bar = None
                 self.next_note = None
 
 
@@ -278,7 +285,9 @@ class Instrument():
         #print('PLAY BAR', self.bar_num, bar, beat)
         self.check_updates()
 
-        if self.status == PAUSED or self.mute:# or self.current_bar == None:
+        self.global_bar_num = bar
+
+        if self.status == PAUSED or self.mute or self.status == PLAY_WAIT:# or self.current_bar == None:
             return
 
         if self.recording:
@@ -302,7 +311,7 @@ class Instrument():
                     muted.append(m)
 
             else:
-                # hold for one quarter beat
+                # hold for specific time
                 offTime = n.getOffset() + self.offMode
                 if curr_offset > offTime:
                     self.mute_note(n)
@@ -337,7 +346,7 @@ class Instrument():
             self.next_note = self.next_note.next_note
 
     def mute_note(self, note):
-        print('Muting note ', note)
+        #print('Muting note ', note)
         m = note.midi
         self.ins_manager.send_message('/noteOff', (self.chan, m))
         if note.isChord():
@@ -349,35 +358,60 @@ class Instrument():
         self.ins_manager.send_message('/allOff', self.chan)
 
     def request_new_bar(self):
+        diff = self.stream.getNextBarNumber() - self.bar_num - 1
+        #print('Requesting diff {}'.format(diff))
+
+        lead_contexts = None
+        if not self.lead:
+            try:
+                lead_contexts = self.ins_manager.lead_ins.get_contexts(diff)
+            except AttributeError:
+                print('No lead instrument')
+                pass
+
         msg = {
-            'confidence': self.confidence,
-            'loopRhythm': self.rhythmLoopLevel,
-            'hold':       self.hold
+            'confidence':       self.confidence,
+            'loopRhythm':       self.rhythmLoopLevel,
+            'hold':             self.hold,
+            'lead_contexts':    lead_contexts,
         }
         self.request_queue.put((1, self.ins_id, msg))
 
     def check_updates(self):
-        '''Checks if any news from network'''
-        if self.recording or self.armed:
-            return
+        '''Checks if any messages from network'''
         try:
             while not self.network_queue.empty():
                 msg = self.network_queue.get(block=False)
 
-                if 'bar' in msg:
-                    new_bar = msg['bar']
+                if 'init_contexts' in msg:
+                    rhythm_contexts, melody_contexts = msg['init_contexts']
+                    self.context_size = len(rhythm_contexts)
 
+                    for i in range(self.context_size):
+                        c = (rhythm_contexts[i], melody_contexts[0, i, :])
+                        self.context_stream[i-self.context_size] = c
+
+                    print('init_contexts updated')
+
+                if 'bar' in msg:
+                    if self.recording or self.armed:
+                        return
+                    new_bar = msg['bar']
+                    context = msg['context']
                     self.stream.appendBar(new_bar)
-                    if self.ins_panel:
-                        # should be offloaded to GUI loop no?
-                        #self.ins_panel.update_canvas()
-                        self.request_GUI_update = True
+                    b_num = self.stream.getLastNote().bar
+
+                    self.context_stream[b_num] = context
+
+                    self.request_GUI_update = True
 
                 if 'md' in msg:
                     self.ins_panel.updateMetaParams(msg['md'])
 
         except Exception as e:
             # no new bars...
+            print('Caught Exception in check_updates() for ins_id {}:'.format(self.ins_id))
+            print(e)
             return
 
     def close_bar(self):
@@ -440,11 +474,40 @@ class Instrument():
 
         print(self.record_bars)
 
+    def get_contexts(self, diff):
+        ''' Returns the contexts needed to generate the future DIFF bar '''
+        req_bar = self.bar_num + diff
+        #print('requested bar:', req_bar)
+        #print(self.context_stream)
+
+        if len(self.context_stream) < diff:
+            print('Not enough context information... (diff = {}'.format(diff))
+            return None
+
+        if req_bar not in self.context_stream:
+            print('Requested a bar too far in the future (diff = {})'.format(diff))
+            return None
+
+        else:
+            result = []
+            for i in range(req_bar - self.context_size, req_bar+1):
+                try:
+                    #print('Context updated for bar {}'.format(i))
+                    c = self.context_stream[i]
+                except KeyError:
+                    print('Unknown bar index {}, using latest'.format(i))
+                    key = max(self.context_stream.keys())
+                    c = self.context_stream[key]
+
+                result.append(c)
+
+        return result
+
     def update_params(self, parameters):
         self.request_queue.put((3, self.ins_id, parameters))
         for p, v in parameters.items():
             self.ins_manager.send_touchOSC_message('/{}/{}'.format(self.ins_id+1, p), (v))
-            print('/{}/{}'.format(self.ins_id, p), (v))
+            #print('/{}/{}'.format(self.ins_id, p), (v))
 
     def toggle_paused(self):
         if self.status == PAUSED or self.status == PAUSE_WAIT:
@@ -520,7 +583,10 @@ class InstrumentManager():
         self.instruments[self.ins_counter] = instrument
         self.ins_counter += 1
         insPanel.pack(side='bottom', fill='x', pady=5)
+
         self.set_selected_instrument(instrument)
+        if not self.lead_ins:
+            self.set_lead_instrument(instrument)
 
     def removeInstrument(self, ins_id):
         if self.selected_ins.ins_id == ins_id:
@@ -530,11 +596,21 @@ class InstrumentManager():
             except:
                 self.selected_ins = None
 
+        if self.lead_ins.ins_id == ins_id:
+            try:
+                next_id = list(self.instruments.keys())[0]
+                self.set_lead_instrument(self.instruments[next_id])
+            except:
+                self.lead_ins = None
+
         del self.instruments[ins_id]
         self.instrumentPanels[ins_id].destroy()
         del self.instrumentPanels[ins_id]
         self.request_queue.put((-1, ins_id))
         print('Removing instrument {}'.format(ins_id))
+
+    def generate_bars(self):
+        pass
 
     def load_nextbar(self):
         for _id in self.instruments.keys():
@@ -542,11 +618,15 @@ class InstrumentManager():
 
     def play_instruments(self, bar, beat):
         for ins in self.get_instruments():
-            if ins.status == PLAYING or ins.status == PAUSE_WAIT:
-                ins.play_bar(bar, beat)
+            #if ins.status == PLAYING or ins.status == PAUSE_WAIT:
+            ins.play_bar(bar, beat)
 
     def get_instruments(self):
         return list(self.instruments.values())
+
+    def get_leads_contexts(self):
+        ''' Returns the lead's rhythm and melody contexts '''
+        return self.lead_ins.get_contexts()
 
     def set_recording_instrument(self, ins, num):
         if self.armed_ins:
@@ -581,10 +661,12 @@ class InstrumentManager():
     def set_lead_instrument(self, ins):
         if self.lead_ins:
             self.lead_ins.lead = False
+            self.lead_ins.ins_panel.updateLead()
 
         self.lead_ins = ins
         if ins:
             self.lead_ins.lead = True
+            self.lead_ins.ins_panel.updateLead()
 
     def set_selected_instrument(self, ins):
         if self.selected_ins:

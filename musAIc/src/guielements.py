@@ -11,6 +11,14 @@ INS_COLOURS = [('#ff0011', 'white'),
            ('#eeeeee', 'black'),
            ('#222222', 'white')]
 
+COLOR_SCHEME = {
+    'panel_bg':         'black',
+    'panel_select':     '#808080',
+    'light_grey' :      '#aaaaaa',
+    'dark_grey' :       '#101010',
+    'note_panel_bg':    '#303030'
+}
+
 PAUSED = 2
 PLAY_WAIT = -1
 PAUSE_WAIT = -2
@@ -19,8 +27,8 @@ PLAYING = 1
 class VScrollFrame(tk.Frame):
     def __init__(self, root, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
-        self.canvas = tk.Canvas(root, borderwidth=0)
-        self.frame = tk.Frame(self.canvas)
+        self.canvas = tk.Canvas(root, background=COLOR_SCHEME['panel_bg'], borderwidth=0)
+        self.frame = tk.Frame(self.canvas, background=COLOR_SCHEME['panel_bg'])
         self.vsb = tk.Scrollbar(root, orient='vertical',
                                 command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
@@ -29,10 +37,7 @@ class VScrollFrame(tk.Frame):
         self.canvas.pack(side='left', fill='both', expand=True)
         self.canvas.update()
         self.canvas.create_window((40, 40), window=self.frame, anchor='nw',
-                                 tags='self.frame',
-                                  width=self.canvas.winfo_width())
-        #print(self.canvas.winfo_width())
-        #self.frame.pack(fill='x')
+                                 tags='self.frame', width=self.canvas.winfo_width())
         self.frame.bind('<Configure>', self.onFrameConfigure)
 
     def onFrameConfigure(self, event):
@@ -199,21 +204,21 @@ class PlayerControls(tk.Frame):
         self.engine = engine
 
         size = 25
-        self.col_gray = col_gray = '#aaaaaa'
-        self.dark_gray = dark_gray = '#101010'
+        self.col_gray = COLOR_SCHEME['light_grey']
+        self.dark_gray = COLOR_SCHEME['dark_grey']
 
         self.play_button = tk.Canvas(self, width=size, height=size,
-                                     bg=col_gray, highlightthickness=1,
-                                     highlightbackground=dark_gray)
+                                     bg=self.col_gray, highlightthickness=1,
+                                     highlightbackground=self.dark_gray)
         self.rec_button = tk.Canvas(self, width=size, height=size,
-                                     bg=col_gray, highlightthickness=1,
-                                     highlightbackground=dark_gray)
+                                     bg=self.col_gray, highlightthickness=1,
+                                     highlightbackground=self.dark_gray)
         self.stop_button = tk.Canvas(self, width=size, height=size,
-                                     bg=col_gray, highlightthickness=1,
-                                     highlightbackground=dark_gray)
+                                     bg=self.col_gray, highlightthickness=1,
+                                     highlightbackground=self.dark_gray)
         self.add_button = tk.Canvas(self, width=size, height=size,
-                                     bg=col_gray, highlightthickness=1,
-                                     highlightbackground=dark_gray)
+                                     bg=self.col_gray, highlightthickness=1,
+                                     highlightbackground=self.dark_gray)
 
         self.play_button.grid(row=0, column=0, padx=1, pady=1)
         self.rec_button.grid(row=0, column=1, padx=1, pady=1)
@@ -224,15 +229,15 @@ class PlayerControls(tk.Frame):
         to = 6
         self.play_icon = self.play_button.create_polygon(to, to, to, size-to+1,
                                         size-to+1, size//2+1,
-                                        fill=dark_gray, outline='')
+                                        fill=self.dark_gray, outline='')
         self.rec_icon = self.rec_button.create_oval(to, to, size-to+1, size-to+1,
-                                        fill=dark_gray, outline='')
+                                        fill=self.dark_gray, outline='')
         self.stop_icon = self.stop_button.create_rectangle(to, to, size-to+1,
-                                        size-to+1, fill=dark_gray, outline='')
+                                        size-to+1, fill=self.dark_gray, outline='')
         self.add_button.create_rectangle(size//2-2, to, size//2+4, size-to+1,
-                                         fill=dark_gray, outline='')
+                                         fill=self.dark_gray, outline='')
         self.add_button.create_rectangle(to, size//2-2, size-to+1, size//2+4,
-                                         fill=dark_gray, outline='')
+                                         fill=self.dark_gray, outline='')
 
         self.play_button.bind('<Button-1>', self.play)
         self.rec_button.bind('<Button-1>', self.record)
@@ -292,7 +297,7 @@ class InstrumentPanel(tk.Frame):
         self.chan.set(instrument.chan)
         self.colour = INS_COLOURS[self.instrument.ins_id % len(INS_COLOURS)]
 
-        self.controlFrame = tk.Frame(self)
+        self.controlFrame = tk.Frame(self, bg=COLOR_SCHEME['panel_bg'])
         self.controlFrame.grid(row=0, column=0, sticky='ns')
 
         self.colourStrip = tk.Frame(self.controlFrame, width=6,
@@ -420,7 +425,7 @@ class InstrumentPanel(tk.Frame):
         self.bar_width = 4 * self.beat_width
         self.null_bars = 1
         self.barCanvas = tk.Canvas(self, width=self.winfo_width(),
-                                   height=self.canvasHeight, bg='#303030')
+                                   height=self.canvasHeight, bg=COLOR_SCHEME['note_panel_bg'])
         self.barCanvas.grid(row=0, column=1, sticky='ew', padx=2, pady=2)
 
         self.loopRegion = self.barCanvas.create_rectangle(-100, 0, -100,
@@ -554,6 +559,7 @@ class InstrumentPanel(tk.Frame):
             x = n.getOffset()*self.beat_width
             y = scale * (n.midi - noteRange[1])
             note_width = n.getDuration() * self.beat_width
+
             if n.isChord():
                 for c in n.chord:
                     interval = c*scale
@@ -613,6 +619,12 @@ class InstrumentPanel(tk.Frame):
         self.chan.set(new_chan)
         self.instrument.chan = new_chan
         entry.destroy()
+
+    def updateLead(self):
+        if self.instrument.lead:
+            self.controlFrame.config(bg=COLOR_SCHEME['panel_select'])
+        else:
+            self.controlFrame.config(bg=COLOR_SCHEME['panel_bg'])
 
     def repeatVarUpdate(self, *args):
         val = self.repeatVar.get()

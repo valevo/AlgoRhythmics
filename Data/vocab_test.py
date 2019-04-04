@@ -1,7 +1,7 @@
 import pickle as pkl
 
 data =[]
-for i in range(1, 150):
+for i in range(1, 134):
     with open('music21/music_data_{:04d}.pkl'.format(i), 'rb') as f:
         data.extend(pkl.load(f))
 
