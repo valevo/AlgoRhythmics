@@ -7,7 +7,7 @@ import queue
 import time
 from collections import deque
 
-from guielements import VScrollFrame, InstrumentPanel, PlayerControls, Knob
+from guielements import COLOR_SCHEME, VScrollFrame, InstrumentPanel, PlayerControls, Knob
 import utils
 from simpleDialog import Dialog
 from networkEngine import NetworkManager
@@ -42,7 +42,7 @@ TOUCH_OSC_SERVER = ('10.0.2.15', 7121)       # Address from where TouchOSC messa
 
 META_PARAMS = ['span', 'tCent', 'cDens', 'cDepth', 'jump', 'rDens', 'sPos']
 
-APP_NAME = 'musAIc LIVE (v0.4)'
+APP_NAME = 'musAIc LIVE (v0.6)'
 
 
 class MessageListener(threading.Thread):
@@ -196,7 +196,7 @@ class Instrument():
         self.context_stream = dict()      # the bar in 'context' form
         self.last_requested_bar = -1      # requested bars
         self.context_size = 4             # number of contexts needed
-        self.status = PLAYING             # current playing status
+        self.status = PAUSED              # current playing status
         self.armed = False                # is armed (recording) instrument
         self.active = True                # is selected instrument
         self.mute = False                 # mute the output
@@ -222,6 +222,9 @@ class Instrument():
         # SHOULD BE QUEUE?
         self.noteOn = None                # any noteOn events placed here
         self.recorded_bar = {}            # currently recorded bar
+
+        if self.ins_id == 0:
+            self.status = PLAYING
 
         self.check_updates()
 
@@ -458,6 +461,7 @@ class Instrument():
         self.bar_num = 0
         for n in self.stream.notes:
             n.played = False
+        self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
 
     def init_record(self, start, num):
         if num == 0:
@@ -587,6 +591,7 @@ class InstrumentManager():
         self.instruments[self.ins_counter] = instrument
         self.ins_counter += 1
         insPanel.pack(side='bottom', fill='x', pady=5)
+        #self.ins_box.onFrameConfigure()
 
         self.set_selected_instrument(instrument)
         if not self.lead_ins:
@@ -612,6 +617,7 @@ class InstrumentManager():
         del self.instrumentPanels[ins_id]
         self.request_queue.put((-1, ins_id))
         print('Removing instrument {}'.format(ins_id))
+        #self.ins_box.onFrameConfigure()
 
     def update_ins(self):
         for ins in self.instruments.values():
@@ -771,6 +777,7 @@ class MusaicApp():
     def __init__(self):
         self.root = tk.Tk()
         self.root.title(APP_NAME)
+        self.root.config(bg=COLOR_SCHEME['panel_bg'])
         hs = self.root.winfo_screenheight()
         self.root.geometry('1200x600+0+%d'%(hs/2))
         #self.root.resizable(0, 0)
@@ -801,14 +808,14 @@ class MusaicApp():
         self.network_manager.start()
 
         self.mainframe = tk.Frame(self.root)
-        self.mainframe['bg'] = '#101010'
+        self.mainframe['bg'] = COLOR_SCHEME['dark_grey']
         self.mainframe.pack_propagate(False)
         self.mainframe.pack(fill='both', expand=True)
         self.mainframe.columnconfigure(0, weight=1)
         self.mainframe.rowconfigure(0, weight=1)
 
         # main control panel...
-        self.maincontrols = tk.Frame(self.mainframe)
+        self.maincontrols = tk.Frame(self.mainframe, bg=self.mainframe.cget('bg'))
 
         timeFont = font.Font(family='Courier', size=12, weight='bold')
         self.timeLabel = tk.Label(self.maincontrols, text='00:00', bg='#303030', fg='yellow',
@@ -819,21 +826,22 @@ class MusaicApp():
         self.BPM.trace('w', self.BPMchange)
         self.BPM.set(80)
         self.bpmBox = tk.Spinbox(self.maincontrols, from_=20, to=240, textvariable=self.BPM,
-                            width=3)
+                            width=3, bg=self.maincontrols.cget('bg'), fg='white',
+                            buttonbackground=self.maincontrols.cget('bg'))
 
         self.panicButton = tk.Button(self.maincontrols, text='Panic',
-                                     command=self.panic)
+                                     command=self.panic, bg=self.maincontrols.cget('bg'))
         # pack main controls...
         self.timeLabel.grid(row=0, column=4, rowspan=2, padx=5)
-        tk.Label(self.maincontrols, text='Tempo:').grid(row=0, column=5, sticky='e')
+        tk.Label(self.maincontrols, text='Tempo:',
+                 bg=self.maincontrols.cget('bg')).grid(row=0, column=5, sticky='e')
         self.bpmBox.grid(row=0, column=6)
         self.panicButton.grid(row=1, column=5, columnspan=2, sticky='ew')
 
         # add instrument button and panels...
-        self.maincontrols.pack(padx=5, pady=5)
 
-        self.instrumentsBox = tk.Frame(self.mainframe, relief='sunken', bd=2)
-        self.instrumentsBox.pack(fill='both', expand=True, ipadx=4, ipady=4)
+        self.instrumentsBox = tk.Frame(self.mainframe, relief='sunken', bd=2, bg=COLOR_SCHEME['note_panel_bg'])
+        #self.instrumentsBox = VScrollFrame(self.mainframe, relief='sunken', bd=2,)
 
         self.ins_manager = InstrumentManager(self.instrumentsBox, self.client,
                                              self.request_queue,
@@ -854,7 +862,14 @@ class MusaicApp():
             text='Connecting too: {}, Port:{}'.format(self.cl_ip, self.cl_port))
         self.statusLabel.bind('<Button-1>', self.editConnection)
         self.statusLabel.pack(side='right')
+
+        # place everything...
+        self.maincontrols.pack(padx=5, pady=5)
+        self.instrumentsBox.pack(fill='both', expand=True, ipadx=4, ipady=4)
         self.statusBar.pack(side='bottom', fill='x')
+        #self.maincontrols.grid(row=0, column=0, sticky='ew')
+        #self.instrumentsBox.grid(row=1, column=0, sticky='nsew')
+        #self.statusBar.grid(row=2, column=0, sticky='ew')
 
         # add OSC listeners...
         self.disp = dispatcher.Dispatcher()

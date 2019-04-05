@@ -29,8 +29,9 @@ class VScrollFrame(tk.Frame):
         tk.Frame.__init__(self, root, *args, **kwargs)
         self.canvas = tk.Canvas(root, background=COLOR_SCHEME['panel_bg'], borderwidth=0)
         self.frame = tk.Frame(self.canvas, background=COLOR_SCHEME['panel_bg'])
-        self.vsb = tk.Scrollbar(root, orient='vertical',
-                                command=self.canvas.yview)
+        self.frame.bind('<Configure>', self.onFrameConfigure)
+        self.vsb = tk.Scrollbar(root, orient='vertical', command=self.canvas.yview)
+
         self.canvas.configure(yscrollcommand=self.vsb.set)
 
         self.vsb.pack(side='right', fill='y')
@@ -38,9 +39,9 @@ class VScrollFrame(tk.Frame):
         self.canvas.update()
         self.canvas.create_window((40, 40), window=self.frame, anchor='nw',
                                  tags='self.frame', width=self.canvas.winfo_width())
-        self.frame.bind('<Configure>', self.onFrameConfigure)
 
-    def onFrameConfigure(self, event):
+    def onFrameConfigure(self, event=None):
+        #print(self.canvas.bbox('all'))
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
         self.canvas.configure(height=self.frame.winfo_reqheight(),
                               width=self.frame.winfo_reqwidth())
@@ -57,11 +58,11 @@ class Knob(tk.Frame):
         self.min_ = min_
         self.max_ = max_
 
-        self.name = tk.Label(self, text=name)
+        self.name = tk.Label(self, text=name, bg=self.cget('bg'))
         self.name.grid()
 
         self.canvas = tk.Canvas(self, width=2*radius+2, height=2*radius+2, bd=0,
-                                highlightthickness=0)
+                                highlightthickness=0, bg=COLOR_SCHEME['panel_bg'] )
         self.canvas.grid(row=1, column=0)
 
         if default > max_:
@@ -71,7 +72,7 @@ class Knob(tk.Frame):
         else:
             self.val = default
 
-        self.label = tk.Label(self, text='{:5.02f}'.format(self.val))
+        self.label = tk.Label(self, text='{:5.02f}'.format(self.val), bg=self.cget('bg'))
         self.label.grid(row=2, column=0)
 
         self.arc = self.canvas.create_arc(1, 1, 2*radius+1, 2*radius+1, style=tk.ARC,
@@ -152,7 +153,7 @@ class SelectionGrid(tk.Frame):
         self.fontLabel = font.Font(family=tk.font.nametofont('TkDefaultFont').cget('family'),
                      size=8)
 
-        self.name = tk.Label(self, text=name)
+        self.name = tk.Label(self, text=name, bg=self.cget('bg'))
         self.name.grid(column=0)
 
         for i in range(rows):
@@ -311,9 +312,12 @@ class InstrumentPanel(tk.Frame):
                                      bg=self.colour[0], fg=self.colour[1], anchor='w')
         self.removeButton.bind('<Button-1>', self.remove)
 
+        self.statusLabel = tk.Label(self.controlFrame, text='',
+                                     bg=self.colour[0], fg=self.colour[1], anchor='w')
+
 
         # ------ Player Parameter Knobs 
-        self.playerParamFrame = tk.Frame(self.controlFrame)
+        self.playerParamFrame = tk.Frame(self.controlFrame, bg=COLOR_SCHEME['panel_bg'])
         # Controls for:
         # - span
         # - center
@@ -338,19 +342,19 @@ class InstrumentPanel(tk.Frame):
         self.rDenVar.trace('w', self.updateRDen)
         self.sPosVar.trace('w', self.updateSPos)
 
-        self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar,
+        self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar, bg=COLOR_SCHEME['panel_bg'],
                              name='span', min_=1, max_=60, default=20)
-        self.centKnob = Knob(self.playerParamFrame, 10, self.centVar,
+        self.centKnob = Knob(self.playerParamFrame, 10, self.centVar, bg=COLOR_SCHEME['panel_bg'],
                              name='cent', min_=30, max_=90, default=60)
-        self.cDenKnob = Knob(self.playerParamFrame, 10, self.cDenVar,
+        self.cDenKnob = Knob(self.playerParamFrame, 10, self.cDenVar, bg=COLOR_SCHEME['panel_bg'],
                              name='cDen', min_=0, max_=1, default=0)
-        self.cDepKnob = Knob(self.playerParamFrame, 10, self.cDepVar,
+        self.cDepKnob = Knob(self.playerParamFrame, 10, self.cDepVar, bg=COLOR_SCHEME['panel_bg'],
                              name='cDep', min_=1, max_=6, default=1)
-        self.jumpKnob = Knob(self.playerParamFrame, 10, self.jumpVar,
+        self.jumpKnob = Knob(self.playerParamFrame, 10, self.jumpVar, bg=COLOR_SCHEME['panel_bg'],
                              name='jump', min_=0.1, max_=6.0, default=3.0)
-        self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar,
+        self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar, bg=COLOR_SCHEME['panel_bg'],
                              name='rDen', min_=0, max_=4, default=1)
-        self.sPosKnob = Knob(self.playerParamFrame, 10, self.sPosVar,
+        self.sPosKnob = Knob(self.playerParamFrame, 10, self.sPosVar, bg=COLOR_SCHEME['panel_bg'],
                              name='sPos', min_=0, max_=1, default=0)
 
         self.spanKnob.grid(row=0, column=0, sticky='ew')
@@ -390,33 +394,34 @@ class InstrumentPanel(tk.Frame):
         self.repeatVar = tk.StringVar(self.controlFrame)
         self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
                                           4, [1, 2, 4, 8], self.loopUpdate,
-                                          'loop:', colour='#cc7722')
+                                          'loop:', colour='#cc7722', bg=self.controlFrame.cget('bg'))
         self.repeatVar.trace('w', self.repeatVarUpdate)
 
         self.recVar = tk.StringVar(self.controlFrame)
         self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4,
                                        [1, 2, 4, 8], self.recUpdate,
-                                       ' rec:', colour='#881010')
+                                       ' rec:', colour='#881010', bg=self.controlFrame.cget('bg'))
         self.recVar.trace('w', self.recVarUpdate)
 
         self.rhythmVar = tk.StringVar(self.controlFrame)
         self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
                                           4, [1, 2, 3, 4], self.rhythmUpdate,
-                                          'rhythm:', colour='#cc7722')
+                                          'rhythm:', colour='#cc7722', bg=self.controlFrame.cget('bg'))
         self.rhythmVar.trace('w', self.rhythmVarUpdate)
 
         # ------ Controls
-        self.holdButton = tk.Button(self.controlFrame, text='hold')
+        self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), text='hold')
         self.holdButton['command'] = self.instrument.toggle_hold
 
-        self.pauseButton = tk.Button(self.controlFrame, text='pause')
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), text='pause')
         self.pauseButton['command'] = self.instrument.toggle_paused
 
         self.lengthVar = tk.DoubleVar(self.controlFrame)
         self.lengthVar.trace('w', self.lengthUpdate)
-        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1,
+        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1, bg=self.controlFrame.cget('bg'),
                                      orient=tk.HORIZONTAL, resolution=0.1,
-                                     showvalue=False, variable=self.lengthVar)
+                                     showvalue=False, variable=self.lengthVar,
+                                     troughcolor=COLOR_SCHEME['panel_bg'])
 
         # ------ Display track
         self.update()
@@ -439,18 +444,19 @@ class InstrumentPanel(tk.Frame):
         # ------ Pack all the elements...
         self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
         self.removeButton.grid(row=0, column=1, sticky='ew')
-        self.nameLabel.grid(row=0, column=2, columnspan=1, sticky='ew')
+        self.statusLabel.grid(row=0, column=2, sticky='ew')
+        self.nameLabel.grid(row=0, column=3, columnspan=1, sticky='ew')
+        self.chanLabel.grid(row=0, column=4, sticky='ew')
         self.playerParamFrame.grid(row=1, column=1, columnspan=4, sticky='ew')
         #self.confidenceOption.grid(row=1, column=1)
         #self.transpose.grid(row=1, column=2)
         #self.continuousButton.grid(row=1, column=3)
-        self.chanLabel.grid(row=0, column=3, sticky='ew')
-        self.repeatSelect.grid(row=2, column=1, )
-        self.recSelect.grid(row=3, column=1)
-        self.rhythmSelect.grid(row=2, column=3)
-        self.holdButton.grid(row=2, column=2, sticky='ew')
-        self.pauseButton.grid(row=3, column=2, sticky='ew')
-        self.lengthSlider.grid(row=3, column=3, sticky='ew')
+        self.repeatSelect.grid(row=2, column=1, columnspan=2)
+        self.recSelect.grid(row=3, column=1, columnspan=2)
+        self.rhythmSelect.grid(row=2, column=4)
+        self.holdButton.grid(row=2, column=3, sticky='ew')
+        self.pauseButton.grid(row=3, column=3, sticky='ew')
+        self.lengthSlider.grid(row=3, column=4, sticky='ew')
 
         # initialise bar display...
         self.update_canvas()
@@ -463,7 +469,7 @@ class InstrumentPanel(tk.Frame):
 
     def update_buttons(self):
         if self.instrument.status == PAUSED:
-            self.pauseButton.config(text='pause')
+            self.pauseButton.config(text='paused')
             self.pauseButton.config(foreground='white')
         elif self.instrument.status == PAUSE_WAIT:
             self.pauseButton.config(text='pausing')
@@ -472,7 +478,7 @@ class InstrumentPanel(tk.Frame):
             self.pauseButton.config(text='playing')
             self.pauseButton.config(foreground='orange')
         elif self.instrument.status == PLAYING:
-            self.pauseButton.config(text='play')
+            self.pauseButton.config(text='playing')
             self.pauseButton.config(foreground='white')
 
         if self.instrument.hold:
@@ -622,9 +628,11 @@ class InstrumentPanel(tk.Frame):
 
     def updateLead(self):
         if self.instrument.lead:
-            self.controlFrame.config(bg=COLOR_SCHEME['panel_select'])
+            #self.controlFrame.config(bg=COLOR_SCHEME['panel_select'])
+            self.statusLabel.config(text='(LEAD)')
         else:
-            self.controlFrame.config(bg=COLOR_SCHEME['panel_bg'])
+            #self.controlFrame.config(bg=COLOR_SCHEME['panel_bg'])
+            self.statusLabel.config(text='')
 
     def repeatVarUpdate(self, *args):
         val = self.repeatVar.get()
