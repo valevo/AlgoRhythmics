@@ -19,11 +19,11 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-CLIENT_ADDR = '192.168.0.31'
+#CLIENT_ADDR = '192.168.0.31'
 #CLIENT_ADDR = '146.50.249.176'
 #CLIENT_ADDR = '192.168.0.36'
 #CLIENT_ADDR = '145.109.5.179'
-#CLIENT_ADDR = '100.75.0.230'
+CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
 
@@ -83,7 +83,6 @@ class Engine(threading.Thread):
             if self.play_request.isSet():
                 # start bar process...
                 if self.start_playing:
-                    #self.ins_manager.send_message()
                     time_bar_start = time.time()
                     self.start_playing = False
                     if self.record:
@@ -100,6 +99,7 @@ class Engine(threading.Thread):
                     pass
 
                 # during bar processes...
+                clock_on = time.time()
                 while self.beat < 3.98 and not self.stop_request.isSet():
                     self.ins_manager.send_message('/clock', 1)
                     self.beat = min(3.99, bps*(time.time() - time_bar_start))
@@ -108,7 +108,9 @@ class Engine(threading.Thread):
                     if self.touchOSCClient:
                         self.touchOSCClient.send_message('/metronome', tuple([1 if n < self.beat else 0 for n in range(4)]))
 
-                    self.wait_event.wait(timeout=1/(bps*24))
+                    wait_time = clock_on + 1/(bps*24) - time.time()
+                    clock_on = time.time()
+                    self.wait_event.wait(timeout=wait_time)
 
                 # after bar processes...
                 for ins in self.ins_manager.get_instruments():
@@ -143,10 +145,10 @@ class Engine(threading.Thread):
                     #self.ins_manager.update_gui()
 
             # update instruments if they have requested new bars...
-            for ins in self.ins_manager.get_instruments():
-                ins.check_updates()
+            #for ins in self.ins_manager.get_instruments():
+            #    ins.check_updates()
 
-            self.play_request.wait(timeout=0.05)
+            #self.play_request.wait(timeout=0.05)
 
     def join(self, timeout=None):
         self.stop_request.set()
@@ -192,6 +194,7 @@ class Instrument():
         self.global_bar_num = 0           # global bar number
         self.stream = utils.Stream()      # the musical stream of notes / chords
         self.context_stream = dict()      # the bar in 'context' form
+        self.last_requested_bar = -1      # requested bars
         self.context_size = 4             # number of contexts needed
         self.status = PLAYING             # current playing status
         self.armed = False                # is armed (recording) instrument
@@ -248,9 +251,9 @@ class Instrument():
         if self.status == PLAY_WAIT:
             self.status = PLAYING
 
-        if self.continuous:
-            for _ in range(max(0, -len(self.stream) + self.bar_num + 6)):
-                self.request_new_bar()
+        #if self.continuous:
+        #    for _ in range(max(0, -len(self.stream) + self.bar_num + 6)):
+        #        self.request_new_bar()
 
         if self.loopLevel > 0:
             if self.bar_num > self.loopEnd:
@@ -283,7 +286,7 @@ class Instrument():
     def play_bar(self, bar, beat):
         '''Checks if have to play any notes in current bar'''
         #print('PLAY BAR', self.bar_num, bar, beat)
-        self.check_updates()
+        #self.check_updates()
 
         self.global_bar_num = bar
 
@@ -357,25 +360,26 @@ class Instrument():
     def mute_all_notes(self):
         self.ins_manager.send_message('/allOff', self.chan)
 
-    def request_new_bar(self):
-        diff = self.stream.getNextBarNumber() - self.bar_num - 1
+    def request_new_bar(self, lead_bar=None):
+        #diff = self.stream.getNextBarNumber() - self.bar_num - 1
         #print('Requesting diff {}'.format(diff))
 
-        lead_contexts = None
-        if not self.lead:
-            try:
-                lead_contexts = self.ins_manager.lead_ins.get_contexts(diff)
-            except AttributeError:
-                print('No lead instrument')
-                pass
+        #lead_contexts = None
+        #if not self.lead:
+        #    try:
+        #        lead_contexts = self.ins_manager.lead_ins.get_contexts(diff)
+        #    except AttributeError:
+        #        print('No lead instrument')
+        #        pass
 
         msg = {
             'confidence':       self.confidence,
             'loopRhythm':       self.rhythmLoopLevel,
             'hold':             self.hold,
-            'lead_contexts':    lead_contexts,
+            'lead_bar':         lead_bar
         }
         self.request_queue.put((1, self.ins_id, msg))
+        self.last_requested_bar += 1
 
     def check_updates(self):
         '''Checks if any messages from network'''
@@ -481,7 +485,7 @@ class Instrument():
         #print(self.context_stream)
 
         if len(self.context_stream) < diff:
-            print('Not enough context information... (diff = {}'.format(diff))
+            print('Not enough context information... (diff = {})'.format(diff))
             return None
 
         if req_bar not in self.context_stream:
@@ -609,8 +613,41 @@ class InstrumentManager():
         self.request_queue.put((-1, ins_id))
         print('Removing instrument {}'.format(ins_id))
 
-    def generate_bars(self):
-        pass
+    def update_ins(self):
+        for ins in self.instruments.values():
+            ins.check_updates()
+
+    def check_generate_bars(self):
+        # first generate lead instruments bar, then pass to others
+
+        if self.lead_ins:
+            # check if lead bar need to generate...
+            if self.lead_ins.last_requested_bar - self.lead_ins.bar_num < 6:
+                self.lead_ins.request_new_bar()
+
+        else:
+            return
+
+        # only generate other bars if lead has the bar already...
+        #lead_bar_num_diff = self.lead_ins.bar_num - self.lead_ins.
+        lead_last_bar_num = len(self.lead_ins.stream)
+
+        for ins in self.instruments.values():
+            if ins.lead:
+                continue
+
+            bar_diff = ins.stream.getNextBarNumber() - ins.bar_num
+            if bar_diff < 6:
+                requesting_bar_num = ins.stream.getNextBarNumber()
+                if requesting_bar_num <= ins.last_requested_bar:
+                    continue
+
+                if lead_last_bar_num >= self.lead_ins.bar_num + bar_diff:
+                    context = self.lead_ins.context_stream[self.lead_ins.bar_num + bar_diff]
+                    ins.request_new_bar(lead_bar=context)
+                else:
+                    continue
+
 
     def load_nextbar(self):
         for _id in self.instruments.keys():
@@ -654,11 +691,12 @@ class InstrumentManager():
         #    ins.status = PLAY_WAIT
         #    pass
 
-    def update_gui(self):
-        for ins_panel in self.instrumentPanels.values():
-            ins_panel.move_canvas(0)
+    #def update_gui(self):
+    #    for ins_panel in self.instrumentPanels.values():
+    #        ins_panel.move_canvas(0)
 
     def set_lead_instrument(self, ins):
+        print('Setting lead ins to', ins)
         if self.lead_ins:
             self.lead_ins.lead = False
             self.lead_ins.ins_panel.updateLead()
@@ -836,6 +874,7 @@ class MusaicApp():
         self.listener.start()
         self.touchOSCListener.start()
         self.checkConnection()
+        self.check_ins_updates()
         self.updateGUI()
 
         self.root.mainloop()
@@ -850,12 +889,19 @@ class MusaicApp():
         self.network_manager.join(timeout=1)
 
 
+    def check_ins_updates(self):
+        self.ins_manager.check_generate_bars()
+        self.ins_manager.update_ins()
+
+        self.root.after(1000//20, self.check_ins_updates)
+
     def updateGUI(self):
         # only need to update if playing...
         bar = self.engine.bar
         beat = self.engine.beat
         text = '{:2}:{}'.format(bar, int(min(4, beat+1)))
         self.timeLabel.configure(text=text)
+
 
         # check if need to redraw canvases...
         for ins in self.ins_manager.instruments.values():
