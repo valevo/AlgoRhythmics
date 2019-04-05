@@ -20,7 +20,7 @@ from copy import deepcopy
 
 
 class DataGenerator:
-    def __init__(self, path, save_conversion_params=True, 
+    def __init__(self, path, save_conversion_params=None, 
                  to_list=False, meta_prep_f=None):
         self.path = path
         self.num_pieces = None
@@ -28,7 +28,8 @@ class DataGenerator:
         self.raw_songs = None
 
         self.conversion_params = dict()
-        self.save_params_eager = save_conversion_params
+        self.save_params_eager = True if save_conversion_params else False
+        self.save_dir = save_conversion_params
         self.params_saved = False
         
         self.meta_f = meta_prep_f
@@ -146,9 +147,9 @@ class DataGenerator:
             filename = "DataGenerator.conversion_params"
 
 
-        print("CONVERSION PARAMS SAVED TO" + " Data/" + filename)
+        print("CONVERSION PARAMS SAVED TO " + self.save_dir + "/" + filename)
 
-        with open("Data/" + filename, "wb") as handle:
+        with open(self.save_dir + "/" + filename, "wb") as handle:
             pickle.dump(self.conversion_params, handle)
 
 
@@ -386,6 +387,7 @@ class CombinedGenerator(DataGenerator):
             for (cur_rhythm, cur_melody) in zip(rhythm_iter, melody_iter):
                 (*rhythm_x, rhythms, meta, prev_meta, rhythm_lead), rhythm_y = cur_rhythm
                 (melody_x, melody_lead), melody_y = cur_melody
+                melody_lead = melody_lead.reshape((-1, 1, 48))
                 yield ([*rhythm_x, rhythms, melody_x, meta, prev_meta, rhythm_lead, melody_lead],
                        [rhythm_y, melody_y, meta])
         else:

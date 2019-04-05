@@ -63,6 +63,8 @@ class RhythmEncoder(Model):
                          outputs=embeddings_processed,
                          name=repr(self)) # "RhythmEncoder")  
         
+        self.bar_embedder = bar_embedder
+        
         if compile_now:
             self.compile_default()
             
