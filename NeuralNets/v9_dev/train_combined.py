@@ -124,10 +124,10 @@ if __name__ == "__main__":
         print("\nITERATION ", cur_iteration)
         
         comb_net.fit_generator(data_iter, 
-                               steps_per_epoch=10, #cg.num_pieces, 
+                               steps_per_epoch=cg.num_pieces, 
                                epochs=cur_iteration*j+j, 
                                initial_epoch=cur_iteration*j,
-                               verbose=2, callbacks=[tb])
+                               verbose=1, callbacks=[tb])
     
         cur_folder_name = "/".join([top_dir, save_dir, weight_dir, "/_checkpoint_" + str(cur_iteration)])
         os.makedirs(cur_folder_name)
