@@ -128,7 +128,10 @@ class CombinedNetwork(Model):
                              repr(self.meta_predictor):"categorical_crossentropy"},
                        metrics={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
-                             repr(self.meta_predictor):"mean_absolute_error"})
+                             repr(self.meta_predictor):"mean_absolute_error"},
+                        loss_weights={repr(self.rhythm_net):0.2,
+                             repr(self.melody_net):0.2,
+                             repr(self.meta_predictor):0.6})
 
 
 
