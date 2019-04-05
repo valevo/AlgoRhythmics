@@ -66,8 +66,11 @@ class CombinedNetwork(Model):
 
         meta_embedded = Input(shape=(meta_embed_size,), name="meta_embedded")
         
+        lead_rhythm = Input(shape=(None, ), name="lead_rhythm")
+        lead_melody = Input(shape=(None, melody_bar_len), name="lead_melody")
+        
 
-        rhythm_preds = rhythm_net([*rhythm_contexts, meta_embedded])
+        rhythm_preds = rhythm_net([*rhythm_contexts, meta_embedded, lead_rhythm])
 
 
 
@@ -80,12 +83,14 @@ class CombinedNetwork(Model):
             rhythms_embedded = bar_embedder(rhythms)
 
 
-        melody_preds = melody_net([melody_contexts, rhythms_embedded, meta_embedded])
+        melody_preds = melody_net([melody_contexts, rhythms_embedded, 
+                                   meta_embedded, lead_melody])
 
 
 
         if generation:
-            super().__init__(inputs=[*rhythm_contexts, melody_contexts, meta_embedded],
+            super().__init__(inputs=[*rhythm_contexts, melody_contexts, 
+                                     meta_embedded, lead_rhythm, lead_melody],
                              outputs=[rhythm_preds, melody_preds])
         else:
             meta_embedded_prev = Input(shape=(meta_embed_size, ))
@@ -95,7 +100,8 @@ class CombinedNetwork(Model):
                                                   meta_embedded_prev])
             
             super().__init__(inputs=[*rhythm_contexts, rhythms, melody_contexts, 
-                                     meta_embedded, meta_embedded_prev],
+                                     meta_embedded, meta_embedded_prev,
+                                     lead_rhythm, lead_melody],
                              outputs=[rhythm_preds, melody_preds, meta_embedded_recon])
 
 
@@ -122,7 +128,10 @@ class CombinedNetwork(Model):
                              repr(self.meta_predictor):"categorical_crossentropy"},
                        metrics={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
-                             repr(self.meta_predictor):"mean_absolute_error"})
+                             repr(self.meta_predictor):"mean_absolute_error"},
+                        loss_weights={repr(self.rhythm_net):0.2,
+                             repr(self.melody_net):0.2,
+                             repr(self.meta_predictor):0.6})
 
 
 

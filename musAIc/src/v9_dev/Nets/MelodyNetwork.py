@@ -52,6 +52,10 @@ class MelodyNetwork(Model):
         if self.use_meta:
             meta_cat = Input(shape=(self.n_voices,), name="metaData")
 
+        lead = Input(shape=(None, m), name="lead")
+        lead_enc = self.get_lead_encoder(melody_encoder)
+
+
         #encode
         processed = melody_encoder(prev_melodies)
         processed_with_rhythms = Concat([processed, bar_embedding])
@@ -61,7 +65,10 @@ class MelodyNetwork(Model):
             processed_with_rhythms = Concat([processed_with_rhythms, meta_cat])
 
 
-        proc_repeated = RepeatVector(m)(processed_with_rhythms)
+        lead_processed = lead_enc(lead)
+        processed_with_lead = Concat([processed_with_rhythms, lead_processed])
+
+        proc_repeated = RepeatVector(m)(processed_with_lead)
 
         lstm_outputs = LSTM(dec_lstm_size, return_sequences=True)(proc_repeated)
 
@@ -76,10 +83,11 @@ class MelodyNetwork(Model):
 #                       enc_use_meta, dec_use_meta]
 
         if self.use_meta:
-            super().__init__(inputs=[prev_melodies, bar_embedding, meta_cat], 
+            super().__init__(inputs=[prev_melodies, bar_embedding, 
+                                     meta_cat, lead], 
                              outputs=preds, name=repr(self))
         else:
-            super().__init__(inputs=[prev_melodies, bar_embedding], 
+            super().__init__(inputs=[prev_melodies, bar_embedding, lead], 
                              outputs=preds, name=repr(self))
 
 
@@ -95,6 +103,13 @@ class MelodyNetwork(Model):
 
     def __repr__(self):
         return "MelodyNetwork_" + "_".join(map(str, self.params[1:]))
+    
+    
+    def get_lead_encoder(self, encoder):
+        m, conv_f, conv_win_size, enc_lstm_size = encoder.params
+        lead_enc = MelodyEncoder(m=m, conv_f=conv_f, conv_win_size=1, 
+                                 enc_lstm_size=enc_lstm_size)
+        return lead_enc
 
 #%%
 #        

@@ -44,6 +44,8 @@ class RhythmNetwork(Model):
 
         context_size = rhythm_encoder.context_size
         encoded_size = rhythm_encoder.encoding_size
+        bar_embedder = rhythm_encoder.bar_embedder
+        bar_embed_size = rhythm_encoder.bar_embedder.embedding_size
 
 
         prev_bars = [Input(shape=(None,), name="context_" + str(i)) 
@@ -52,6 +54,8 @@ class RhythmNetwork(Model):
         if enc_use_meta or dec_use_meta:
             meta_cat = Input(shape=(None,), name="metaData")
 
+        lead = Input(shape=(None, ), name="lead")
+        lead_embedded = bar_embedder(lead)
                         
         # encode        
         embeddings_processed = rhythm_encoder(prev_bars)
@@ -59,7 +63,8 @@ class RhythmNetwork(Model):
         # decode
         if dec_use_meta:
             encoded_size += self.n_voices
-            embeddings_processed = Concat([embeddings_processed, meta_cat])
+            encoded_size += bar_embed_size
+            embeddings_processed = Concat([embeddings_processed, meta_cat, lead_embedded])
         
         repeated = Lambda(self._repeat, output_shape=(None, encoded_size))\
                                 ([prev_bars[0], embeddings_processed])
@@ -81,10 +86,10 @@ class RhythmNetwork(Model):
     
     
         if enc_use_meta or dec_use_meta:
-            super().__init__(inputs=[*prev_bars, meta_cat], outputs=preds,
+            super().__init__(inputs=[*prev_bars, meta_cat, lead], outputs=preds,
                  name=repr(self))  
         else:
-            super().__init__(inputs=prev_bars, outputs=preds,
+            super().__init__(inputs=[prev_bars, lead], outputs=preds,
                  name=repr(self))  
         
         if compile_now:

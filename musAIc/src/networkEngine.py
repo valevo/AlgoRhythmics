@@ -39,16 +39,16 @@ class NNPlayer9(Player):
 
         print('Loading Player', _id)
 
-        with open('./v9_dev/Data/DataGenerator.conversion_params', 'rb') as f:
+        with open('./v9_dev/Trainings/first_with_lead/DataGenerator.conversion_params', 'rb') as f:
             conversion_params = pkl.load(f)
             self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        self.metaEmbedder = MetaEmbedding.from_saved_custom('./v9_dev/meta_saved/')
-        metaPredictor = MetaPredictor.from_saved_custom('./v9_dev/meta_saved/')
+        self.metaEmbedder = MetaEmbedding.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
+        metaPredictor = MetaPredictor.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
 
-        weights_folder = "./v9_dev/Nets/weights/Wed_Apr__3_19-56-27_2019/"
+        weights_folder = "./v9_dev/Trainings/first_with_lead/weights/_checkpoint_19/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder, metaPredictor,
                                                      generation=True,
                                                      compile_now=False)
@@ -62,19 +62,11 @@ class NNPlayer9(Player):
 
         self.metaEmbedSize = self.metaEmbedder.embed_size
 
-        #print("-"*40,  "\nINFO FOR LOADED NET:", self.comb_net)
-        #print(" - Used context size: ", self.context_size)
-        #print(" - Expected rhythm input size: "+
-        #      "(?, ?) with labels in [0, {}]".format(self.V_rhythm))
-        #print(" - Expected melody input size: "+
-        #      "(?, ?, {}) with labels in [0, {}]".format(self.m, self.V_melody))
-        #print("-"*40)
-
         self.batch_size = 1
         self.bar_length = 4
 
-        #quarterBeat = self.rhythmDict[(0.0, 0.3333, 0.6667)]
-        quarterBeat = self.rhythmDict[(0.0,)]
+        quarterBeat = self.rhythmDict[(0.0, 0.3333, 0.6667)]
+        #quarterBeat = self.rhythmDict[(0.0,)]
         self.rhythm_contexts = [ quarterBeat*np.ones((self.batch_size, self.bar_length)) for _ in range(self.context_size)]
 
         #self.rhythm_contexts = [rand.randint(0, self.V_rhythm, size=(self.batch_size, self.bar_length))
@@ -118,14 +110,16 @@ class NNPlayer9(Player):
             else:
                 print('No lead, using own previous...')
                 lead_r_context = lead_r_context[-1]
-                lead_m_context = lead_m_context[:, -1, :]
+                lead_m_context = lead_m_context[:, -1:, :]
 
         #print('MetaData for ins {}:'.format(self._id))
         #print(self.metaData)
 
         output = self.comb_net.predict(x=[*self.rhythm_contexts,
                                              self.melody_contexts,
-                                             self.embeddedMetaData])
+                                             self.embeddedMetaData,
+                                             lead_r_context,
+                                             lead_m_context])
         #print('Output:', output)
         #print(output[0].shape, output[1].shape)
         #print(self.V_rhythm, self.V_melody)
@@ -135,7 +129,7 @@ class NNPlayer9(Player):
         top_rhythm = np.argmax(output[0], axis=-1)
         top_melody = np.argmax(output[1], axis=-1)
 
-        sample_mode = {0: 'argmax', 1: 'dist', 2: 'top_dist'}[2]
+        sample_mode = {0: 'argmax', 1: 'dist', 2: 'top_dist'}[1]
 
         if sample_mode == 'argmax':
             # Deterministic playback...
@@ -196,7 +190,7 @@ class NNPlayer9(Player):
 
         bar = parseBarData(melody, octave, rhythm)
 
-        return bar, (sampled_rhythm, sampled_melody)
+        return bar, (sampled_rhythm, np.array([sampled_melody]))
 
     def get_contexts(self):
         return (self.rhythm_contexts, self.melody_contexts)

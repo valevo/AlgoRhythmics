@@ -9,6 +9,8 @@ from Data.DataGeneratorsLead import CombinedGenerator
 from Nets.MetaPredictor import MetaPredictor, dirichlet_noise
 from Nets.MetaEmbedding import get_meta_embedder, MetaEmbedding
 
+from time import asctime
+
 #%%
 
 def gen_meta(comb_gen_instance):
@@ -54,12 +56,17 @@ def gen_preds_and_meta(comb_gen_instance, meta_embedder,
                 return
             
             data_generator = comb_gen_instance.generate_data()
-
+#%%
 
 if __name__ == "__main__":
 
 #%%
     
+    top_dir = "Trainings"
+    
+    save_dir = asctime().split()
+    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
+    #%%
     cg = CombinedGenerator("Data/lessfiles",
                            save_conversion_params=False,
                            to_list=False)
@@ -96,10 +103,10 @@ if __name__ == "__main__":
 
 #%%
 
-    meta_emb.save_model_custom("meta_saved")
+    meta_emb.save_model_custom("/".join([top_dir, save_dir, "meta"]))
 
 #%%
 
-    mp.save_model_custom("meta_saved")
+    mp.save_model_custom("/".join([top_dir, save_dir, "meta"]))
 
 
