@@ -10,6 +10,7 @@ from Nets.MetaPredictor import MetaPredictor, dirichlet_noise
 from Nets.MetaEmbedding import get_meta_embedder, MetaEmbedding
 
 from time import asctime
+import os
 
 #%%
 
@@ -68,6 +69,9 @@ if __name__ == "__main__":
     save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
     
     save_dir = "linear_meta"
+    
+    if not os.path.isdir("/".join([top_dir, save_dir, "meta"])):
+        os.makedirs("/".join([top_dir, save_dir, "meta"]))
     #%%
     cg = CombinedGenerator("../../Data/music21/",
                            save_conversion_params=False,
@@ -80,7 +84,7 @@ if __name__ == "__main__":
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
                                                embed_size=9, 
-                                               epochs=20, 
+                                               epochs=2, 
                                                evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
@@ -99,7 +103,7 @@ if __name__ == "__main__":
 #%%
     
     mp.fit_generator(pred_meta_gen, 
-                     steps_per_epoch=cg.num_pieces, 
+                     steps_per_epoch=100, #cg.num_pieces, 
                      epochs=4)
     
 
