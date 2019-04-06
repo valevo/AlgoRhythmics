@@ -38,7 +38,7 @@ def gen_preds_and_meta(comb_gen_instance, meta_embedder,
             meta = x[3]
             rs_one_hot, ms_one_hot = y
             
-            rand_alph = rand.randint(1, 10) 
+            rand_alph = rand.randint(2, 10) 
             cur_alphs = lambda v: (v*rand_alph)+1
             rs_noisy = np.asarray([[dirichlet_noise(r_cat, cur_alphs) 
                                     for r_cat in bar] for bar in rs_one_hot])
@@ -116,4 +116,8 @@ if __name__ == "__main__":
 
     mp.save_model_custom("/".join([top_dir, save_dir, "meta"]))
 
+
+
+
+#%%
 

@@ -107,6 +107,7 @@ class CombinedNetwork(Model):
 
         self.bar_embedder = bar_embedder
         self.rhythm_net = rhythm_net
+        self.melody_encoder = melody_net.encoder
         self.melody_net = melody_net
         self.meta_predictor = meta_predictor
 
@@ -126,8 +127,8 @@ class CombinedNetwork(Model):
                        loss={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
                              repr(self.meta_predictor):"categorical_crossentropy"},
-                       metrics={repr(self.rhythm_net):"categorical_crossentropy",
-                             repr(self.melody_net):"categorical_crossentropy",
+                       metrics={repr(self.rhythm_net):"categorical_accuracy",
+                             repr(self.melody_net):"categorical_accuracy",
                              repr(self.meta_predictor):"mean_absolute_error"},
                         loss_weights={repr(self.rhythm_net):0.2,
                              repr(self.melody_net):0.2,
