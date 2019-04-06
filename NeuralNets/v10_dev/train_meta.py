@@ -72,6 +72,7 @@ if __name__ == "__main__":
     
     if not os.path.isdir("/".join([top_dir, save_dir, "meta"])):
         os.makedirs("/".join([top_dir, save_dir, "meta"]))
+        
     #%%
     cg = CombinedGenerator("../../Data/music21/",
                            save_conversion_params=False,
@@ -83,8 +84,8 @@ if __name__ == "__main__":
     meta_examples = rand.permutation(np.vstack(list(gen_meta(cg))))
                     
     meta_emb, eval_results = get_meta_embedder(meta_examples, 
-                                               embed_size=9, 
-                                               epochs=2, 
+                                               embed_size=10, 
+                                               epochs=50, 
                                                evaluate=True, verbose=1)
     
     print("MetaEmbedding trained!\n\tevaluation results:\n\t",
@@ -98,13 +99,13 @@ if __name__ == "__main__":
     m_params = (48, cg.melody_V)
     
     mp = MetaPredictor(r_params, m_params, meta_emb.embed_size,
-                       8, 12)
+                       12, 24)
     
 #%%
     
     mp.fit_generator(pred_meta_gen, 
-                     steps_per_epoch=100, #cg.num_pieces, 
-                     epochs=4)
+                     steps_per_epoch=cg.num_pieces, 
+                     epochs=20)
     
 
 #%%
