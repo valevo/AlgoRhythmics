@@ -121,3 +121,7 @@ if __name__ == "__main__":
 
 #%%
 
+meta_embedder = MetaEmbedding.from_saved_custom("Trainings/linear_meta/meta")
+meta_embed_size = meta_embedder.embed_size
+meta_predictor = MetaPredictor.from_saved_custom("Trainings/linear_meta/meta")
+#meta_predictor.freeze()

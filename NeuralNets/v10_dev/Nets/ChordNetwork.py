@@ -24,7 +24,7 @@ class ChordNetwork(Model):
     def __init__(self, melody_encoder, dense_size, V, compile_now=False):
         m = melody_encoder.m
         
-        self.n_voices = 9
+        self.n_voices = 10
         
         root_note = Input(shape=(1, ), name="root_note")
         melody_context = Input(shape=(None, m), name="bar_melody")
@@ -53,12 +53,6 @@ class ChordNetwork(Model):
                      loss=categorical_crossentropy,
                      metrics=[categorical_accuracy])
         
-        
-#%%
-        
-menc = MelodyEncoder(m=48, conv_f=4, conv_win_size=3, enc_lstm_size=12)
 
-chn = ChordNetwork(menc, 6, 12)
-        
         
         
