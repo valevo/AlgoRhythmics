@@ -16,7 +16,8 @@ COLOR_SCHEME = {
     'panel_select':     '#808080',
     'light_grey' :      '#aaaaaa',
     'dark_grey' :       '#101010',
-    'note_panel_bg':    '#303030'
+    'note_panel_bg':    '#303030',
+    'text_light':       '#bbbbbb',
 }
 
 PAUSED = 2
@@ -58,7 +59,7 @@ class Knob(tk.Frame):
         self.min_ = min_
         self.max_ = max_
 
-        self.name = tk.Label(self, text=name, bg=self.cget('bg'))
+        self.name = tk.Label(self, text=name, fg=COLOR_SCHEME['text_light'], bg=self.cget('bg'))
         self.name.grid()
 
         self.canvas = tk.Canvas(self, width=2*radius+2, height=2*radius+2, bd=0,
@@ -72,18 +73,18 @@ class Knob(tk.Frame):
         else:
             self.val = default
 
-        self.label = tk.Label(self, text='{:5.02f}'.format(self.val), bg=self.cget('bg'))
+        self.label = tk.Label(self, text='{:5.02f}'.format(self.val), fg=COLOR_SCHEME['text_light'], bg=self.cget('bg'))
         self.label.grid(row=2, column=0)
 
         self.arc = self.canvas.create_arc(1, 1, 2*radius+1, 2*radius+1, style=tk.ARC,
-                               outline='white', width=1,
+                               outline=COLOR_SCHEME['text_light'], width=1,
                                extent=300, start=-60, tags='knob')
 
         # sets the sensitivity
         self.range_ = 200/(max_ - min_)
 
         self.line = self.canvas.create_line(radius+1, radius+1, 2*radius+1,
-                                            radius+1, fill='white', width=2,
+                                            radius+1, fill=COLOR_SCHEME['text_light'], width=2,
                                             tags='knob')
 
         self.dragStart = 0
@@ -153,14 +154,15 @@ class SelectionGrid(tk.Frame):
         self.fontLabel = font.Font(family=tk.font.nametofont('TkDefaultFont').cget('family'),
                      size=8)
 
-        self.name = tk.Label(self, text=name, bg=self.cget('bg'))
+        self.name = tk.Label(self, text=name, fg=COLOR_SCHEME['text_light'], bg=self.cget('bg'))
         self.name.grid(column=0)
 
         for i in range(rows):
             for j in range(columns):
                 idx = i * columns + j
                 label = tk.Label(self, text=self.labels[idx], bd=1,
-                                 relief='solid', font=self.fontLabel)
+                                 relief='solid', fg=COLOR_SCHEME['text_light'],
+                                 bg=self.cget('bg'), font=self.fontLabel)
                 label.grid(row=i, column=j+1, sticky='nesw', padx=1, pady=1)
                 label.bind('<Button-1>', self.clicked)
                 self.buttons[int(self.labels[idx])] = label
@@ -199,9 +201,10 @@ class SelectionGrid(tk.Frame):
                 pass
 
 class PlayerControls(tk.Frame):
-    def __init__(self, master, engine, **kwargs):
+    def __init__(self, master, app, engine, **kwargs):
         tk.Frame.__init__(self, master, **kwargs)
 
+        self.app = app
         self.engine = engine
 
         size = 25
@@ -247,13 +250,13 @@ class PlayerControls(tk.Frame):
 
     def update_buttons(self):
         # PLAY button...
-        if self.engine.play_request.isSet():
+        if self.app.clockVar['playing']:
             self.play_button.configure(bg='yellow')
         else:
             self.play_button.configure(bg=self.col_gray)
 
         # REC button...
-        if self.engine.record:
+        if self.app.clockVar['recording']:
             self.rec_button.itemconfig(self.rec_icon, fill='red')
             self.rec_button.configure(bg='yellow')
         else:
@@ -261,29 +264,30 @@ class PlayerControls(tk.Frame):
             self.rec_button.configure(bg=self.col_gray)
 
         # STOP button...
-        if self.engine.stop and self.engine.play_request.isSet():
+        if self.engine.clockVar['stopping']:
             self.stop_button.configure(bg='yellow')
         else:
             self.stop_button.configure(bg=self.col_gray)
 
     def play(self, event):
-        self.engine.toggle_playback()
-        self.update_buttons()
+        self.app.clock.toggle_playback()
+        #self.update_buttons()
 
     def record(self, event):
-        self.engine.record = not self.engine.record
-        self.update_buttons()
+        pass
+        #self.engine.record = not self.engine.record
+        #self.update_buttons()
 
     def stop(self, event):
-        self.engine.toggle_stop(self.stop_button)
-        if self.engine.play_request.isSet():
-            self.stop_button.configure(bg='yellow')
-        else:
-            self.stop_button.configure(bg=self.col_gray)
+        self.app.stop()
+        #if self.engine.play_request.is_set():
+        #    self.stop_button.configure(bg='yellow')
+        #else:
+        #    self.stop_button.configure(bg=self.col_gray)
 
 
     def add(self, event):
-        self.engine.ins_manager.addInstrument()
+        self.app.ins_manager.addInstrument()
 
 
 class InstrumentPanel(tk.Frame):
@@ -410,10 +414,10 @@ class InstrumentPanel(tk.Frame):
         self.rhythmVar.trace('w', self.rhythmVarUpdate)
 
         # ------ Controls
-        self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), text='hold')
+        self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='hold')
         self.holdButton['command'] = self.instrument.toggle_hold
 
-        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), text='pause')
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
         self.pauseButton['command'] = self.instrument.toggle_paused
 
         self.lengthVar = tk.DoubleVar(self.controlFrame)
@@ -470,7 +474,7 @@ class InstrumentPanel(tk.Frame):
     def update_buttons(self):
         if self.instrument.status == PAUSED:
             self.pauseButton.config(text='paused')
-            self.pauseButton.config(foreground='white')
+            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
         elif self.instrument.status == PAUSE_WAIT:
             self.pauseButton.config(text='pausing')
             self.pauseButton.config(foreground='orange')
@@ -479,7 +483,7 @@ class InstrumentPanel(tk.Frame):
             self.pauseButton.config(foreground='orange')
         elif self.instrument.status == PLAYING:
             self.pauseButton.config(text='playing')
-            self.pauseButton.config(foreground='white')
+            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
 
         if self.instrument.hold:
             self.holdButton.config(relief='sunken')

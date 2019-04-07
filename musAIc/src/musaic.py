@@ -5,7 +5,8 @@ import threading
 import multiprocessing
 import queue
 import time
-from collections import deque
+from copy import deepcopy
+from collections import deque, defaultdict
 
 from guielements import COLOR_SCHEME, VScrollFrame, InstrumentPanel, PlayerControls, Knob
 import utils
@@ -58,20 +59,200 @@ class MessageListener(threading.Thread):
         self.server.shutdown()
         super(MessageListener, self).join(timeout)
 
+class Clock(multiprocessing.Process):
+    ''' The Clock that keeps time, updates 24 times per beat '''
+    def __init__(self, client, clockVar):
+        super(Clock, self).__init__()
 
-class Engine(threading.Thread):
+        self.client = client
+        self.clockVar = clockVar
+        self.clockVar['bar'] = 0
+        self.clockVar['beat'] = 0.0
+        self.clockVar['tick'] = 0
+        self.clockVar['playing'] = False
+        self.clockVar['stopping'] = False
+        self.clockVar['recording'] = False
+
+        self.bar = 0
+        self.beat = 0.0
+
+        self.playEvent = multiprocessing.Event()
+        self.stop_request = multiprocessing.Event()
+
+        self.stop = False
+
+    def run(self):
+        while not self.stop_request.is_set():
+            if self.playEvent.is_set():
+                bpm = self.clockVar['bpm']
+                tick_time = (60/bpm)/24
+
+                clock_on = time.time()
+                for i in range(24 * 4):
+                    next_time = clock_on + i*tick_time
+                    while time.time() < next_time:
+                        pass
+                    # send MIDI clock...
+                    self.client.send_message('/clock', 1)
+
+                    # update clockVar...
+                    self.beat = i/24
+                    self.clockVar['beat'] = self.beat
+                    self.clockVar['tick'] = i
+
+                    if self.stop_request.is_set():
+                        return
+
+                if self.stop:
+                    self.bar = 0
+                    self.stop = False
+                else:
+                    self.bar += 1
+                self.clockVar['bar'] = self.bar
+                self.clockVar['beat'] = 0.0
+                #self.clockVar['tick'] = 0
+
+            else:
+                # not playing
+                time.sleep(0.01)
+
+
+    def join(self, timeout=None):
+        self.stop_request.set()
+        #self.wait_event.set()
+        self.playEvent.clear()
+        super(Clock, self).join(timeout)
+
+    def set_playing(self):
+        if self.playEvent.is_set():
+            return
+        self.clockVar['playing'] = True
+        self.client.send_message('/clockStart', 1)
+        self.playEvent.set()
+
+    def toggle_playback(self):
+        if self.playEvent.is_set():
+            self.playEvent.clear()
+            self.clockVar['playing'] = False
+            self.clockVar['stopping'] = False
+        else:
+            self.playEvent.set()
+            self.clockVar['playing'] = True
+            self.clockVar['stopping'] = False
+            self.client.send_message('/clockStart', 1)
+            print('clock start')
+
+    def toggle_stop(self, stop_button=None):
+        if self.playEvent.is_set():
+            if not self.stop:
+                self.stop = True
+                self.playEvent.clear()
+                self.clockVar['playing'] = False
+                self.clockVar['stopping'] = True
+            else:
+                self.stop = False
+                self.playEvent.set()
+                self.clockVar['playing'] = True
+                self.clockVar['stopping'] = False
+        else:
+            self.stop = False
+            self.bar = 0
+            self.clockVar['bar'] = self.bar
+            self.clockVar['beat'] = 0.0
+            self.clockVar['playing'] = False
+            self.clockVar['stopping'] = False
+
+
+class Engine2(threading.Thread):
+    ''' Updates instruments and send OSC messages '''
+    def __init__(self, app, client, clockVar, ins_manager):
+        super(Engine2, self).__init__()
+
+        self.app = app
+        self.client = client
+        self.ins_manager = ins_manager
+        self.clockVar = clockVar
+
+        self.stop_request = multiprocessing.Event()
+
+        self.current_bar = 0
+        self.stop_flag = False
+
+        #self.next_events = defaultdict(defaultdict)       # {id: {time % 4.0: [msgs]}}
+
+    def run(self):
+        while not self.stop_request.is_set():
+            while self.clockVar['playing']:
+                # clock is playing...
+
+                # -- START OF MEASURE
+                self.stop_flag = True
+                events = []
+                for ins in self.ins_manager.get_instruments():
+                    ins.load_bar()
+
+                    new_events = ins.get_bar_events()
+                    events.append(new_events)
+
+                last_tick = -1
+
+                while self.clockVar['bar'] == self.current_bar:
+
+                    # -- DURING THE MEASURE
+                    if self.clockVar['tick'] != last_tick:
+                        last_tick = self.clockVar['tick']
+                        for event in events:
+                            for addr, args in event[last_tick]:
+                                print(addr, args)
+                                self.client.send_message(addr, args)
+                    else:
+                        time.sleep(0.001)
+
+                # -- END OF MEASURE
+                self.current_bar = self.clockVar['bar']
+                for ins in self.ins_manager.get_instruments():
+                    ins.close_bar()
+                    ins.increment_bar_num()
+
+                self.ins_manager.check_generate_bars()
+                self.ins_manager.update_ins()
+
+
+            else:
+                # clock is stopped...
+                if self.stop_flag:
+                    self.stop_flag = False
+                    self.client.send_message('/clockStop', 1)
+
+                    if self.clockVar['stopping']:
+                        self.clockVar['stopping'] = False
+                        for ins in self.ins_manager.get_instruments():
+                            ins.reset()
+                        self.next_events = defaultdict(defaultdict)
+
+
+                self.ins_manager.check_generate_bars()
+                self.ins_manager.update_ins()
+                time.sleep(0.001)
+
+    def join(self, timeout=None):
+        self.stop_request.set()
+        super(Engine2, self).join(timeout=None)
+
+
+class Engine(multiprocessing.Process):
     """Controls the clock and instument playback"""
     def __init__(self, app, ins_manager, bpmVar, touchOSCClient=None):
-        threading.Thread.__init__(self)
+        #threading.Thread.__init__(self)
+        super(Engine, self).__init__()
+
         self.app = app
         self.ins_manager = ins_manager
-        self.bpmVar = bpmVar
+        #self.bpmVar = bpmVar
         self.touchOSCClient = touchOSCClient
 
-        self.stop_request = threading.Event()
-        self.play_request = threading.Event()
-        self.is_playing = threading.Event()
-        self.wait_event = threading.Event()
+        self.stop_request = multiprocessing.Event()
+        #self.play_request = multiprocessing.Event()
         self.beat = 0
         self.bar = 0
         self.start_playing = True
@@ -79,14 +260,14 @@ class Engine(threading.Thread):
         self.stop = False
 
     def run(self):
-        while not self.stop_request.isSet():
-            if self.play_request.isSet():
+        while not self.stop_request.is_set():
+            if self.play_request.is_set():
                 # start bar process...
                 if self.start_playing:
                     time_bar_start = time.time()
                     self.start_playing = False
-                    if self.record:
-                        self.app.sendCC(1, 127)
+                    #if self.record:
+                    #    self.app.sendCC(1, 127)
 
                 # before bar processes...
                 for ins in self.ins_manager.get_instruments():
@@ -100,17 +281,19 @@ class Engine(threading.Thread):
 
                 # during bar processes...
                 clock_on = time.time()
-                while self.beat < 3.98 and not self.stop_request.isSet():
+                while self.beat < 3.98 and not self.stop_request.is_set():
                     self.ins_manager.send_message('/clock', 1)
                     self.beat = min(3.99, bps*(time.time() - time_bar_start))
-                    self.ins_manager.play_instruments(self.bar, self.beat)
+                    #self.ins_manager.play_instruments(self.bar, self.beat)
 
                     if self.touchOSCClient:
                         self.touchOSCClient.send_message('/metronome', tuple([1 if n < self.beat else 0 for n in range(4)]))
 
-                    wait_time = clock_on + 1/(bps*24) - time.time()
+                    wait_time = clock_on - time.time() + 1/(bps*24)
+                    print(wait_time)
                     clock_on = time.time()
-                    self.wait_event.wait(timeout=wait_time)
+                    #self.wait_event.wait(timeout=wait_time)
+                    time.sleep(max(0, wait_time))
 
                 # after bar processes...
                 for ins in self.ins_manager.get_instruments():
@@ -122,13 +305,13 @@ class Engine(threading.Thread):
                 time_bar_start += 4/bps
             else:
                 # after stopping playback...
-                self.is_playing.clear()
+                #self.is_playing.clear()
                 if not self.start_playing:
                     self.ins_manager.send_message('/clockStop', 1)
                     if self.touchOSCClient:
                         self.touchOSCClient.send_message('/metronome', (0, 0, 0, 0))
-                    self.app.sendCC(1, 0)
-                    self.app.sendCC(2, 127)
+                    #self.app.sendCC(1, 0)
+                    #self.app.sendCC(2, 127)
                     self.record = False
 
                     if self.stop:
@@ -142,7 +325,6 @@ class Engine(threading.Thread):
                     self.app.controls.update_buttons()
                     self.start_playing = True
                     self.ins_manager.set_stopped()
-                    #self.ins_manager.update_gui()
 
             # update instruments if they have requested new bars...
             #for ins in self.ins_manager.get_instruments():
@@ -152,17 +334,19 @@ class Engine(threading.Thread):
 
     def join(self, timeout=None):
         self.stop_request.set()
-        self.wait_event.set()
+        #self.wait_event.set()
         self.play_request.clear()
         super(Engine, self).join(timeout)
 
     def toggle_playback(self):
-        if self.play_request.isSet():
+        print('toggle playback')
+        if self.play_request.is_set():
             self.play_request.clear()
         else:
             self.play_request.set()
             self.ins_manager.send_message('/clockStart', 1)
             print('clock start')
+        print(self.play_request.is_set())
 
     def toggle_stop(self, stop_button=None):
         if not self.stop:
@@ -210,6 +394,7 @@ class Instrument():
         self.offMode = 0                  # note off mode: 0 - hold to noteOn
                                           #               >0 - hold for this time
         self.heldNotes = {}               # a dict of current notes being held, {MIDI: note}
+        self.prev_events = defaultdict(list)
 
         self.hold = False                 # holds current context
 
@@ -254,10 +439,6 @@ class Instrument():
         if self.status == PLAY_WAIT:
             self.status = PLAYING
 
-        #if self.continuous:
-        #    for _ in range(max(0, -len(self.stream) + self.bar_num + 6)):
-        #        self.request_new_bar()
-
         if self.loopLevel > 0:
             if self.bar_num > self.loopEnd:
                 self.bar_num = self.loopEnd - self.loopLevel + 1
@@ -273,7 +454,7 @@ class Instrument():
         else:
             self.recording = False
             try:
-                #self.current_bar = self.stream.getBar(self.bar_num)
+                self.current_bar = self.stream.getBar(self.bar_num)
                 if not self.next_note:
                     self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
 
@@ -282,7 +463,7 @@ class Instrument():
             except Exception as e:
                 # no bar left to load...
                 print(e)
-                #self.current_bar = None
+                self.current_bar = None
                 self.next_note = None
 
 
@@ -350,6 +531,32 @@ class Instrument():
 
             self.heldNotes[self.next_note.midi] = self.next_note
             self.next_note = self.next_note.next_note
+
+    def get_bar_events(self):
+        ''' returns a dict of {tick: MIDI event} for the current bar'''
+
+        if self.status == PAUSED or self.mute or self.status == PLAY_WAIT or self.current_bar == None:
+            return None
+
+        events = deepcopy(self.prev_events)
+        self.prev_events = defaultdict(list)
+
+        for offset, note in self.current_bar.items():
+            tick = int(offset*24)
+            vel = np.random.randint(70, 100)
+            events[tick].append(('/noteOn', (self.chan, note.midi, vel)))
+            if self.offMode > 0.1:
+                offTick = tick + int(self.offMode*24)
+            else:
+                offTick = tick + int(note.getDuration()*24)
+
+            if offTick >= 24 * 4:
+                self.prev_events[offTick % 4.0].append(('/noteOff', (self.chan, note.midi)))
+            else:
+                events[offTick].append(('/noteOff', (self.chan, note.midi)))
+
+        return events
+
 
     def mute_note(self, note):
         #print('Muting note ', note)
@@ -620,6 +827,7 @@ class InstrumentManager():
         #self.ins_box.onFrameConfigure()
 
     def update_ins(self):
+        #print('update_ins')
         for ins in self.instruments.values():
             ins.check_updates()
 
@@ -696,10 +904,6 @@ class InstrumentManager():
         #for ins in self.instruments.values():
         #    ins.status = PLAY_WAIT
         #    pass
-
-    #def update_gui(self):
-    #    for ins_panel in self.instrumentPanels.values():
-    #        ins_panel.move_canvas(0)
 
     def set_lead_instrument(self, ins):
         print('Setting lead ins to', ins)
@@ -823,17 +1027,16 @@ class MusaicApp():
                              font='Arial 16', padx=5, pady=5)
 
         self.BPM = tk.IntVar(self.maincontrols)
-        self.BPM.trace('w', self.BPMchange)
-        self.BPM.set(80)
         self.bpmBox = tk.Spinbox(self.maincontrols, from_=20, to=240, textvariable=self.BPM,
-                            width=3, bg=self.maincontrols.cget('bg'), fg='white',
+                            width=3, bg=self.maincontrols.cget('bg'), fg=COLOR_SCHEME['text_light'],
                             buttonbackground=self.maincontrols.cget('bg'))
 
         self.panicButton = tk.Button(self.maincontrols, text='Panic',
-                                     command=self.panic, bg=self.maincontrols.cget('bg'))
+                                     command=self.panic, bg=self.maincontrols.cget('bg'),
+                                     fg=COLOR_SCHEME['text_light'])
         # pack main controls...
         self.timeLabel.grid(row=0, column=4, rowspan=2, padx=5)
-        tk.Label(self.maincontrols, text='Tempo:',
+        tk.Label(self.maincontrols, text='Tempo:', fg=COLOR_SCHEME['text_light'],
                  bg=self.maincontrols.cget('bg')).grid(row=0, column=5, sticky='e')
         self.bpmBox.grid(row=0, column=6)
         self.panicButton.grid(row=1, column=5, columnspan=2, sticky='ew')
@@ -849,16 +1052,25 @@ class MusaicApp():
                                              self.touchOSCClient)
         self.ins_manager.addInstrument()
 
+        # add clock...
+        mgr = multiprocessing.Manager()
+        self.clockVar = mgr.dict()
+        self.clock = Clock(self.client, self.clockVar)
+
+        self.BPM.trace('w', self.BPMchange)
+        self.BPM.set(80)
+
         # add engine...
-        self.engine = Engine(self, self.ins_manager, self.BPM, touchOSCClient=self.touchOSCClient)
+        #self.engine = Engine(self, self.ins_manager, self.BPM, touchOSCClient=self.touchOSCClient)
+        self.engine = Engine2(self, self.client, self.clockVar, self.ins_manager)
 
         # add controls...
-        self.controls = PlayerControls(self.maincontrols, self.engine)
+        self.controls = PlayerControls(self.maincontrols, self, self.engine)
         self.controls.grid(row=0, column=0, rowspan=2)
 
         # add status bar...
-        self.statusBar = tk.Frame(self.mainframe, relief='sunken', bd=2)
-        self.statusLabel = tk.Label(self.statusBar,
+        self.statusBar = tk.Frame(self.mainframe, relief='sunken', bg=COLOR_SCHEME['dark_grey'], bd=2)
+        self.statusLabel = tk.Label(self.statusBar, bg=self.statusBar.cget('bg'), fg=COLOR_SCHEME['text_light'],
             text='Connecting too: {}, Port:{}'.format(self.cl_ip, self.cl_port))
         self.statusLabel.bind('<Button-1>', self.editConnection)
         self.statusLabel.pack(side='right')
@@ -885,11 +1097,12 @@ class MusaicApp():
 
         # start the loops...
         self.engine.daemon = True
+        self.clock.start()
         self.engine.start()
         self.listener.start()
         self.touchOSCListener.start()
         self.checkConnection()
-        self.check_ins_updates()
+        #self.check_ins_updates()
         self.updateGUI()
 
         self.root.mainloop()
@@ -897,47 +1110,30 @@ class MusaicApp():
         # tidy up on close...
         print('Closing threads...')
         self.ins_manager.send_message('/panic', 0)
+        self.clock.join(timeout=1)
+        mgr.shutdown()
         self.engine.join(timeout=1)
         self.listener.join(timeout=1)
         self.touchOSCListener.join(timeout=1)
         self.network_manager.terminate()
         self.network_manager.join(timeout=1)
 
-
-    def check_ins_updates(self):
-        self.ins_manager.check_generate_bars()
-        self.ins_manager.update_ins()
-
-        self.root.after(1000//20, self.check_ins_updates)
-
     def updateGUI(self):
         # only need to update if playing...
-        bar = self.engine.bar
-        beat = self.engine.beat
+        bar = self.clockVar['bar']
+        beat = self.clockVar['beat']
         text = '{:2}:{}'.format(bar, int(min(4, beat+1)))
         self.timeLabel.configure(text=text)
 
-
         # check if need to redraw canvases...
-        for ins in self.ins_manager.instruments.values():
+        for ins in self.ins_manager.get_instruments():
             if ins.request_GUI_update:
                 ins.ins_panel.update_canvas()
                 ins.request_GUI_update = False
 
             ins.ins_panel.move_canvas(beat)
             ins.ins_panel.update_buttons()
-
-
-        #if self.engine.record:
-        #    self.recButton['relief'] = 'sunken'
-        #    self.recButton['fg'] = 'red'
-        #else:
-        #    self.recButton['relief'] = 'raised'
-        #    self.recButton['fg'] = 'black'
-
-        #for ins in self.ins_manager.instrumentPanels.values():
-        #    ins.move_canvas(beat)
-            # set record buttons arcordingly
+        self.controls.update_buttons()
 
         # 25 FPS refresh rate...
         self.root.after(1000//25, self.updateGUI)
@@ -993,15 +1189,15 @@ class MusaicApp():
             self.controls.play(None)
         elif items[0] == 'tempo':
             # deal with BPM change...
-            bpm = self.engine.bpmVar.get()
+            bpm = self.bpmVar.get()
             if args[0] > 0.5:
                 if bpm > 180:
                     return
-                self.engine.bpmVar.set(int(bpm) + 1)
+                self.bpmVar.set(int(bpm) + 1)
             else:
                 if bpm < 20:
                     return
-                self.engine.bpmVar.set(int(bpm) - 1)
+                self.bpmVar.set(int(bpm) - 1)
         elif items[0] in '123456789':
             # instrument control
             if args[0] < 0.5:
@@ -1171,7 +1367,11 @@ class MusaicApp():
         print('NoteOn: {}'.format(msg))
 
     def stop(self):
-        self.engine.toggle_stop()
+        #self.engine.toggle_stop()
+        if not self.clockVar['playing']:
+            for ins in self.ins_manager.get_instruments():
+                ins.reset()
+        self.clock.toggle_stop()
 
     def panic(self):
         '''Send MIDI all off message to all channels'''
@@ -1182,7 +1382,9 @@ class MusaicApp():
 
     def BPMchange(self, *args):
         #print('BPM change: ', args)
-        self.touchOSCClient.send_message('/bpm', self.BPM.get())
+        self.clockVar['bpm'] = self.BPM.get()
+        if self.touchOSCClient:
+            self.touchOSCClient.send_message('/bpm', self.BPM.get())
 
 
 class DialogOSCParams(Dialog):

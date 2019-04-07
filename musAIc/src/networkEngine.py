@@ -566,12 +566,12 @@ class NetworkManager(multiprocessing.Process):
             if req[0] == 0:
                 # new instrument id
                 self.return_queues[_id] = req[2]
-                #model = DataReader(_id)
+                model = DataReader(_id)
                 #model = BasicPlayer(_id)
-                if len(req) > 3:
-                    model = NNPlayer9(_id, req[3])
-                else:
-                    model = NNPlayer9(_id)
+                #if len(req) > 3:
+                #    model = NNPlayer9(_id, req[3])
+                #else:
+                #    model = NNPlayer9(_id)
 
                 self.models[_id] = model
 
