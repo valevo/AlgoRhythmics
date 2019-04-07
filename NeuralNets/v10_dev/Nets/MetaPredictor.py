@@ -51,7 +51,7 @@ class MetaPredictor(Model):
         metas_combined = Concatenate()([prev_meta_dropped, pre_meta])
         
         meta_embedded = Dense(meta_embed_size, 
-                              activation="softmax")(metas_combined)
+                              activation="softplus")(metas_combined)
         
         
         super().__init__(inputs=[rhythms_dist, melodies_dist, prev_meta],

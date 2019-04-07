@@ -30,7 +30,7 @@ class MetaEmbedding(Model):
 #        embed_V=K.cast_to_floatx(embed_size)
         
 #        preprocess = Dense(embed_size, activation="linear")
-        categorise = Dense(embed_size, activation="linear", name="vales_embedding")
+        categorise = Dense(embed_size, activation="softplus", name="vales_embedding")
                             #,activity_regularizer=EntropyRegulariser(factor=0.01, V=embed_V))
 
         meta = Input(shape=(meta_len, ))        
@@ -93,7 +93,7 @@ class MetaTrainer(Model):
         meta = Input(shape=(meta_len,))
         embedded = meta_embedder(meta)
         meta_recon = Dense(meta_len,
-                           activation="linear",
+                           activation="relu",
                            name="reconstructed")(embedded) # ,activation="softplus")
         
         super().__init__(inputs=meta, outputs=[embedded, meta_recon])

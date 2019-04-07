@@ -15,6 +15,90 @@ import numpy as np
 import numpy.random as rand
 
 #%%
+
+class GaussVAE(Model):
+    def __init__(self, input_len, embed_size, epsilon_std, compile_now=False): 
+        self.embed_size = embed_size
+        self.epsilon_std = epsilon_std
+        
+        inputs = Input(shape=(input_len, ))
+        
+        # encode
+        h_enc = Dense(embed_size, activation="tanh")(inputs)
+        self.z_mean = Dense(embed_size, name="z_mean")(h_enc)
+        self.z_log_var = Dense(embed_size, name="z_var")(h_enc)
+        
+        # sample
+        z = Lambda(self.sample, output_shape=(embed_size, ))([self.z_mean, 
+                                                              self.z_log_var])
+    
+        # decode
+        h_dec = Dense(input_len, activation="tanh")(z)
+        x_mean = Dense(input_len)(h_dec)    
+        x_log_var = Dense(input_len)(h_dec)
+    
+#        pred = Dense(input_len, activation="linear", name="x_hat")(z)
+        
+        super().__init__(inputs=inputs, outputs=[x_mean, x_log_var])
+        
+        if compile_now:
+            self.compile_default()
+            
+            
+    def compile_default(self):
+        self.compile("adam", 
+                     loss=self.vae_loss,
+                     metrics=["mean_absolute_error"])
+            
+    def sample(self, args):
+        z_mean_, z_log_var_ = args
+        batch_size = K.shape(z_mean_)[0]
+        epsilon = K.random_normal(shape=(batch_size, self.embed_size), 
+                                  mean=0., stddev=self.epsilon_std)
+        return z_mean_ + K.exp(z_log_var_/2) * epsilon
+        
+        
+    def KL_div(self):
+        return -0.5*K.sum(1 + 
+                          self.z_log_var - 
+                          K.square(self.z_mean) - 
+                          K.exp(self.z_log_var), axis=-1)
+
+    def gauss_pdf(self, x, x_pred):
+        mean, log_var = x_pred
+        var = K.exp(log_var)
+        pi_cons = K.constant(np.pi)
+        Z = K.pow(2*pi_cons*var, 0.5)
+        prob = K.log(K.exp(-0.5*K.pow(x - mean, 2) / var) / Z)  
+        return prob
+        
+    
+    def vae_loss(self, x, x_pred):
+        xent = self.gauss_pdf(x, x_pred)
+        KL = self.KL_div()
+#        KL_repeated = K.repeat_elements(K.reshape(KL, shape=(K.shape(KL)[0], 1)),
+#                                        rep=self.m, axis=-1)
+        return xent + KL
+
+
+#%%
+
+vae = GaussVAE(input_len=10, embed_size=8, epsilon_std=1.0, compile_now=True)
+
+
+#%%
+
+xs = rand.random(size=(100, 10))
+
+ys = xs[:, :]
+
+
+#%%
+
+vae.fit(x=xs, y=ys, epochs=1)
+
+
+#%%
 class RecurrentGaussVAE(Model):
     def __init__(self, m, num_categories, embed_size, 
                  enc_lstm_size, latent_dim, dec_lstm_size,
