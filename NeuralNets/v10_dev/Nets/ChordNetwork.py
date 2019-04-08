@@ -108,6 +108,6 @@ class ChordNetwork(Model):
 #%%     
         
     
-loaded_chord_net = ChordNetwork.from_saved_custom("Trainings/chord_test/chord",
-                                                  load_melody_encoder=True,
-                                                  compile_now=True)
+#loaded_chord_net = ChordNetwork.from_saved_custom("Trainings/chord_test/chord",
+#                                                  load_melody_encoder=True,
+#                                                  compile_now=True)
