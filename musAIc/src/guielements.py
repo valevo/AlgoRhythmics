@@ -18,6 +18,7 @@ COLOR_SCHEME = {
     'dark_grey' :       '#101010',
     'note_panel_bg':    '#303030',
     'text_light':       '#bbbbbb',
+    'text_dark':        '#101010',
 }
 
 PAUSED = 2
@@ -135,9 +136,84 @@ class Knob(tk.Frame):
         self.label.config(text='{:5.02f}'.format(self.val))
 
 
+class ModeSelect(tk.Frame):
+    def __init__(self, master, variable, name, labels, default=0, colour='orange', **options):
+        tk.Frame.__init__(self, master, **options)
+        self.variable = variable
+        self.variable.trace('w', self.update)
+        self.labels = labels
+        self.selection = default
+        self.colour = colour
+
+        self.fontLabel = font.Font(family=tk.font.nametofont('TkDefaultFont').cget('family'),
+                     size=8)
+
+        name = tk.Label(self, text=name, fg=COLOR_SCHEME['text_light'], bg=self.cget('bg'))
+        name.grid(row=0, column=0)
+        self.label = tk.Label(self, text=self.labels[self.selection], bd=2, relief='solid', 
+                              fg=COLOR_SCHEME['text_dark'], bg=self.colour)
+
+        self.label.grid(row=0, column=1, sticky='ew')
+        self.label.bind('<Button-1>', self.clicked)
+
+        self.variable.set(self.selection)
+        self.bind('<Configure>', self.onConfigure)
+
+    def onConfigure(self, event):
+        self.configure(width=event.width)
+
+    def clicked(self, event):
+        self.selection = (self.selection+1) % len(self.labels)
+        self.variable.set(self.selection)
+
+    def update(self, *args):
+        self.label.config(text=self.labels[self.variable.get()])
+
+
+#class CheckSelection(tk.Frame):
+#    def __init__(self, master, variable, labels, name, colour='yellow', **options):
+#        tk.Frame.__init__(self, master, **options)
+#        self.variable = variable
+#        self.labels = labels
+
+class SimpleButton(tk.Frame):
+    def __init__(self, master, variable, label, colour='orange', **options):
+        tk.Frame.__init__(self, master, **options)
+        self.variable = variable
+        self.variable.trace('w', self.update)
+        self.colour = colour
+        self.offColour = master.cget('bg')
+
+        self.columnconfigure(0, weight=1)
+        #self.button = tk.Frame(self, bd=2, relief='solid', bg=self.offColour)
+        #self.button.grid(row=0, column=0, sticky='nesw', padx=1, pady=1)
+
+        self.label = tk.Label(self, text=label, fg=COLOR_SCHEME['text_light'],
+                              bd=2, relief='solid', bg=self.offColour)
+        self.label.grid(row=0, column=0, sticky='ew', padx=1, pady=1)
+        self.label.bind('<Button-1>', self.clicked)
+
+        self.bind('<Configure>', self.onConfigure)
+
+    def onConfigure(self, event):
+        self.label.config(width=self.cget('width'))
+
+    def clicked(self, event):
+        self.variable.set(not self.variable.get())
+
+    def update(self, *args):
+        if self.variable.get():
+            self.label.config(fg=COLOR_SCHEME['text_dark'])
+            self.label.config(bg=self.colour)
+
+        else:
+            self.label.config(fg=COLOR_SCHEME['text_light'])
+            self.label.config(bg=self.offColour)
+
+
 class SelectionGrid(tk.Frame):
     def __init__(self, master, variable, rows, columns, labels, func,
-                 name, colour='yellow', **options):
+                 name, colour='orange', **options):
         tk.Frame.__init__(self, master, **options)
         self.variable = variable
         self.variable.set(0)
@@ -179,7 +255,7 @@ class SelectionGrid(tk.Frame):
     def set(self, val, call=True):
         self.variable.set(val)
 
-        if call:
+        if call and self.func:
             self.func(self.variable)
 
     def update(self, *args):
@@ -301,6 +377,7 @@ class InstrumentPanel(tk.Frame):
         self.chan = tk.IntVar(self)
         self.chan.set(instrument.chan)
         self.colour = INS_COLOURS[self.instrument.ins_id % len(INS_COLOURS)]
+        self.bar = -1
 
         self.controlFrame = tk.Frame(self, bg=COLOR_SCHEME['panel_bg'])
         self.controlFrame.grid(row=0, column=0, sticky='ns')
@@ -369,7 +446,44 @@ class InstrumentPanel(tk.Frame):
         self.rDenKnob.grid(row=0, column=5, sticky='ew')
         self.sPosKnob.grid(row=0, column=6, sticky='ew')
 
+        # ------ Mode selection...
+        self.lead_mode = tk.IntVar()
+        self.lead_mode_select = ModeSelect(self.controlFrame, self.lead_mode,
+                                           'lead:', ['none', 'both', 'melody'],
+                                           default=0,
+                                           bg=self.controlFrame.cget('bg'))
 
+        self.sample_mode = tk.IntVar()
+        self.sample_mode_select = ModeSelect(self.controlFrame, self.sample_mode,
+                                           'sample:', ['top', 'dist', 'best'],
+                                           default=1,
+                                           bg=self.controlFrame.cget('bg'))
+
+        self.context_mode = tk.IntVar()
+        self.context_mode_select = ModeSelect(self.controlFrame, self.context_mode,
+                                           'context:', ['none', 'top', 'real', 'inject'],
+                                           default=3,
+                                           bg=self.controlFrame.cget('bg'))
+
+        # ------ Bar injection configuration...
+        self.injectionFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
+        self.rhythmInjLabel = tk.Label(self.injectionFrame, bg=self.controlFrame.cget('bg'),
+                                       fg=COLOR_SCHEME['text_light'], text='beats:')
+        self.injectionVars = {
+            'qb': (tk.BooleanVar(), 'quar'),
+            'eb': (tk.BooleanVar(), 'egth'),
+            'fb': (tk.BooleanVar(), 'fast'),
+            'lb': (tk.BooleanVar(), 'long'),
+            'tb': (tk.BooleanVar(), 'trip')
+        }
+
+        self.scale = tk.IntVar()
+        self.scale_select = ModeSelect(self.injectionFrame, self.scale,
+                                       'scale:', ['maj', 'min', 'pen', '5th'])
+        self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, v[0], v[1]))
+                                      for k, v in self.injectionVars.items()])
+
+        self.injectionVars['qb'][0].set(True)
 
         # ------ Redundant controls for now...
         self.continuousVar = tk.IntVar(self.controlFrame)
@@ -398,24 +512,26 @@ class InstrumentPanel(tk.Frame):
         self.repeatVar = tk.StringVar(self.controlFrame)
         self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
                                           4, [1, 2, 4, 8], self.loopUpdate,
-                                          'loop:', colour='#cc7722', bg=self.controlFrame.cget('bg'))
+                                          'loop:', colour='orange', bg=self.controlFrame.cget('bg'))
         self.repeatVar.trace('w', self.repeatVarUpdate)
 
-        self.recVar = tk.StringVar(self.controlFrame)
-        self.recSelect = SelectionGrid(self.controlFrame, self.recVar, 1, 4,
-                                       [1, 2, 4, 8], self.recUpdate,
-                                       ' rec:', colour='#881010', bg=self.controlFrame.cget('bg'))
-        self.recVar.trace('w', self.recVarUpdate)
+        self.chordVar = tk.StringVar(self.controlFrame)
+        self.chordSelect = SelectionGrid(self.controlFrame, self.chordVar, 1, 4,
+                                         [1, 2, 3, 4], None,
+                                         'chrd:', colour='orange', bg=self.controlFrame.cget('bg'))
+        #self.recVar.trace('w', self.recVarUpdate)
 
         self.rhythmVar = tk.StringVar(self.controlFrame)
         self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
                                           4, [1, 2, 3, 4], self.rhythmUpdate,
-                                          'rhythm:', colour='#cc7722', bg=self.controlFrame.cget('bg'))
+                                          'rhythm:', colour='orange', bg=self.controlFrame.cget('bg'))
         self.rhythmVar.trace('w', self.rhythmVarUpdate)
 
         # ------ Controls
-        self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='hold')
-        self.holdButton['command'] = self.instrument.toggle_hold
+        self.hold = tk.BooleanVar()
+        #self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='hold')
+        #self.holdButton['command'] = self.instrument.toggle_hold
+        self.holdButton = SimpleButton(self.controlFrame, self.hold, 'hold')
 
         self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
         self.pauseButton['command'] = self.instrument.toggle_paused
@@ -429,7 +545,7 @@ class InstrumentPanel(tk.Frame):
 
         # ------ Display track
         self.update()
-        self.canvasHeight = 80
+        self.canvasHeight = 100
         self.beat_width = 25
         self.bar_width = 4 * self.beat_width
         self.null_bars = 1
@@ -446,7 +562,7 @@ class InstrumentPanel(tk.Frame):
                                                  fill='orange', width=3)
 
         # ------ Pack all the elements...
-        self.colourStrip.grid(row=0, column=0, rowspan=4, sticky='ns')
+        self.colourStrip.grid(row=0, column=0, rowspan=6, sticky='ns')
         self.removeButton.grid(row=0, column=1, sticky='ew')
         self.statusLabel.grid(row=0, column=2, sticky='ew')
         self.nameLabel.grid(row=0, column=3, columnspan=1, sticky='ew')
@@ -456,11 +572,21 @@ class InstrumentPanel(tk.Frame):
         #self.transpose.grid(row=1, column=2)
         #self.continuousButton.grid(row=1, column=3)
         self.repeatSelect.grid(row=2, column=1, columnspan=2)
-        self.recSelect.grid(row=3, column=1, columnspan=2)
+        self.chordSelect.grid(row=3, column=1, columnspan=2)
         self.rhythmSelect.grid(row=2, column=4)
         self.holdButton.grid(row=2, column=3, sticky='ew')
         self.pauseButton.grid(row=3, column=3, sticky='ew')
         self.lengthSlider.grid(row=3, column=4, sticky='ew')
+
+        self.lead_mode_select.grid(row=4, column=1, columnspan=2, sticky='ew')
+        self.sample_mode_select.grid(row=4, column=3, columnspan=1, sticky='ew')
+        self.context_mode_select.grid(row=4, column=4, columnspan=2, sticky='ew')
+
+        self.injectionFrame.grid(row=5, column=1, columnspan=5)
+        self.rhythmInjLabel.grid(row=0, column=1)
+        self.scale_select.grid(row=0, column=0)
+        for i, button in enumerate(self.injectionButtons.values()):
+            button.grid(row=0, column=i+2, sticky='ew')
 
         # initialise bar display...
         self.update_canvas()
@@ -485,10 +611,10 @@ class InstrumentPanel(tk.Frame):
             self.pauseButton.config(text='playing')
             self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
 
-        if self.instrument.hold:
-            self.holdButton.config(relief='sunken')
-        else:
-            self.holdButton.config(relief='raised')
+        #if self.instrument.hold:
+        #    self.holdButton.config(relief='sunken')
+        #else:
+        #    self.holdButton.config(relief='raised')
 
 
     def update_highlighted_bars(self):
@@ -591,14 +717,14 @@ class InstrumentPanel(tk.Frame):
     def move_canvas(self, beat):
         # update cursor position
         if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
-            return
+            beat = 0
 
-        x = self.instrument.bar_num * self.bar_width + beat*self.beat_width
+        x = self.bar * self.bar_width + beat*self.beat_width
         self.barCanvas.coords(self.cursor, x, 0, x, 100)
 
         # scroll canvas
         b_frac = beat / 4
-        scroll_x = (self.instrument.bar_num + b_frac - 2) * self.bar_width
+        scroll_x = (self.bar + b_frac - 2) * self.bar_width
         self.barCanvas.config(scrollregion=(scroll_x, 0, scroll_x + 4*self.bar_width, 100))
 
         self.barCanvas.xview('moveto', 0)
@@ -643,11 +769,11 @@ class InstrumentPanel(tk.Frame):
         x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
         self.ins_manager.send_touchOSC_message('/{}/loopBars'.format(self.instrument.ins_id+1), (1, x, 1))
 
-    def recVarUpdate(self, *args):
-        val = self.recVar.get()
-        x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
-        self.ins_manager.send_touchOSC_message('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
-        print('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
+    #def recVarUpdate(self, *args):
+    #    val = self.recVar.get()
+    #    x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
+    #    self.ins_manager.send_touchOSC_message('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
+    #    print('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
 
     def rhythmVarUpdate(self, *args):
         val = self.rhythmVar.get()

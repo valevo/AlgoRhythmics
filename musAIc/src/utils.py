@@ -2,7 +2,7 @@
 
 def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
     ''' Converts the separate melody, rhythm and chord data into a new bar
-    and appends it to the current stream'''
+    and appends it to the current stream '''
 
     if len(rhythm) != ts_num:
         print('Wrong time signature for rhythm, attempting to fix...')
@@ -30,17 +30,21 @@ def parseBarData(notes, octaves, rhythm, chords=None, ts_num=4):
                 bar[offset] = -1
             else:
                 o = octaves[i]
-                bar[offset] = PCOctaveToMIDI(int(pc), o)
+                bar[offset] = PCOctaveToMIDI(pc, o)
 
     return bar
 
 
 def PCOctaveToMIDI(pc, octave):
-    if pc > 12:
-        # chord...
-        #pc -= 12
-        return 12*(octave+1) + pc - 13
-    return 12*(octave+1) + pc - 1
+    ''' Computes the MIDI value for a PitchClass, Octave pair. Also accepts a list of pitch classes '''
+    if isinstance(pc, list):
+        return list(map(lambda x: PCOctaveToMIDI(x, octave), pc))
+
+    #if pc > 12:
+    #    # chord...
+    #    #pc -= 12
+    #    return 12*(octave+1) + int(pc) - 13
+    return 12*(octave+1) + int(pc) - 1
 
 def MIDItoPCOctave(midi):
     return (midi%12+1, midi//12-1)
@@ -185,8 +189,14 @@ class Stream():
             #offset = float('{:.02f}'.format(offset))
             if n == 'EOP':
                 continue
-            note = Note(n, next_bar, offset)
-            self.append(note)
+            if isinstance(n, list):
+                # chord
+                chord = [m - n[0] for m in n]
+                note = Note(n[0], next_bar, offset, chord=chord)
+                self.append(note)
+            else:
+                note = Note(n, next_bar, offset)
+                self.append(note)
 
     def getIndexAtOffset(self, offset):
         ''' Returns the index of the lowest offset above a given offset time '''
@@ -414,9 +424,9 @@ class Note():
 
     def __str__(self):
         if self.rest:
-            return f'Rest  @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord}, {self.next_note.midi})'
+            return f'Rest  @ {self.bar}:{self.beat} ({ self.getDuration() })'
         else:
-            return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord}, {self.next_note.midi})'
+            return f'{self.midi} @ {self.bar}:{self.beat} ({ self.getDuration() }, {self.chord})'
 
 import random
 
