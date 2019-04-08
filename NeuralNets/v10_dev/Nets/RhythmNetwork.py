@@ -40,7 +40,7 @@ class RhythmNetwork(Model):
     
     def __init__(self, rhythm_encoder, dec_lstm_size, V,  
                  enc_use_meta=False, dec_use_meta=False, compile_now=False):
-        self.n_voices = 9
+        self.n_voices = 10
 
         context_size = rhythm_encoder.context_size
         encoded_size = rhythm_encoder.encoding_size
