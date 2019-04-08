@@ -353,7 +353,7 @@ class ChordGenerator(DataGenerator):
         if save_conversion_params:
             self.conversion_params["chords"] = self.label_d
             self.save_conversion_params(filename=save_conversion_params+
-                                        "ChordGenerator.conversion_params")
+                                        "/ChordGenerator.conversion_params")
         
         self.melody_gen = MelodyGenerator(path, save_conversion_params=False,
                                           to_list=to_list, meta_prep_f=None)

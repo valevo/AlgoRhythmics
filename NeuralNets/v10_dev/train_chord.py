@@ -3,6 +3,8 @@
 from Data.DataGeneratorsLeadMetaChords import ChordGenerator
 
 from Nets.ChordNetwork import ChordNetwork
+
+from Nets.CombinedNetwork import CombinedNetwork
 from Nets.MelodyEncoder import MelodyEncoder
 
 from Nets.MetaEmbedding import MetaEmbedding
@@ -11,13 +13,29 @@ from Nets.MetaPredictor import MetaPredictor
 
 import numpy as np
 
+import os
+
+def get_smaller_weights(bigger_melody_encoder, conv_win_size):
+    encoder_weights =  bigger_melody_encoder.get_weights()
+    
+    slice_end = conv_win_size
+    return [encoder_weights[0][0:slice_end]] + encoder_weights[1:]
+
+
+
 
 if __name__ == "__main__":
     
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "e"
+    save_dir = "meta_no_embed"
+    
+    
+    if not os.path.isdir("/".join([top_dir, save_dir, "chord"])):
+        os.makedirs("/".join([top_dir, save_dir, "chord"]))
+    
+    
 
     # META
 #    meta_embedder = MetaEmbedding.from_saved_custom("/".join([top_dir, save_dir, "meta"]))
@@ -28,20 +46,33 @@ if __name__ == "__main__":
 
 #%%
 
-    ch_gen = ChordGenerator("../../Data/music21", save_conversion_params="/".join([top_dir, save_dir]),
+    music_dir = "../../Data/music21"
+    ch_gen = ChordGenerator(music_dir, save_conversion_params="/".join([top_dir, save_dir]),
                         to_list=False, meta_prep_f=None) # None
-
-    ch_gen.V
 
     data_iter = ch_gen.generate_forever(batch_size=24)
 
     #x, y = ch_gen.list_data()
 
 #%%
-        
-    menc = MelodyEncoder(m=48, conv_f=4, conv_win_size=1, enc_lstm_size=12)
+    comb_net = CombinedNetwork.from_saved_custom("/".join([top_dir, save_dir, "weights"]), 
+                                                 meta_predictor,
+                                                 generation=True,
+                                                 compile_now=False)
+    melody_enc = comb_net.melody_encoder    
+    
+    size_1 = 1
+    fresh_melody_enc = MelodyEncoder(m=48, conv_f=4, conv_win_size=size_1, enc_lstm_size=52, compile_now=False)
+    fresh_melody_enc.set_weights(get_smaller_weights(melody_enc, conv_win_size=size_1))
+    
+    for l in fresh_melody_enc.layers:
+        l.trainable = False        
+    fresh_melody_enc.compile_default()
+    
+    
+#%%
 
-    chn = ChordNetwork(menc, 6, ch_gen.V, compile_now=True)
+    chord_net = ChordNetwork(fresh_melody_enc, 20, ch_gen.V, compile_now=True)
 
 
 #%%
@@ -53,4 +84,9 @@ if __name__ == "__main__":
     # ! Number of chords in bar and number of note values
     # above 12 don't match !
 
-    chn.fit_generator(data_iter, steps_per_epoch=400, epochs=2)
+    chord_net.fit_generator(data_iter, steps_per_epoch=500, epochs=5)
+    
+    
+    
+    chord_net.save_model_custom("/".join([top_dir, save_dir, "chord"]),
+                                save_melody_encoder=True)
