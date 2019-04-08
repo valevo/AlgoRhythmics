@@ -11,9 +11,13 @@ from copy import deepcopy
 from utils import *
 
 #from v5.Nets.CombinedNetwork import CombinedNetwork
-from v9_dev.Nets.CombinedNetwork import CombinedNetwork
-from v9_dev.Nets.MetaEmbedding import MetaEmbedding
-from v9_dev.Nets.MetaPredictor import MetaPredictor
+from v10_dev.Nets.CombinedNetwork import CombinedNetwork
+from v10_dev.Nets.MetaEmbedding import MetaEmbedding
+from v10_dev.Nets.MetaPredictor import MetaPredictor
+
+#from v9_dev.Nets.CombinedNetwork import CombinedNetwork
+#from v9_dev.Nets.MetaEmbedding import MetaEmbedding
+#from v9_dev.Nets.MetaPredictor import MetaPredictor
 
 class Player():
     def __init__(self, _id):
@@ -40,16 +44,20 @@ class NNPlayer9(Player):
 
         print('Loading Player', _id)
 
-        with open('./v9_dev/Trainings/first_with_lead/DataGenerator.conversion_params', 'rb') as f:
+        with open('./v10_dev/Trainings/meta_no_embed_wrong_loss/DataGenerator.conversion_params', 'rb') as f:
+        #with open('./v9_dev/Trainings/first_with_lead/DataGenerator.conversion_params', 'rb') as f:
             conversion_params = pkl.load(f)
             self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        self.metaEmbedder = MetaEmbedding.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
-        metaPredictor = MetaPredictor.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
+        #self.metaEmbedder = MetaEmbedding.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
 
-        weights_folder = "./v9_dev/Trainings/first_with_lead/weights/_checkpoint_19/"
+        metaPredictor = MetaPredictor.from_saved_custom('./v10_dev/Trainings/meta_no_embed_wrong_loss/meta/')
+        #metaPredictor = MetaPredictor.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
+
+        weights_folder = "./v10_dev/Trainings/meta_no_embed_wrong_loss/weights/_checkpoint_21/"
+        #weights_folder = "./v9_dev/Trainings/first_with_lead/weights/_checkpoint_19/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder, metaPredictor,
                                                      generation=True,
                                                      compile_now=False)
@@ -63,7 +71,7 @@ class NNPlayer9(Player):
         self.m = self.comb_net.params["melody_bar_len"]
         self.V_melody = self.comb_net.params["melody_net_params"][3]
 
-        self.metaEmbedSize = self.metaEmbedder.embed_size
+        #self.metaEmbedSize = self.metaEmbedder.embed_size
 
         self.batch_size = 1
         self.bar_length = 4
@@ -353,9 +361,10 @@ class NNPlayer9(Player):
 
         metaData = np.tile(values, (self.batch_size, 1))
 
-        self.embeddedMetaData = self.metaEmbedder.predict(metaData)
+        self.embeddedMetaData = metaData
+        #self.embeddedMetaData = self.metaEmbedder.predict(metaData)
         #print(self.embeddedMetaData)
-        assert self.embeddedMetaData.ndim == 2 and self.embeddedMetaData.shape[-1] == self.metaEmbedder.embed_size
+        #assert self.embeddedMetaData.ndim == 2 and self.embeddedMetaData.shape[-1] == self.metaEmbedder.embed_size
 
 
 #class NNPlayer(Player):
