@@ -65,8 +65,8 @@ if __name__ == "__main__":
     fresh_melody_enc = MelodyEncoder(m=48, conv_f=4, conv_win_size=size_1, enc_lstm_size=52, compile_now=False)
     fresh_melody_enc.set_weights(get_smaller_weights(melody_enc, conv_win_size=size_1))
     
-    for l in fresh_melody_enc.layers:
-        l.trainable = False        
+#    for l in fresh_melody_enc.layers:
+#        l.trainable = False        
     fresh_melody_enc.compile_default()
     
     
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
 #%%
 
-    chord_net.fit(x=x, y=y, epochs=500, verbose=2)
+    chord_net.fit(x=x, y=y, epochs=1000, verbose=2)
 
 #%%
 
