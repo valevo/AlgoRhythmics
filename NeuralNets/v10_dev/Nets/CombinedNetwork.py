@@ -187,17 +187,17 @@ class CombinedNetwork(Model):
 
 #%%            
 
-from Nets.MetaPredictor import MetaPredictor
-
-#%%
-
-meta_pred = MetaPredictor.from_saved_custom("Trainings/meta_no_embed/meta")
-
-#%%            
-            
-loaded_net = CombinedNetwork.from_saved_custom("Trainings/meta_no_embed/weights",
-                                               meta_pred, generation=True,
-                                               compile_now=False)            
+#from Nets.MetaPredictor import MetaPredictor
+#
+##%%
+#
+#meta_pred = MetaPredictor.from_saved_custom("Trainings/meta_no_embed/meta")
+#
+##%%            
+#            
+#loaded_net = CombinedNetwork.from_saved_custom("Trainings/meta_no_embed/weights",
+#                                               meta_pred, generation=True,
+#                                               compile_now=False)            
             
             
 
