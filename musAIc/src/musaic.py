@@ -43,7 +43,7 @@ TOUCH_OSC_SERVER = ('10.0.2.15', 7121)       # Address from where TouchOSC messa
 
 META_PARAMS = ['span', 'tCent', 'cDens', 'cDepth', 'jump', 'rDens', 'sPos']
 
-APP_NAME = 'musAIc LIVE (v0.6)'
+APP_NAME = 'musAIc LIVE (v0.7)'
 
 
 class MessageListener(threading.Thread):
