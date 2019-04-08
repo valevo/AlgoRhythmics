@@ -96,7 +96,7 @@ class CombinedNetwork(Model):
                                      meta_data, lead_rhythm, lead_melody],
                              outputs=[rhythm_preds, melody_preds])
         else:
-            meta_data_prev = Input(shape=(meta_embed_size, ))
+            meta_data_prev = Input(shape=(10, ))
             
             meta_data_recon = meta_predictor([rhythm_preds, 
                                                   melody_preds, 
