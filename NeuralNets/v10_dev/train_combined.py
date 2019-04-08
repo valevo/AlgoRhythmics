@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from Data.DataGeneratorsLeadMeta import CombinedGenerator
+from Data.DataGeneratorsLeadMetaChords import CombinedGenerator
 
 from Nets.MetaEmbedding import MetaEmbedding
 from Nets.MetaPredictor import MetaPredictor
@@ -23,22 +23,23 @@ if __name__ == "__main__":
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "first_with_lead"
+    save_dir = "meta_no_embed"
 
     num_epochs = 200
     j = 2   # checkpoint frequency
     
     
     # META
-    meta_embedder = MetaEmbedding.from_saved_custom("/".join([top_dir, save_dir, "meta"]))
-    meta_embed_size = meta_embedder.embed_size
+#    meta_embedder = MetaEmbedding.from_saved_custom("/".join([top_dir, save_dir, "meta"]))
+#    meta_embed_size = meta_embedder.embed_size
+    meta_embed_size = 10
     meta_predictor = MetaPredictor.from_saved_custom("/".join([top_dir, save_dir, "meta"]))
     meta_predictor.freeze()
 
-    # CHANGE
+    # DATA
     music_dir = "../../Data/music21/"
     cg = CombinedGenerator(music_dir, save_conversion_params="/".join([top_dir, save_dir]),
-                           to_list=0, meta_prep_f=meta_embedder.predict)
+                           to_list=0, meta_prep_f=None) #meta_embedder.predict)
     cg.get_num_pieces()
     
     rc_size = 4

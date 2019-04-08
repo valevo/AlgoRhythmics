@@ -256,6 +256,7 @@ class MelodyGenerator(DataGenerator):
                     cur_ls.append(melodies_None_replaced)
                 yield cur_ls
 
+
     def generate_data(self, context_size=1, rand_stream=None, with_metaData=True):
         song_iter = self.get_notevalues_together(with_metaData=True)
 
