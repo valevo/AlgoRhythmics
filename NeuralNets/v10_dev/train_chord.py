@@ -17,7 +17,7 @@ if __name__ == "__main__":
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "first_with_lead"
+    save_dir = "e"
 
     # META
 #    meta_embedder = MetaEmbedding.from_saved_custom("/".join([top_dir, save_dir, "meta"]))
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 #%%
 
     ch_gen = ChordGenerator("../../Data/music21", save_conversion_params="/".join([top_dir, save_dir]),
-                        to_list=False, meta_prep_f=meta_embedder.predict) # None
+                        to_list=False, meta_prep_f=None) # None
 
     ch_gen.V
 

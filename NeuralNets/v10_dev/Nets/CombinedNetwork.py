@@ -126,7 +126,7 @@ class CombinedNetwork(Model):
         self.compile("adam",
                        loss={repr(self.rhythm_net):"categorical_crossentropy",
                              repr(self.melody_net):"categorical_crossentropy",
-                             repr(self.meta_predictor):"categorical_crossentropy"},
+                             repr(self.meta_predictor):"mean_squared_error"},
                        metrics={repr(self.rhythm_net):"categorical_accuracy",
                              repr(self.melody_net):"categorical_accuracy",
                              repr(self.meta_predictor):"mean_absolute_error"},
@@ -186,13 +186,22 @@ class CombinedNetwork(Model):
             json.dump(self.params, handle)
 
 #%%            
-#            
-#            
-#loaded_net = CombinedNetwork.from_saved_custom("Nets/weights/Fri_Mar_15_05-50-18_2019")            
-#            
-#            
-#
-##%%
+
+from Nets.MetaPredictor import MetaPredictor
+
+#%%
+
+meta_pred = MetaPredictor.from_saved_custom("Trainings/meta_no_embed/meta")
+
+#%%            
+            
+loaded_net = CombinedNetwork.from_saved_custom("Trainings/meta_no_embed/weights",
+                                               meta_pred, generation=True,
+                                               compile_now=False)            
+            
+            
+
+#%%
 #
 #save_dir = "Nets/weights/Fri_Mar_15_05-50-18_2019"
 #
