@@ -29,7 +29,7 @@ if __name__ == "__main__":
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "chord_test"
+    save_dir = "meta_no_embed"
     
     
     if not os.path.isdir("/".join([top_dir, save_dir, "chord"])):
@@ -72,12 +72,12 @@ if __name__ == "__main__":
     
 #%%
 
-    chord_net = ChordNetwork(fresh_melody_enc, 20, ch_gen.V, compile_now=True)
+    chord_net = ChordNetwork(fresh_melody_enc, 28, ch_gen.V, compile_now=True)
 
 
 #%%
 
-    chord_net.fit(x=x, y=y, epochs=50)
+    chord_net.fit(x=x, y=y, epochs=500)
 
 #%%
 
