@@ -10,7 +10,8 @@ from copy import deepcopy
 
 from utils import *
 
-from v10_dev.Nets.CombinedNetwork import CombinedNetwork
+from v10.Nets.CombinedNetwork import CombinedNetwork
+from v10.Nets.MetaPredictor import MetaPredictor
 
 class Player():
     def __init__(self, _id):
@@ -23,7 +24,7 @@ class Player():
     def get_contexts(self):
         return None
 
-class NNPlayer10(Player):
+class NNPlayer10C(Player):
     ''' Neural Net Player (version 9)'''
     def __init__(self, _id, ins_panel=None):
         super().__init__(_id)
@@ -37,20 +38,15 @@ class NNPlayer10(Player):
 
         print('Loading Player', _id)
 
-        with open('./v10_dev/Trainings/meta_no_embed_wrong_loss/DataGenerator.conversion_params', 'rb') as f:
-        #with open('./v9_dev/Trainings/first_with_lead/DataGenerator.conversion_params', 'rb') as f:
+        with open('./v10/Trainings/meta_half_embed/DataGenerator.conversion_params', 'rb') as f:
             conversion_params = pkl.load(f)
             self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        #self.metaEmbedder = MetaEmbedding.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
+        metaPredictor = MetaPredictor.from_saved_custom('./v10/Trainings/meta_half_embed/meta/')
 
-        metaPredictor = MetaPredictor.from_saved_custom('./v10_dev/Trainings/meta_no_embed_wrong_loss/meta/')
-        #metaPredictor = MetaPredictor.from_saved_custom('./v9_dev/Trainings/first_with_lead/meta/')
-
-        weights_folder = "./v10_dev/Trainings/meta_no_embed_wrong_loss/weights/_checkpoint_21/"
-        #weights_folder = "./v9_dev/Trainings/first_with_lead/weights/_checkpoint_19/"
+        weights_folder = "./v10/Trainings/meta_half_embed/weights/_checkpoint_20/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder, metaPredictor,
                                                      generation=True,
                                                      compile_now=False)
@@ -63,8 +59,6 @@ class NNPlayer10(Player):
         self.V_rhythm = self.comb_net.params["rhythm_net_params"][2]
         self.m = self.comb_net.params["melody_bar_len"]
         self.V_melody = self.comb_net.params["melody_net_params"][3]
-
-        #self.metaEmbedSize = self.metaEmbedder.embed_size
 
         self.batch_size = 1
         self.bar_length = 4
@@ -248,7 +242,7 @@ class NNPlayer10(Player):
                 sampled_chords.append(list(rand.choice(top5_m_indices, p=m_probs, replace=True, size=chord_num)))
             sampled_melody = np.array([m])
 
-        #print('Sampled rhythm:', [self.indexDict[r] for r in sampled_rhythm[0]])
+        print('Sampled rhythm:', [self.indexDict[r] for r in sampled_rhythm[0]])
 
         if 'loopRhythm' in kwargs:
             if kwargs['loopRhythm'] > 0:
@@ -355,9 +349,5 @@ class NNPlayer10(Player):
         metaData = np.tile(values, (self.batch_size, 1))
 
         self.embeddedMetaData = metaData
-        #self.embeddedMetaData = self.metaEmbedder.predict(metaData)
-        #print(self.embeddedMetaData)
-        #assert self.embeddedMetaData.ndim == 2 and self.embeddedMetaData.shape[-1] == self.metaEmbedder.embed_size
-
 
 TEST_MD = {'ts': '4/4', 'span': 10, 'jump': 1.511111111111111, 'cDens': 0.2391304347826087, 'cDepth': 0.0, 'tCent': 62.97826086956522, 'rDens': 1.0681818181818181, 'pos': 0.5, 'expression': 0}

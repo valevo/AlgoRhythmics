@@ -569,8 +569,8 @@ class InstrumentPanel(tk.Frame):
         #self.holdButton['command'] = self.instrument.toggle_hold
         self.holdButton = SimpleButton(self.controlFrame, variable=self.hold, label='hold')
 
-        #self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
-        self.pauseButton = SimpleButton(self.controlFrame, func=self.instrument.toggle_paused, label='pause')
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
+        #self.pauseButton = SimpleButton(self.controlFrame, func=self.instrument.toggle_paused, label='pause')
         #self.pauseButton['command'] = self.instrument.toggle_paused
 
         self.lengthVar = tk.DoubleVar(self.controlFrame)
@@ -635,31 +635,31 @@ class InstrumentPanel(tk.Frame):
         self.barCanvas.configure(width=self.winfo_width())
 
     def update_buttons(self):
-        #if self.instrument.status == PAUSED:
-        #    self.pauseButton.config(text='paused')
-        #    self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
-        #elif self.instrument.status == PAUSE_WAIT:
-        #    self.pauseButton.config(text='pausing')
-        #    self.pauseButton.config(foreground='orange')
-        #elif self.instrument.status == PLAY_WAIT:
-        #    self.pauseButton.config(text='playing')
-        #    self.pauseButton.config(foreground='orange')
-        #elif self.instrument.status == PLAYING:
-        #    self.pauseButton.config(text='playing')
-        #    self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
-
         if self.instrument.status == PAUSED:
             self.pauseButton.config(text='paused')
-            self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
+            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
         elif self.instrument.status == PAUSE_WAIT:
             self.pauseButton.config(text='pausing')
-            self.pauseButton.config(fg='orange')
+            self.pauseButton.config(foreground='orange')
         elif self.instrument.status == PLAY_WAIT:
             self.pauseButton.config(text='playing')
-            self.pauseButton.config(fg='orange')
+            self.pauseButton.config(foreground='orange')
         elif self.instrument.status == PLAYING:
             self.pauseButton.config(text='playing')
-            self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
+            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
+
+        #if self.instrument.status == PAUSED:
+        #    self.pauseButton.config(text='paused')
+        #    self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
+        #elif self.instrument.status == PAUSE_WAIT:
+        #    self.pauseButton.config(text='pausing')
+        #    self.pauseButton.config(fg='orange')
+        #elif self.instrument.status == PLAY_WAIT:
+        #    self.pauseButton.config(text='playing')
+        #    self.pauseButton.config(fg='orange')
+        #elif self.instrument.status == PLAYING:
+        #    self.pauseButton.config(text='playing')
+        #    self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
 
         #if self.instrument.hold:
         #    self.holdButton.config(relief='sunken')
