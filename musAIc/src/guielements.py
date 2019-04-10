@@ -29,25 +29,41 @@ PLAYING = 1
 class VScrollFrame(tk.Frame):
     def __init__(self, root, *args, **kwargs):
         tk.Frame.__init__(self, root, *args, **kwargs)
-        self.canvas = tk.Canvas(root, background=COLOR_SCHEME['panel_bg'], borderwidth=0)
-        self.frame = tk.Frame(self.canvas, background=COLOR_SCHEME['panel_bg'])
+        self.grid(row=1, sticky='nesw')
+        #self.pack(side='bottom', expand=True, fill='both')
+        self.canvas = tk.Canvas(self, background=COLOR_SCHEME['panel_bg'], borderwidth=0)
+        self.frame = tk.Frame(self.canvas, background=self.canvas.cget('bg'))
         self.frame.bind('<Configure>', self.onFrameConfigure)
-        self.vsb = tk.Scrollbar(root, orient='vertical', command=self.canvas.yview)
+        self.vsb = tk.Scrollbar(self, orient='vertical', command=self.canvas.yview)
+        self.vsb.configure(bg=COLOR_SCHEME['panel_bg'], troughcolor=COLOR_SCHEME['dark_grey'])
 
-        self.canvas.configure(yscrollcommand=self.vsb.set)
+        self.canvas.configure(width=self.winfo_reqwidth(),
+                              height=self.winfo_reqheight(),
+                              yscrollcommand=self.vsb.set)
 
         self.vsb.pack(side='right', fill='y')
         self.canvas.pack(side='left', fill='both', expand=True)
         self.canvas.update()
-        self.canvas.create_window((40, 40), window=self.frame, anchor='nw',
+        self.canvas.create_window((0, 0), window=self.frame, anchor='sw',
                                  tags='self.frame', width=self.canvas.winfo_width())
+        self.canvas.yview_scroll(-1, 'units')
 
-    def onFrameConfigure(self, event=None):
-        #print(self.canvas.bbox('all'))
-        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-        self.canvas.configure(height=self.frame.winfo_reqheight(),
-                              width=self.frame.winfo_reqwidth())
+        # mousewheel events...
+        self.bind_all('<MouseWheel>', self.onMouseWheel)
+        self.bind_all('<Button-4>', self.onMouseWheel)
+        self.bind_all('<Button-5>', self.onMouseWheel)
 
+    def onFrameConfigure(self, event):
+        bbox = self.canvas.bbox('all')
+        #bbox[1] = min(bbox[1], -self.winfo_height())
+        self.canvas.configure(scrollregion=bbox)
+        self.frame.configure(height=self.frame.winfo_reqheight(), width=self.frame.winfo_reqwidth())
+
+    def onMouseWheel(self, event):
+        if event.num == 4 or event.delta == -120:
+            self.canvas.yview_scroll(-1, 'units')
+        elif event.num == 5 or event.delta == 120:
+            self.canvas.yview_scroll(1, 'units')
 
 class Knob(tk.Frame):
     def __init__(self, master, radius, variable, name='', min_=0, max_=1, default=0,
@@ -177,19 +193,20 @@ class ModeSelect(tk.Frame):
 #        self.labels = labels
 
 class SimpleButton(tk.Frame):
-    def __init__(self, master, variable, label, colour='orange', **options):
+    def __init__(self, master, variable=None, label='', func=None, colour='orange', fg='black', **options):
         tk.Frame.__init__(self, master, **options)
         self.variable = variable
-        self.variable.trace('w', self.update)
+        if variable:
+            self.variable.trace('w', self.update)
         self.colour = colour
         self.offColour = master.cget('bg')
+        self.func = func
 
         self.columnconfigure(0, weight=1)
         #self.button = tk.Frame(self, bd=2, relief='solid', bg=self.offColour)
         #self.button.grid(row=0, column=0, sticky='nesw', padx=1, pady=1)
 
-        self.label = tk.Label(self, text=label, fg=COLOR_SCHEME['text_light'],
-                              bd=2, relief='solid', bg=self.offColour)
+        self.label = tk.Label(self, text=label, fg=fg, bd=2, relief='solid', bg=self.offColour)
         self.label.grid(row=0, column=0, sticky='ew', padx=1, pady=1)
         self.label.bind('<Button-1>', self.clicked)
 
@@ -199,16 +216,35 @@ class SimpleButton(tk.Frame):
         self.label.config(width=self.cget('width'))
 
     def clicked(self, event):
-        self.variable.set(not self.variable.get())
+        if self.variable:
+            self.variable.set(not self.variable.get())
+
+        if self.func:
+            self.func()
 
     def update(self, *args):
-        if self.variable.get():
-            self.label.config(fg=COLOR_SCHEME['text_dark'])
-            self.label.config(bg=self.colour)
+        if self.variable:
+            if self.variable.get():
+                self.label.config(fg=COLOR_SCHEME['text_dark'])
+                self.label.config(bg=self.colour)
 
-        else:
-            self.label.config(fg=COLOR_SCHEME['text_light'])
-            self.label.config(bg=self.offColour)
+            else:
+                self.label.config(fg=COLOR_SCHEME['text_light'])
+                self.label.config(bg=self.offColour)
+
+    def configure(self, **kwargs):
+        if 'command' in kwargs:
+            self.func = kwargs['command']
+
+        if 'text' in kwargs:
+            self.label.config(label=kwargs['text'])
+
+        if 'bg' in kwargs:
+            self.config(bg=kwargs['bg'])
+
+        if 'fg' in kwargs:
+            self.label.config(fg=kwargs['fg'])
+
 
 
 class SelectionGrid(tk.Frame):
@@ -284,21 +320,21 @@ class PlayerControls(tk.Frame):
         self.engine = engine
 
         size = 25
-        self.col_gray = COLOR_SCHEME['light_grey']
-        self.dark_gray = COLOR_SCHEME['dark_grey']
+        self.col_grey = COLOR_SCHEME['light_grey']
+        self.dark_grey = COLOR_SCHEME['dark_grey']
 
         self.play_button = tk.Canvas(self, width=size, height=size,
-                                     bg=self.col_gray, highlightthickness=1,
-                                     highlightbackground=self.dark_gray)
+                                     bg=self.col_grey, highlightthickness=1,
+                                     highlightbackground=self.dark_grey)
         self.rec_button = tk.Canvas(self, width=size, height=size,
-                                     bg=self.col_gray, highlightthickness=1,
-                                     highlightbackground=self.dark_gray)
+                                     bg=self.col_grey, highlightthickness=1,
+                                     highlightbackground=self.dark_grey)
         self.stop_button = tk.Canvas(self, width=size, height=size,
-                                     bg=self.col_gray, highlightthickness=1,
-                                     highlightbackground=self.dark_gray)
+                                     bg=self.col_grey, highlightthickness=1,
+                                     highlightbackground=self.dark_grey)
         self.add_button = tk.Canvas(self, width=size, height=size,
-                                     bg=self.col_gray, highlightthickness=1,
-                                     highlightbackground=self.dark_gray)
+                                     bg=self.col_grey, highlightthickness=1,
+                                     highlightbackground=self.dark_grey)
 
         self.play_button.grid(row=0, column=0, padx=1, pady=1)
         self.rec_button.grid(row=0, column=1, padx=1, pady=1)
@@ -309,15 +345,15 @@ class PlayerControls(tk.Frame):
         to = 6
         self.play_icon = self.play_button.create_polygon(to, to, to, size-to+1,
                                         size-to+1, size//2+1,
-                                        fill=self.dark_gray, outline='')
+                                        fill=self.dark_grey, outline='')
         self.rec_icon = self.rec_button.create_oval(to, to, size-to+1, size-to+1,
-                                        fill=self.dark_gray, outline='')
+                                        fill=self.dark_grey, outline='')
         self.stop_icon = self.stop_button.create_rectangle(to, to, size-to+1,
-                                        size-to+1, fill=self.dark_gray, outline='')
+                                        size-to+1, fill=self.dark_grey, outline='')
         self.add_button.create_rectangle(size//2-2, to, size//2+4, size-to+1,
-                                         fill=self.dark_gray, outline='')
+                                         fill=self.dark_grey, outline='')
         self.add_button.create_rectangle(to, size//2-2, size-to+1, size//2+4,
-                                         fill=self.dark_gray, outline='')
+                                         fill=self.dark_grey, outline='')
 
         self.play_button.bind('<Button-1>', self.play)
         self.rec_button.bind('<Button-1>', self.record)
@@ -329,21 +365,21 @@ class PlayerControls(tk.Frame):
         if self.app.clockVar['playing']:
             self.play_button.configure(bg='yellow')
         else:
-            self.play_button.configure(bg=self.col_gray)
+            self.play_button.configure(bg=self.col_grey)
 
         # REC button...
         if self.app.clockVar['recording']:
             self.rec_button.itemconfig(self.rec_icon, fill='red')
             self.rec_button.configure(bg='yellow')
         else:
-            self.rec_button.itemconfig(self.rec_icon, fill=self.dark_gray)
-            self.rec_button.configure(bg=self.col_gray)
+            self.rec_button.itemconfig(self.rec_icon, fill=self.dark_grey)
+            self.rec_button.configure(bg=self.col_grey)
 
         # STOP button...
         if self.engine.clockVar['stopping']:
             self.stop_button.configure(bg='yellow')
         else:
-            self.stop_button.configure(bg=self.col_gray)
+            self.stop_button.configure(bg=self.col_grey)
 
     def play(self, event):
         self.app.clock.toggle_playback()
@@ -359,7 +395,7 @@ class PlayerControls(tk.Frame):
         #if self.engine.play_request.is_set():
         #    self.stop_button.configure(bg='yellow')
         #else:
-        #    self.stop_button.configure(bg=self.col_gray)
+        #    self.stop_button.configure(bg=self.col_grey)
 
 
     def add(self, event):
@@ -398,7 +434,7 @@ class InstrumentPanel(tk.Frame):
 
 
         # ------ Player Parameter Knobs 
-        self.playerParamFrame = tk.Frame(self.controlFrame, bg=COLOR_SCHEME['panel_bg'])
+        self.playerParamFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
         # Controls for:
         # - span
         # - center
@@ -480,7 +516,7 @@ class InstrumentPanel(tk.Frame):
         self.scale = tk.IntVar()
         self.scale_select = ModeSelect(self.injectionFrame, self.scale,
                                        'scale:', ['maj', 'min', 'pen', '5th'])
-        self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, v[0], v[1]))
+        self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, variable=v[0], label=v[1]))
                                       for k, v in self.injectionVars.items()])
 
         self.injectionVars['qb'][0].set(True)
@@ -531,10 +567,11 @@ class InstrumentPanel(tk.Frame):
         self.hold = tk.BooleanVar()
         #self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='hold')
         #self.holdButton['command'] = self.instrument.toggle_hold
-        self.holdButton = SimpleButton(self.controlFrame, self.hold, 'hold')
+        self.holdButton = SimpleButton(self.controlFrame, variable=self.hold, label='hold')
 
-        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
-        self.pauseButton['command'] = self.instrument.toggle_paused
+        #self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
+        self.pauseButton = SimpleButton(self.controlFrame, func=self.instrument.toggle_paused, label='pause')
+        #self.pauseButton['command'] = self.instrument.toggle_paused
 
         self.lengthVar = tk.DoubleVar(self.controlFrame)
         self.lengthVar.trace('w', self.lengthUpdate)
@@ -598,18 +635,31 @@ class InstrumentPanel(tk.Frame):
         self.barCanvas.configure(width=self.winfo_width())
 
     def update_buttons(self):
+        #if self.instrument.status == PAUSED:
+        #    self.pauseButton.config(text='paused')
+        #    self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
+        #elif self.instrument.status == PAUSE_WAIT:
+        #    self.pauseButton.config(text='pausing')
+        #    self.pauseButton.config(foreground='orange')
+        #elif self.instrument.status == PLAY_WAIT:
+        #    self.pauseButton.config(text='playing')
+        #    self.pauseButton.config(foreground='orange')
+        #elif self.instrument.status == PLAYING:
+        #    self.pauseButton.config(text='playing')
+        #    self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
+
         if self.instrument.status == PAUSED:
             self.pauseButton.config(text='paused')
-            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
+            self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
         elif self.instrument.status == PAUSE_WAIT:
             self.pauseButton.config(text='pausing')
-            self.pauseButton.config(foreground='orange')
+            self.pauseButton.config(fg='orange')
         elif self.instrument.status == PLAY_WAIT:
             self.pauseButton.config(text='playing')
-            self.pauseButton.config(foreground='orange')
+            self.pauseButton.config(fg='orange')
         elif self.instrument.status == PLAYING:
             self.pauseButton.config(text='playing')
-            self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
+            self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
 
         #if self.instrument.hold:
         #    self.holdButton.config(relief='sunken')

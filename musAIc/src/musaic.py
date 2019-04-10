@@ -117,7 +117,7 @@ class Clock(multiprocessing.Process):
                     if self.stop_request.is_set():
                         return
 
-                    next_time = clock_on + i*tick_time
+                    next_time = clock_on + (i+1)*tick_time
                     time.sleep(max(0, next_time - time.time()))
 
                 if self.stop:
@@ -128,7 +128,7 @@ class Clock(multiprocessing.Process):
 
                 self.clockVar['bar'] = self.bar
                 self.clockVar['beat'] = 0.0
-                print('[Clock] bar', self.bar)
+                #print('[Clock] bar', self.bar)
 
             else:
                 # not playing
@@ -656,13 +656,13 @@ class InstrumentManager():
                                 network_queue=return_queue,
                                 request_queue=self.request_queue)
 
-        insPanel = InstrumentPanel(self.ins_box, instrument)
+        insPanel = InstrumentPanel(self.ins_box.frame, instrument, bg=self.ins_box.frame.cget('bg'))
         instrument.set_ins_panel(insPanel)
 
         self.instrumentPanels[self.ins_counter] = insPanel
         self.instruments[self.ins_counter] = instrument
         self.ins_counter += 1
-        insPanel.pack(side='bottom', fill='x', pady=5)
+        insPanel.pack(side='bottom', fill='x', expand=True, pady=5)
         #self.ins_box.onFrameConfigure()
 
         self.set_selected_instrument(instrument)
@@ -851,8 +851,8 @@ class MusaicApp():
         self.root.geometry('1200x600+0+%d'%(hs/2))
         #self.root.resizable(0, 0)
 
-        self.style = Style()
-        self.style.theme_use('clam')
+        #self.style = Style()
+        #self.style.theme_use('clam')
 
         self.cl_ip = CLIENT_ADDR
         self.cl_port = CLIENT_PORT
@@ -876,12 +876,11 @@ class MusaicApp():
 
         self.network_manager.start()
 
-        self.mainframe = tk.Frame(self.root)
-        self.mainframe['bg'] = COLOR_SCHEME['dark_grey']
-        self.mainframe.pack_propagate(False)
+        self.mainframe = tk.Frame(self.root, bg=COLOR_SCHEME['panel_bg'])
+        #self.mainframe.pack_propagate(False)
         self.mainframe.pack(fill='both', expand=True)
         self.mainframe.columnconfigure(0, weight=1)
-        self.mainframe.rowconfigure(0, weight=1)
+        #self.mainframe.rowconfigure(0, weight=1)
 
         # main control panel...
         self.maincontrols = tk.Frame(self.mainframe, bg=self.mainframe.cget('bg'))
@@ -918,8 +917,8 @@ class MusaicApp():
 
         # add instrument button and panels...
 
-        self.instrumentsBox = tk.Frame(self.mainframe, relief='sunken', bd=2, bg=COLOR_SCHEME['note_panel_bg'])
-        #self.instrumentsBox = VScrollFrame(self.mainframe, relief='sunken', bd=2,)
+        #self.instrumentsBox = tk.Frame(self.mainframe, relief='sunken', bd=2, bg=COLOR_SCHEME['note_panel_bg'])
+        self.instrumentsBox = VScrollFrame(self.mainframe, relief='sunken', bd=2,)
 
         self.ins_manager = InstrumentManager(self.instrumentsBox, self.client,
                                              self.request_queue,
@@ -943,13 +942,15 @@ class MusaicApp():
         self.statusLabel.bind('<Button-1>', self.editConnection)
         self.statusLabel.pack(side='right')
 
+
         # place everything...
-        self.maincontrols.pack(padx=5, pady=5)
-        self.instrumentsBox.pack(fill='both', expand=True, ipadx=4, ipady=4)
-        self.statusBar.pack(side='bottom', fill='x')
-        #self.maincontrols.grid(row=0, column=0, sticky='ew')
+        #self.maincontrols.pack(padx=5, pady=5)
+        #self.instrumentsBox.pack(fill='both', expand=True, ipadx=4, ipady=4)
+        #self.statusBar.pack(side='bottom', fill='x')
+        self.mainframe.grid_rowconfigure(1, weight=1)
+        self.maincontrols.grid(row=0, column=0)
         #self.instrumentsBox.grid(row=1, column=0, sticky='nsew')
-        #self.statusBar.grid(row=2, column=0, sticky='ew')
+        self.statusBar.grid(row=2, column=0, sticky='ew')
 
         # add OSC listeners...
         self.disp = dispatcher.Dispatcher()
@@ -970,7 +971,6 @@ class MusaicApp():
         self.listener.start()
         self.touchOSCListener.start()
         self.checkConnection()
-        #self.check_ins_updates()
         self.updateGUI()
 
         self.root.mainloop()
@@ -978,9 +978,9 @@ class MusaicApp():
         # tidy up on close...
         print('Closing threads...')
         self.ins_manager.send_message('/panic', 0)
-        self.clock.join(timeout=1)
         mgr.shutdown()
         self.engine.join(timeout=1)
+        self.clock.join(timeout=1)
         self.listener.join(timeout=1)
         self.touchOSCListener.join(timeout=1)
         self.network_manager.terminate()

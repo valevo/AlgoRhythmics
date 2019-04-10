@@ -13,7 +13,7 @@ from utils import *
 from player9 import NNPlayer9
 from player10 import NNPlayer10
 
-PLAYER_VERSION = 9
+PLAYER_VERSION = 0
 
 class Player():
     def __init__(self, _id):
