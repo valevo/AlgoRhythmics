@@ -29,7 +29,9 @@ class ChordNetwork(Model):
         
         root_note = Input(shape=(1, ), name="root_note")
         melody_context = Input(shape=(None, m), name="bar_melody")
-        meta_embedded = Input(shape=(self.n_voices, ), name="meta_embedded")
+        meta_data = Input(shape=(self.n_voices, ), name="meta_data")
+        
+        meta_embedded = Dense(8, activation="softplus")(meta_data)
         
         root_encoded = Dense(dense_size)(root_note)
         context_encoded = melody_encoder(melody_context)
@@ -41,7 +43,7 @@ class ChordNetwork(Model):
         preds = Dense(V,
                         activation="softmax")(decoded)
         
-        super().__init__(inputs=[root_note, melody_context, meta_embedded],
+        super().__init__(inputs=[root_note, melody_context, meta_data],
                          outputs=preds)
         
         self.params = [dense_size, V]

@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
 #%%
 
-    chord_net.fit(x=x, y=y, epochs=500, verbose=2)
+    chord_net.fit(x=x, y=y, epochs=500, verbose=2, callbacks=[tb])
 
 #%%
 
