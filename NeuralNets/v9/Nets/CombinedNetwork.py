@@ -107,6 +107,7 @@ class CombinedNetwork(Model):
 
         self.bar_embedder = bar_embedder
         self.rhythm_net = rhythm_net
+        self.melody_encoder = melody_net.encoder
         self.melody_net = melody_net
         self.meta_predictor = meta_predictor
 

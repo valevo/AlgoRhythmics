@@ -90,8 +90,7 @@ class MelodyNetwork(Model):
             super().__init__(inputs=[prev_melodies, bar_embedding, lead], 
                              outputs=preds, name=repr(self))
 
-
-
+        self.encoder = melody_encoder
 
         if compile_now:
             self.compile_default()

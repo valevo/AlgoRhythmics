@@ -118,8 +118,4 @@ comb_net2 = CombinedNetwork.from_saved_custom("test", meta_predictor)
 
 comb_net2.fit_generator(data_gen, steps_per_epoch=cg.num_pieces, epochs=1)
 
-#%%
-
-def f(x, y=0):
-    return x+y
 
