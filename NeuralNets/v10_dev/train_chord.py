@@ -29,7 +29,7 @@ if __name__ == "__main__":
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "meta_no_embed"
+    save_dir = "meta_no_embed_wrong_loss"
     
     
     if not os.path.isdir("/".join([top_dir, save_dir, "chord"])):
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
 #%%
 
-    chord_net.fit(x=x, y=y, epochs=1000, verbose=2)
+    chord_net.fit(x=x, y=y, epochs=500, verbose=2)
 
 #%%
 
