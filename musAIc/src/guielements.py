@@ -164,9 +164,10 @@ class ModeSelect(tk.Frame):
         self.fontLabel = font.Font(family=tk.font.nametofont('TkDefaultFont').cget('family'),
                      size=8)
 
+        self.columnconfigure(1, weight=1)
         name = tk.Label(self, text=name, fg=COLOR_SCHEME['text_light'], bg=self.cget('bg'))
         name.grid(row=0, column=0)
-        self.label = tk.Label(self, text=self.labels[self.selection], bd=2, relief='solid', 
+        self.label = tk.Label(self, text=self.labels[self.selection], bd=2, relief='solid',
                               fg=COLOR_SCHEME['text_dark'], bg=self.colour)
 
         self.label.grid(row=0, column=1, sticky='ew')
@@ -176,7 +177,7 @@ class ModeSelect(tk.Frame):
         self.bind('<Configure>', self.onConfigure)
 
     def onConfigure(self, event):
-        self.configure(width=event.width)
+        self.configure(width=self.winfo_reqwidth())
 
     def clicked(self, event):
         self.selection = (self.selection+1) % len(self.labels)
@@ -193,7 +194,7 @@ class ModeSelect(tk.Frame):
 #        self.labels = labels
 
 class SimpleButton(tk.Frame):
-    def __init__(self, master, variable=None, label='', func=None, colour='orange', fg='black', **options):
+    def __init__(self, master, variable=None, label='', func=None, colour='orange', fg=COLOR_SCHEME['text_light'], **options):
         tk.Frame.__init__(self, master, **options)
         self.variable = variable
         if variable:
@@ -211,6 +212,7 @@ class SimpleButton(tk.Frame):
         self.label.bind('<Button-1>', self.clicked)
 
         self.bind('<Configure>', self.onConfigure)
+        self.update()
 
     def onConfigure(self, event):
         self.label.config(width=self.cget('width'))
@@ -363,21 +365,21 @@ class PlayerControls(tk.Frame):
     def update_buttons(self):
         # PLAY button...
         if self.app.clockVar['playing']:
-            self.play_button.configure(bg='yellow')
+            self.play_button.configure(bg='orange')
         else:
             self.play_button.configure(bg=self.col_grey)
 
         # REC button...
         if self.app.clockVar['recording']:
             self.rec_button.itemconfig(self.rec_icon, fill='red')
-            self.rec_button.configure(bg='yellow')
+            self.rec_button.configure(bg='orange')
         else:
             self.rec_button.itemconfig(self.rec_icon, fill=self.dark_grey)
             self.rec_button.configure(bg=self.col_grey)
 
         # STOP button...
         if self.engine.clockVar['stopping']:
-            self.stop_button.configure(bg='yellow')
+            self.stop_button.configure(bg='orange')
         else:
             self.stop_button.configure(bg=self.col_grey)
 
@@ -414,6 +416,7 @@ class InstrumentPanel(tk.Frame):
         self.chan.set(instrument.chan)
         self.colour = INS_COLOURS[self.instrument.ins_id % len(INS_COLOURS)]
         self.bar = -1
+        self.global_bar = -1
 
         self.controlFrame = tk.Frame(self, bg=COLOR_SCHEME['panel_bg'])
         self.controlFrame.grid(row=0, column=0, sticky='ns')
@@ -497,7 +500,7 @@ class InstrumentPanel(tk.Frame):
 
         self.context_mode = tk.IntVar()
         self.context_mode_select = ModeSelect(self.controlFrame, self.context_mode,
-                                           'context:', ['none', 'top', 'real', 'inject'],
+                                           'context:', ['none', 'top', 'real', 'inject', 'user'],
                                            default=3,
                                            bg=self.controlFrame.cget('bg'))
 
@@ -515,7 +518,8 @@ class InstrumentPanel(tk.Frame):
 
         self.scale = tk.IntVar()
         self.scale_select = ModeSelect(self.injectionFrame, self.scale,
-                                       'scale:', ['maj', 'min', 'pen', '5th'])
+                                       'scale:', ['maj', 'min', 'pen', '5th'],
+                                       bg=self.controlFrame.cget('bg'))
         self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, variable=v[0], label=v[1]))
                                       for k, v in self.injectionVars.items()])
 
@@ -569,14 +573,15 @@ class InstrumentPanel(tk.Frame):
         #self.holdButton['command'] = self.instrument.toggle_hold
         self.holdButton = SimpleButton(self.controlFrame, variable=self.hold, label='hold')
 
-        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause')
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause',
+                                    activebackground='orange', activeforeground='black')
         #self.pauseButton = SimpleButton(self.controlFrame, func=self.instrument.toggle_paused, label='pause')
-        #self.pauseButton['command'] = self.instrument.toggle_paused
+        self.pauseButton['command'] = self.instrument.toggle_paused
 
         self.lengthVar = tk.DoubleVar(self.controlFrame)
         self.lengthVar.trace('w', self.lengthUpdate)
         self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1, bg=self.controlFrame.cget('bg'),
-                                     orient=tk.HORIZONTAL, resolution=0.1,
+                                     orient=tk.HORIZONTAL, resolution=0.1, activebackground='orange',
                                      showvalue=False, variable=self.lengthVar,
                                      troughcolor=COLOR_SCHEME['panel_bg'])
 
@@ -765,6 +770,9 @@ class InstrumentPanel(tk.Frame):
                                                  width=3)
 
     def move_canvas(self, beat):
+        if beat < 0.05:
+            self.bar = self.instrument.bar_num
+
         # update cursor position
         if self.instrument.status == PAUSED or self.instrument.status == PLAY_WAIT:
             beat = 0

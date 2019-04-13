@@ -10,8 +10,9 @@ from copy import deepcopy
 
 from utils import *
 
-from v10.Nets.CombinedNetwork import CombinedNetwork
-from v10.Nets.MetaPredictor import MetaPredictor
+from v10_dev.Nets.CombinedNetwork import CombinedNetwork
+from v10_dev.Nets.MetaPredictor import MetaPredictor
+from v10_dev.Nets.ChordNetwork import ChordNetwork
 
 class Player():
     def __init__(self, _id):
@@ -36,17 +37,19 @@ class NNPlayer10C(Player):
             self.metaParameters = deepcopy(TEST_MD)
             print('Using default TEST metadata')
 
+        trainings_dir = './v10_dev/Trainings/meta_no_embed_wrong_loss/'
+
         print('Loading Player', _id)
 
-        with open('./v10/Trainings/meta_half_embed/DataGenerator.conversion_params', 'rb') as f:
+        with open(trainings_dir + 'DataGenerator.conversion_params', 'rb') as f:
             conversion_params = pkl.load(f)
             self.rhythmDict = conversion_params['rhythm']
 
         self.indexDict = {v: k for k, v in self.rhythmDict.items()}
 
-        metaPredictor = MetaPredictor.from_saved_custom('./v10/Trainings/meta_half_embed/meta/')
+        metaPredictor = MetaPredictor.from_saved_custom(trainings_dir+'meta/')
 
-        weights_folder = "./v10/Trainings/meta_half_embed/weights/_checkpoint_20/"
+        weights_folder = trainings_dir + "weights/_checkpoint_20/"
         self.comb_net = CombinedNetwork.from_saved_custom(weights_folder, metaPredictor,
                                                      generation=True,
                                                      compile_now=False)
@@ -62,6 +65,15 @@ class NNPlayer10C(Player):
 
         self.batch_size = 1
         self.bar_length = 4
+
+        # load chord network...
+        with open(trainings_dir + 'ChordGenerator.conversion_params', 'rb') as f:
+            chord_conv_params = pkl.load(f)
+            self.chordDict = chord_conv_params['chords']
+            self.indexChordDict = {v: k for k, v in self.chordDict.items()}
+
+        self.chord_net = ChordNetwork.from_saved_custom(trainings_dir+'/chord/', load_melody_encoder=True)
+
 
         if _id == 0:
             self.inject_params = ({'qb', 'eb'}, 'maj')
@@ -116,16 +128,20 @@ class NNPlayer10C(Player):
                                 for _ in range(self.context_size)]
 
         if scale == 'maj':
-            self.melody_contexts = rand.choice([1, 3, 5, 6, 8, 10, 12],
+            notes = np.array([1, 3, 5, 6, 8, 10, 12])
+            self.melody_contexts = rand.choice(list(notes)+list(notes+12),
                                                size=(self.batch_size, self.context_size, self.m))
         elif scale == 'min':
-            self.melody_contexts = rand.choice([1, 3, 4, 6, 8, 10, 11],
+            notes = np.array([1, 3, 4, 6, 8, 10, 11])
+            self.melody_contexts = rand.choice(list(notes)+list(notes+12),
                                                size=(self.batch_size, self.context_size, self.m))
         elif scale == 'pen':
-            self.melody_contexts = rand.choice([1, 4, 6, 8, 11],
+            notes = np.array([1, 4, 6, 8, 11])
+            self.melody_contexts = rand.choice(list(notes)+list(notes+12),
                                                size=(self.batch_size, self.context_size, self.m))
         elif scale == '5th':
-            self.melody_contexts = rand.choice([1, 8],
+            notes = np.array([1, 8])
+            self.melody_contexts = rand.choice(list(notes)+list(notes+12),
                                                size=(self.batch_size, self.context_size, self.m))
 
 
@@ -252,7 +268,7 @@ class NNPlayer10C(Player):
                 if num > 0:
                     sampled_rhythm = self.rhythm_contexts[-num]
 
-        # -- UPDATE
+        # -- UPDATE CONTEXTS
         if 'um' in kwargs:
             um = kwargs['um']
         else:
@@ -260,7 +276,8 @@ class NNPlayer10C(Player):
         update_mode = {0: 'none',
                        1: 'top',
                        2: 'sampled',
-                       3: 'inject'}[um]
+                       3: 'inject',
+                       4: 'user'}[um]
 
 
         if 'hold' in kwargs:
@@ -285,6 +302,8 @@ class NNPlayer10C(Player):
         elif update_mode == 'none':
             # do not update contexts
             pass
+        else:
+            pass
 
         print('lead_mode:', lead_mode, ' sample_mode:', sample_mode, ' update_mode:', update_mode)
 
@@ -293,10 +312,40 @@ class NNPlayer10C(Player):
 
         # convert to bar...
         rhythm = [self.indexDict[b] for b in sampled_rhythm[0]]
-        if chord_num < 2:
+        if chord_num == 0:
+            # use chord generator network
+            melody = []
+            for n in sampled_melody[0]:
+                print(n, end=', ')
+                if n >= 12:
+                    chord_outputs = self.chord_net.predict(
+                        x=[np.array([[n]]), self.melody_contexts[:, -1:, :], self.embeddedMetaData]
+                    )
+                    if sample_mode == 'argmax':
+                        chord = np.argmax(chord_outputs[0], axis=-1)
+                    elif sample_mode == 'dist' or sample_mode == 'top':
+                        chord = rand.choice(len(chord_outputs[0]), p=chord_outputs[0])
+
+                    print('CHORD:\n', chord_outputs, '\n', chord_outputs.shape)
+                    print('Selected chord:', chord, self.indexChordDict[chord])
+
+                    intervals = self.indexChordDict[chord]
+                    #intervals = [0, 4, 7]
+                    melody.append([n + i - 12 for i in intervals])
+
+                else:
+                    melody.append(n)
+
+            print()
+
+        elif chord_num == 1:
+            # no chords, just melody
             melody = [int(n) for n in sampled_melody[0]]
         else:
+            # use sample chords
             melody = sampled_chords
+
+        # TODO: smarter octave choices
         octave = [self.metaParameters['tCent']//12 - 1] * 48
 
         bar = parseBarData(melody, octave, rhythm)

@@ -38,8 +38,7 @@ class ChordNetwork(Model):
         
         decoded = Dense(dense_size)(inputs_concat)
         
-        preds = Dense(V,
-                        activation="softmax")(decoded)
+        preds = Dense(V, activation="softmax")(decoded)
         
         super().__init__(inputs=[root_note, melody_context, meta_embedded],
                          outputs=preds)
@@ -70,9 +69,9 @@ class ChordNetwork(Model):
             json.dump(self.melody_encoder.params, handle)
             
             
-    @classmethod  
-    def from_saved_custom(cls, save_dir, melody_encoder=None, 
-                          load_melody_encoder=False, compile_now=False):     
+    @classmethod
+    def from_saved_custom(cls, save_dir, melody_encoder=None,
+                          load_melody_encoder=False, compile_now=False):
         
         if melody_encoder and load_melody_encoder:
             raise ValueError("MelodyEncoder *NOT* None and load_melody_encoder=True!")

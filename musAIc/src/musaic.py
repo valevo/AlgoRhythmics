@@ -1,3 +1,5 @@
+import os
+
 import tkinter as tk
 from tkinter import font
 from tkinter.ttk import Style
@@ -20,10 +22,10 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-#CLIENT_ADDR = '192.168.0.31'
+CLIENT_ADDR = '192.168.1.14'
 #CLIENT_ADDR = '146.50.249.176'
 #CLIENT_ADDR = '192.168.0.36'
-CLIENT_ADDR = '145.109.28.188'
+#CLIENT_ADDR = '145.109.28.188'
 #CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
 CLIENT_PORT = 57120
@@ -81,7 +83,10 @@ class Clock(multiprocessing.Process):
         self.playEvent = multiprocessing.Event()
         self.stop_request = multiprocessing.Event()
 
+        # if should stop at end of bar
         self.stop = False
+
+        self.start_time = time.time()
 
     def run(self):
         while not self.stop_request.is_set():
@@ -117,6 +122,7 @@ class Clock(multiprocessing.Process):
                     if self.stop_request.is_set():
                         return
 
+                    #next_time = self.start_time + (self.bar*4*24 + i + 1)*tick_time
                     next_time = clock_on + (i+1)*tick_time
                     time.sleep(max(0, next_time - time.time()))
 
@@ -142,37 +148,22 @@ class Clock(multiprocessing.Process):
         super(Clock, self).join(timeout)
 
     def set_playing(self):
-        if self.playEvent.is_set():
-            return
+        self.stop = False
         self.clockVar['playing'] = True
+        self.clockVar['stopping'] = False
         self.client.send_message('/clockStart', 1)
+        self.start_time = time.time()
         self.playEvent.set()
 
-    def toggle_playback(self):
-        if self.playEvent.is_set():
-            self.playEvent.clear()
+    def set_stop(self):
+        if not self.stop:
+            # just pausing...
+            self.stop = False
             self.clockVar['playing'] = False
             self.clockVar['stopping'] = False
+            self.playEvent.clear()
         else:
-            self.playEvent.set()
-            self.clockVar['playing'] = True
-            self.clockVar['stopping'] = False
-            self.client.send_message('/clockStart', 1)
-            print('clock start')
-
-    def toggle_stop(self, stop_button=None):
-        if self.playEvent.is_set():
-            if not self.stop:
-                self.stop = True
-                self.playEvent.clear()
-                self.clockVar['playing'] = False
-                self.clockVar['stopping'] = True
-            else:
-                self.stop = False
-                self.playEvent.set()
-                self.clockVar['playing'] = True
-                self.clockVar['stopping'] = False
-        else:
+            # stopping
             self.stop = False
             self.bar = 0
             self.clockVar['bar'] = self.bar
@@ -183,12 +174,17 @@ class Clock(multiprocessing.Process):
                 _ = self.messagesQueue.get()
 
 
+    def toggle_playback(self):
+        if self.playEvent.is_set():
+            self.set_stop()
+        else:
+            self.set_playing()
 
 
-class Engine2(threading.Thread):
+class Engine(threading.Thread):
     ''' Updates instruments and send OSC messages '''
     def __init__(self, app, client, clockVar, queue, ins_manager):
-        super(Engine2, self).__init__()
+        super(Engine, self).__init__()
 
         self.app = app
         self.client = client
@@ -210,6 +206,8 @@ class Engine2(threading.Thread):
                 self.stop_flag = True
                 print('[Engine] start of measure', self.clockVar['bar'])
                 current_bar = self.clockVar['bar']
+                #for ins in self.ins_manager.get_instruments():
+                #    ins.ins_panel.bar = ins.bar_num
 
                 # -- DURING MEASURE
                 while self.clockVar['tick'] < 80:
@@ -262,6 +260,8 @@ class Engine2(threading.Thread):
                             # clear the event queue
                             _ = self.clockQueue.get()
 
+                    #for ins in self.ins_manager.get_instruments():
+                    #    ins.ins_panel.bar = ins.bar_num
 
 
                 self.ins_manager.check_generate_bars()
@@ -270,7 +270,7 @@ class Engine2(threading.Thread):
 
     def join(self, timeout=None):
         self.stop_request.set()
-        super(Engine2, self).join(timeout=None)
+        super(Engine, self).join(timeout=None)
 
 
 PAUSED = 2          # currently paused and not playing
@@ -302,6 +302,8 @@ class Instrument():
         self.continuous = True            # continuously generate new bars
         self.recording = False            # if instrument is recording input
         self.record_bars = []             # range of recording bars [start, end]
+
+        self.user_context = None          # the list of user inputted contexts
 
         self.lead = False                 # Lead instrument that others follow
 
@@ -354,6 +356,7 @@ class Instrument():
                 self.bar_num = self.loopEnd - self.loopLevel + 1
                 self.bar_num = max(0, self.bar_num)
                 self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
+                self.ins_panel.bar = self.bar_num
 
         print('LOAD BAR', self.bar_num)
 
@@ -375,8 +378,6 @@ class Instrument():
                 print(e)
                 self.current_bar = None
                 self.next_note = None
-
-
 
     def get_bar_events(self):
         ''' returns a dict of {tick: MIDI event} for the current bar'''
@@ -524,6 +525,7 @@ class Instrument():
         ''' Called when player is stopped '''
         self.mute_all_notes()
         self.bar_num = -1
+        self.ins_panel.bar = self.bar_num
         self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
         self.load_bar()
 
@@ -545,6 +547,20 @@ class Instrument():
             self.ins_panel.update_highlighted_bars()
 
         print(self.record_bars)
+
+    def load_user_contexts(self):
+        directory = './userContexts/'
+        try:
+            userContext = directory + os.listdir(directory)[-1]
+        except IndexError:
+            return
+
+        if userContexts[-4:] != '.pkl':
+            print('Not a pkl file...')
+            return
+
+        with open(userContext, 'rb') as f:
+            self.userContexts = pkl.load(f)
 
     def get_contexts(self, diff):
         ''' Returns the contexts needed to generate the future DIFF bar '''
@@ -886,7 +902,7 @@ class MusaicApp():
         self.maincontrols = tk.Frame(self.mainframe, bg=self.mainframe.cget('bg'))
 
         timeFont = font.Font(family='Courier', size=12, weight='bold')
-        self.timeLabel = tk.Label(self.maincontrols, text='00:00', bg='#303030', fg='yellow',
+        self.timeLabel = tk.Label(self.maincontrols, text='00:00', bg='#303030', fg='orange',
                              width=10, relief='sunken', bd=2,
                              font='Arial 16', padx=5, pady=5)
 
@@ -895,8 +911,9 @@ class MusaicApp():
                             width=3, bg=self.maincontrols.cget('bg'), fg=COLOR_SCHEME['text_light'],
                             buttonbackground=self.maincontrols.cget('bg'))
 
-        self.panicButton = tk.Button(self.maincontrols, text='Panic',
+        self.panicButton = tk.Button(self.maincontrols, text='all off',
                                      command=self.panic, bg=self.maincontrols.cget('bg'),
+                                     activebackground='orange', activeforeground='black',
                                      fg=COLOR_SCHEME['text_light'])
         # pack main controls...
         self.timeLabel.grid(row=0, column=4, rowspan=2, padx=5)
@@ -929,7 +946,7 @@ class MusaicApp():
 
         # add engine...
         #self.engine = Engine(self, self.ins_manager, self.BPM, touchOSCClient=self.touchOSCClient)
-        self.engine = Engine2(self, self.client, self.clockVar, self.clockQueue, self.ins_manager)
+        self.engine = Engine(self, self.client, self.clockVar, self.clockQueue, self.ins_manager)
 
         # add controls...
         self.controls = PlayerControls(self.maincontrols, self, self.engine)
@@ -999,8 +1016,8 @@ class MusaicApp():
                 ins.ins_panel.update_canvas()
                 ins.request_GUI_update = False
 
-            if beat < 0.1:
-                ins.ins_panel.bar = ins.bar_num
+            #if beat < 0.1:
+            #    ins.ins_panel.bar = ins.bar_num
 
             ins.ins_panel.move_canvas(beat)
             ins.ins_panel.update_buttons()
@@ -1238,11 +1255,11 @@ class MusaicApp():
         #print('NoteOn: {}'.format(msg))
 
     def stop(self):
-        #self.engine.toggle_stop()
         if not self.clockVar['playing']:
             for ins in self.ins_manager.get_instruments():
                 ins.reset()
-        self.clock.toggle_stop()
+        #self.clock.toggle_stop()
+        self.clock.set_stop()
 
     def panic(self):
         '''Send MIDI all off message to all channels'''

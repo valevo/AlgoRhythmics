@@ -287,6 +287,9 @@ class NNPlayer9(Player):
             if 'injection_params' in kwargs:
                 self.inject_params = kwargs['injection_params']
             self.inject_contexts()
+        elif update_mode == 'user':
+            # load context from file
+            pass
         elif update_mode == 'none':
             # do not update contexts
             pass

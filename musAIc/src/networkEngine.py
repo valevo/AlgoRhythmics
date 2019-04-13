@@ -11,10 +11,14 @@ from copy import deepcopy
 from utils import *
 
 from player9 import NNPlayer9
+from player9C import NNPlayer9C
 from player10 import NNPlayer10
 from player10C import NNPlayer10C
 
-PLAYER_VERSION = 9
+# =====================================
+# either 9 or 10, +.5 for chord version
+PLAYER_VERSION = 9.5
+# =====================================
 
 class Player():
     def __init__(self, _id):
@@ -162,6 +166,8 @@ class NetworkManager(multiprocessing.Process):
                 print('Loading Player version', PLAYER_VERSION)
                 if PLAYER_VERSION == 9:
                     model = NNPlayer9(_id)
+                elif PLAYER_VERSION == 9.5:
+                    model = NNPlayer9C(_id)
                 elif PLAYER_VERSION == 10:
                     model = NNPlayer10(_id)
                 elif PLAYER_VERSION == 10.5:

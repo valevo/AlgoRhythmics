@@ -15,6 +15,9 @@ import numpy as np
 
 import os
 
+from tensorflow.python.keras.callbacks import TensorBoard
+
+
 def get_smaller_weights(bigger_melody_encoder, conv_win_size):
     encoder_weights =  bigger_melody_encoder.get_weights()
     
@@ -29,7 +32,7 @@ if __name__ == "__main__":
     top_dir = "Trainings"    
 #    save_dir = asctime().split()
 #    save_dir = "_".join([*save_dir[0:3], *save_dir[3].split(":")[:2]])
-    save_dir = "meta_no_embed"
+    save_dir = "meta_no_embed_wrong_loss"
     
     
     if not os.path.isdir("/".join([top_dir, save_dir, "chord"])):
@@ -76,8 +79,12 @@ if __name__ == "__main__":
 
 
 #%%
+    log_dir = "chord_logs"
+    tb = TensorBoard(log_dir="/".join([top_dir, save_dir, log_dir]))
 
-    chord_net.fit(x=x, y=y, epochs=1000, verbose=2)
+#%%
+
+    chord_net.fit(x=x, y=y, epochs=500, verbose=2, callbacks=[tb])
 
 #%%
 
