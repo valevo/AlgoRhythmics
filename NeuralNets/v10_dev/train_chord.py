@@ -15,6 +15,9 @@ import numpy as np
 
 import os
 
+from tensorflow.python.keras.callbacks import TensorBoard
+
+
 def get_smaller_weights(bigger_melody_encoder, conv_win_size):
     encoder_weights =  bigger_melody_encoder.get_weights()
     
@@ -74,6 +77,10 @@ if __name__ == "__main__":
 
     chord_net = ChordNetwork(fresh_melody_enc, 28, ch_gen.V, compile_now=True)
 
+
+#%%
+    log_dir = "chord_logs"
+    tb = TensorBoard(log_dir="/".join([top_dir, save_dir, log_dir]))
 
 #%%
 
