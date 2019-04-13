@@ -50,9 +50,9 @@ if __name__ == "__main__":
     ch_gen = ChordGenerator(music_dir, save_conversion_params="/".join([top_dir, save_dir]),
                         to_list=False, meta_prep_f=None) # None
 
-    data_iter = ch_gen.generate_forever(batch_size=24)
+#    data_iter = ch_gen.generate_forever(batch_size=24)
 
-#    x, y = ch_gen.list_data()
+    x, y = ch_gen.list_data()
 
 #%%
     comb_net = CombinedNetwork.from_saved_custom("/".join([top_dir, save_dir, "weights"]), 
@@ -77,14 +77,14 @@ if __name__ == "__main__":
 
 #%%
 
-#    chord_net.fit(x=x, y=y, epochs=100, verbose=2)
+    chord_net.fit(x=x, y=y, epochs=250, verbose=2)
 
 #%%
 
     # ! Number of chords in bar and number of note values
     # above 12 don't match !
 
-    chord_net.fit_generator(data_iter, steps_per_epoch=50, epochs=1)
+#    chord_net.fit_generator(data_iter, steps_per_epoch=50, epochs=1)
     
     
     
