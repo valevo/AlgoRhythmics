@@ -31,6 +31,10 @@ class Player():
     def get_contexts(self):
         return None
 
+    def update_params(self, params):
+        print('Params updated:')
+        print(params)
+
 class BasicPlayer(Player):
     '''
     Super basic player network, does not coroporate with other musicians or use
@@ -90,46 +94,65 @@ class BasicPlayer(Player):
 class DataReader(Player):
     ''' Player that reads in musical data of the Melody, Rhythm, Chords format '''
     def __init__(self, _id):
-        with open('./testData.pkl', 'rb') as f:
-            self.music_data = pkl.load(f)
-
         super().__init__(_id)
+
+        self.notes      = None 
+        self.octaves    = None 
+        self.rhythm     = None 
+
+        self.rhythm_contexts = None
+        self.melody_contexts = None
 
         self.current_bar = 0
 
-        self.notes      = self.music_data['instruments'][_id]['melody']['notes']
-        self.octaves    = self.music_data['instruments'][_id]['melody']['octaves']
-        self.rhythm     = self.music_data['instruments'][_id]['rhythm']
-
-        self.rhythm_contexts = np.array(self.rhythm[0:4])
-        self.melody_contexts = np.array([self.notes[0:4]])
+        #self.open_data('./testData.pkl')
 
         print('DataReader initialised')
 
     def generate_bar(self, **kwargs):
         ''' Reads the next bar from the file '''
 
+        if 'load_file' in kwargs:
+            if kwargs['load_file'] and kwargs['load_file'] != 'None':
+                print('Loading file')
+                self.open_data(kwargs['load_file'])
+
+        if not self.notes:
+            return None, None
+
         try:
             bar = parseBarData(self.notes[self.current_bar],
                                 self.octaves[self.current_bar],
                                 self.rhythm[self.current_bar])
+            context = (self.rhythm[self.current_bar], np.array([self.notes[self.current_bar]]))
         except IndexError:
             bar = None
+            context = None
 
         self.current_bar += 1
 
-        # emulate load...
-        time.sleep(1)
+        return bar, context
 
-        #print('Bar generated', bar)
-        return bar, None
+    def get_contexts(self):
+        return (self.rhythm_contexts, self.melody_contexts)
+    
+    def open_data(self, dir):
+        #'./testData.pkl'
+        print('open_data', dir)
+        try:
+            with open(dir, 'rb') as f:
+                self.music_data = pkl.load(f)
+        except:
+            print('Could not find {}...'.format(dir))
+            return
 
+        self.current_bar = 0
+        self.notes      = self.music_data[0]['melody']['notes']
+        self.octaves    = self.music_data[0]['melody']['octaves']
+        self.rhythm     = self.music_data[0]['rhythm']
 
-    def update_params(self, params):
-        print('Params updated [{}]:'.format(self._id))
-        print(params)
-
-
+        self.rhythm_contexts = np.array(self.rhythm)
+        self.melody_contexts = np.array([self.notes])
 
 class NetworkManager(multiprocessing.Process):
     def __init__(self, request_queue):
@@ -163,17 +186,22 @@ class NetworkManager(multiprocessing.Process):
                 self.return_queues[_id] = req[2]
                 #model = BasicPlayer(_id)
 
-                print('Loading Player version', PLAYER_VERSION)
-                if PLAYER_VERSION == 9:
-                    model = NNPlayer9(_id)
-                elif PLAYER_VERSION == 9.5:
-                    model = NNPlayer9C(_id)
-                elif PLAYER_VERSION == 10:
-                    model = NNPlayer10(_id)
-                elif PLAYER_VERSION == 10.5:
-                    model = NNPlayer10C(_id)
+                if req[3] == 0:
+                    # load network
+                    print('Loading Player version', PLAYER_VERSION)
+                    if PLAYER_VERSION == 9:
+                        model = NNPlayer9(_id)
+                    elif PLAYER_VERSION == 9.5:
+                        model = NNPlayer9C(_id)
+                    elif PLAYER_VERSION == 10:
+                        model = NNPlayer10(_id)
+                    elif PLAYER_VERSION == 10.5:
+                        model = NNPlayer10C(_id)
+                    else:
+                        print('Loading DataReader.')
+                        model = DataReader(_id)
                 else:
-                    print('Loading DataReader.')
+                    # load DataReader
                     model = DataReader(_id)
 
                 self.models[_id] = model
@@ -188,8 +216,17 @@ class NetworkManager(multiprocessing.Process):
 
             elif req[0] == 1:
                 # instument requests new bar
-                bar, context = self.models[_id].generate_bar(**req[2])
-                self.return_queues[_id].put({'bar': bar, 'context': context})
+                if isinstance(self.models[_id], DataReader):
+                    kwargs = req[2]
+                    while True:
+                        bar, context = self.models[_id].generate_bar(**kwargs)
+                        if not bar:
+                            break
+                        self.return_queues[_id].put({'bar': bar, 'context': context})
+                        kwargs['load_file'] = None
+                else:
+                    bar, context = self.models[_id].generate_bar(**req[2])
+                    self.return_queues[_id].put({'bar': bar, 'context': context})
 
             elif req[0] == 2:
                 # instrument wants to regenerate data (e.g. after recording)
@@ -209,6 +246,11 @@ class NetworkManager(multiprocessing.Process):
                 # get contexts
                 contexts = self.models[_id].getContexts()
                 self.return_queues[_id].put({'contexts': contexts})
+
+            elif req[0] == 6:
+                # load contexts from file
+                if isinstance(self.models[_id], DataReader):
+                    self.models[_id].open_data(req[2])
 
             elif req[0] == -1:
                 # remove the model and data

@@ -1,3 +1,4 @@
+import os
 import math
 import time
 import tkinter as tk
@@ -337,30 +338,51 @@ class PlayerControls(tk.Frame):
         self.add_button = tk.Canvas(self, width=size, height=size,
                                      bg=self.col_grey, highlightthickness=1,
                                      highlightbackground=self.dark_grey)
+        self.reader_button = tk.Canvas(self, width=size, height=size,
+                                     bg=self.col_grey, highlightthickness=1,
+                                     highlightbackground=self.dark_grey)
 
         self.play_button.grid(row=0, column=0, padx=1, pady=1)
         self.rec_button.grid(row=0, column=1, padx=1, pady=1)
         self.stop_button.grid(row=0, column=2, padx=1, pady=1)
         self.add_button.grid(row=0, column=3, padx=1, pady=1)
+        self.reader_button.grid(row=0, column=4, padx=1, pady=1)
 
         # draw icons...
         to = 6
+
+        # PLAY
         self.play_icon = self.play_button.create_polygon(to, to, to, size-to+1,
                                         size-to+1, size//2+1,
                                         fill=self.dark_grey, outline='')
+
+        # REC
         self.rec_icon = self.rec_button.create_oval(to, to, size-to+1, size-to+1,
                                         fill=self.dark_grey, outline='')
+
+        # STOP
         self.stop_icon = self.stop_button.create_rectangle(to, to, size-to+1,
                                         size-to+1, fill=self.dark_grey, outline='')
+        # ADD
         self.add_button.create_rectangle(size//2-2, to, size//2+4, size-to+1,
                                          fill=self.dark_grey, outline='')
         self.add_button.create_rectangle(to, size//2-2, size-to+1, size//2+4,
                                          fill=self.dark_grey, outline='')
 
+        # READER
+        a = to
+        b = size//2-2
+        c = size//2+4
+        d = size-to+1
+        self.reader_button.create_polygon(b, a, c, a, c, b, d, b, d, c, c, c, c, d, b, d, b, c, a, c, a, b, b, b, b, a,
+                                         fill='', outline=self.dark_grey)
+
+
         self.play_button.bind('<Button-1>', self.play)
         self.rec_button.bind('<Button-1>', self.record)
         self.stop_button.bind('<Button-1>', self.stop)
         self.add_button.bind('<Button-1>', self.add)
+        self.reader_button.bind('<Button-1>', self.add_reader)
 
     def update_buttons(self):
         # PLAY button...
@@ -403,8 +425,10 @@ class PlayerControls(tk.Frame):
     def add(self, event):
         self.app.ins_manager.addInstrument()
 
+    def add_reader(self, event):
+        self.app.ins_manager.addInstrument(player='reader')
 
-class InstrumentPanel(tk.Frame):
+class InstrumentPanelBase(tk.Frame):
     def __init__(self, master, instrument, name='Instrument', **options):
         tk.Frame.__init__(self, master, **options)
         self.configure(padx=2, pady=2)
@@ -435,155 +459,12 @@ class InstrumentPanel(tk.Frame):
         self.statusLabel = tk.Label(self.controlFrame, text='',
                                      bg=self.colour[0], fg=self.colour[1], anchor='w')
 
-
-        # ------ Player Parameter Knobs 
-        self.playerParamFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
-        # Controls for:
-        # - span
-        # - center
-        # - chord density
-        # - chord depth
-        # - average interval (jump)
-        # - rhythmic density
-
-        self.spanVar = tk.DoubleVar()
-        self.centVar = tk.DoubleVar()
-        self.cDenVar = tk.DoubleVar()
-        self.cDepVar = tk.DoubleVar()
-        self.jumpVar = tk.DoubleVar()
-        self.rDenVar = tk.DoubleVar()
-        self.sPosVar = tk.DoubleVar()
-
-        self.spanVar.trace('w', self.updateSpan)
-        self.centVar.trace('w', self.updateCent)
-        self.cDenVar.trace('w', self.updateCDen)
-        self.cDepVar.trace('w', self.updateCDep)
-        self.jumpVar.trace('w', self.updateJump)
-        self.rDenVar.trace('w', self.updateRDen)
-        self.sPosVar.trace('w', self.updateSPos)
-
-        self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='span', min_=1, max_=60, default=20)
-        self.centKnob = Knob(self.playerParamFrame, 10, self.centVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='cent', min_=30, max_=90, default=60)
-        self.cDenKnob = Knob(self.playerParamFrame, 10, self.cDenVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='cDen', min_=0, max_=1, default=0)
-        self.cDepKnob = Knob(self.playerParamFrame, 10, self.cDepVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='cDep', min_=1, max_=6, default=1)
-        self.jumpKnob = Knob(self.playerParamFrame, 10, self.jumpVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='jump', min_=0.1, max_=6.0, default=3.0)
-        self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='rDen', min_=0, max_=4, default=1)
-        self.sPosKnob = Knob(self.playerParamFrame, 10, self.sPosVar, bg=COLOR_SCHEME['panel_bg'],
-                             name='sPos', min_=0, max_=1, default=0)
-
-        self.spanKnob.grid(row=0, column=0, sticky='ew')
-        self.centKnob.grid(row=0, column=1, sticky='ew')
-        self.cDenKnob.grid(row=0, column=2, sticky='ew')
-        self.cDepKnob.grid(row=0, column=3, sticky='ew')
-        self.jumpKnob.grid(row=0, column=4, sticky='ew')
-        self.rDenKnob.grid(row=0, column=5, sticky='ew')
-        self.sPosKnob.grid(row=0, column=6, sticky='ew')
-
-        # ------ Mode selection...
-        self.lead_mode = tk.IntVar()
-        self.lead_mode_select = ModeSelect(self.controlFrame, self.lead_mode,
-                                           'lead:', ['none', 'both', 'melody'],
-                                           default=0,
-                                           bg=self.controlFrame.cget('bg'))
-
-        self.sample_mode = tk.IntVar()
-        self.sample_mode_select = ModeSelect(self.controlFrame, self.sample_mode,
-                                           'sample:', ['top', 'dist', 'best'],
-                                           default=1,
-                                           bg=self.controlFrame.cget('bg'))
-
-        self.context_mode = tk.IntVar()
-        self.context_mode_select = ModeSelect(self.controlFrame, self.context_mode,
-                                           'context:', ['none', 'top', 'real', 'inject', 'user'],
-                                           default=3,
-                                           bg=self.controlFrame.cget('bg'))
-
-        # ------ Bar injection configuration...
-        self.injectionFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
-        self.rhythmInjLabel = tk.Label(self.injectionFrame, bg=self.controlFrame.cget('bg'),
-                                       fg=COLOR_SCHEME['text_light'], text='beats:')
-        self.injectionVars = {
-            'qb': (tk.BooleanVar(), 'quar'),
-            'eb': (tk.BooleanVar(), 'egth'),
-            'fb': (tk.BooleanVar(), 'fast'),
-            'lb': (tk.BooleanVar(), 'long'),
-            'tb': (tk.BooleanVar(), 'trip')
-        }
-
-        self.scale = tk.IntVar()
-        self.scale_select = ModeSelect(self.injectionFrame, self.scale,
-                                       'scale:', ['maj', 'min', 'pen', '5th'],
-                                       bg=self.controlFrame.cget('bg'))
-        self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, variable=v[0], label=v[1]))
-                                      for k, v in self.injectionVars.items()])
-
-        self.injectionVars['qb'][0].set(True)
-
-        # ------ Redundant controls for now...
-        self.continuousVar = tk.IntVar(self.controlFrame)
-        self.continuousVar.set(1)
-        self.continuousButton = tk.Checkbutton(self.controlFrame,
-                                               var=self.continuousVar,
-                                               command=self.continuous)
-
-        self.confidence = tk.IntVar(self.controlFrame)
-        self.confidenceOption = tk.OptionMenu(self.controlFrame,
-                                              self.confidence, 0, 1, 2, 3, 4,
-                                              command=self.confidenceUpdate)
-        self.transposeVar = tk.IntVar(self.controlFrame)
-        self.transposeVar.set(0)
-        self.transpose = tk.OptionMenu(self.controlFrame, self.transposeVar,
-                                       -2, -1, 0, 1, 2,
-                                       command=self.transUpdate)
         self.chanLabel = tk.Label(self.controlFrame, textvariable=self.chan,
                                   bg=self.colour[0], fg=self.colour[1],
                                   anchor='e')
         self.chanLabel.bind('<Button-1>', lambda event: self.editEntry(event,
                                                                   self.chanUpdate))
 
-        # ------ Grid selection panels
-
-        self.repeatVar = tk.StringVar(self.controlFrame)
-        self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
-                                          4, [1, 2, 4, 8], self.loopUpdate,
-                                          'loop:', colour='orange', bg=self.controlFrame.cget('bg'))
-        self.repeatVar.trace('w', self.repeatVarUpdate)
-
-        self.chordVar = tk.StringVar(self.controlFrame)
-        self.chordSelect = SelectionGrid(self.controlFrame, self.chordVar, 1, 4,
-                                         [1, 2, 3, 4], None,
-                                         'chrd:', colour='orange', bg=self.controlFrame.cget('bg'))
-        #self.recVar.trace('w', self.recVarUpdate)
-
-        self.rhythmVar = tk.StringVar(self.controlFrame)
-        self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
-                                          4, [1, 2, 3, 4], self.rhythmUpdate,
-                                          'rhythm:', colour='orange', bg=self.controlFrame.cget('bg'))
-        self.rhythmVar.trace('w', self.rhythmVarUpdate)
-
-        # ------ Controls
-        self.hold = tk.BooleanVar()
-        #self.holdButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='hold')
-        #self.holdButton['command'] = self.instrument.toggle_hold
-        self.holdButton = SimpleButton(self.controlFrame, variable=self.hold, label='hold')
-
-        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause',
-                                    activebackground='orange', activeforeground='black')
-        #self.pauseButton = SimpleButton(self.controlFrame, func=self.instrument.toggle_paused, label='pause')
-        self.pauseButton['command'] = self.instrument.toggle_paused
-
-        self.lengthVar = tk.DoubleVar(self.controlFrame)
-        self.lengthVar.trace('w', self.lengthUpdate)
-        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1, bg=self.controlFrame.cget('bg'),
-                                     orient=tk.HORIZONTAL, resolution=0.1, activebackground='orange',
-                                     showvalue=False, variable=self.lengthVar,
-                                     troughcolor=COLOR_SCHEME['panel_bg'])
 
         # ------ Display track
         self.update()
@@ -609,26 +490,6 @@ class InstrumentPanel(tk.Frame):
         self.statusLabel.grid(row=0, column=2, sticky='ew')
         self.nameLabel.grid(row=0, column=3, columnspan=1, sticky='ew')
         self.chanLabel.grid(row=0, column=4, sticky='ew')
-        self.playerParamFrame.grid(row=1, column=1, columnspan=4, sticky='ew')
-        #self.confidenceOption.grid(row=1, column=1)
-        #self.transpose.grid(row=1, column=2)
-        #self.continuousButton.grid(row=1, column=3)
-        self.repeatSelect.grid(row=2, column=1, columnspan=2)
-        self.chordSelect.grid(row=3, column=1, columnspan=2)
-        self.rhythmSelect.grid(row=2, column=4)
-        self.holdButton.grid(row=2, column=3, sticky='ew')
-        self.pauseButton.grid(row=3, column=3, sticky='ew')
-        self.lengthSlider.grid(row=3, column=4, sticky='ew')
-
-        self.lead_mode_select.grid(row=4, column=1, columnspan=2, sticky='ew')
-        self.sample_mode_select.grid(row=4, column=3, columnspan=1, sticky='ew')
-        self.context_mode_select.grid(row=4, column=4, columnspan=2, sticky='ew')
-
-        self.injectionFrame.grid(row=5, column=1, columnspan=5)
-        self.rhythmInjLabel.grid(row=0, column=1)
-        self.scale_select.grid(row=0, column=0)
-        for i, button in enumerate(self.injectionButtons.values()):
-            button.grid(row=0, column=i+2, sticky='ew')
 
         # initialise bar display...
         self.update_canvas()
@@ -652,24 +513,6 @@ class InstrumentPanel(tk.Frame):
         elif self.instrument.status == PLAYING:
             self.pauseButton.config(text='playing')
             self.pauseButton.config(foreground=COLOR_SCHEME['text_light'])
-
-        #if self.instrument.status == PAUSED:
-        #    self.pauseButton.config(text='paused')
-        #    self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
-        #elif self.instrument.status == PAUSE_WAIT:
-        #    self.pauseButton.config(text='pausing')
-        #    self.pauseButton.config(fg='orange')
-        #elif self.instrument.status == PLAY_WAIT:
-        #    self.pauseButton.config(text='playing')
-        #    self.pauseButton.config(fg='orange')
-        #elif self.instrument.status == PLAYING:
-        #    self.pauseButton.config(text='playing')
-        #    self.pauseButton.config(fg=COLOR_SCHEME['text_light'])
-
-        #if self.instrument.hold:
-        #    self.holdButton.config(relief='sunken')
-        #else:
-        #    self.holdButton.config(relief='raised')
 
 
     def update_highlighted_bars(self):
@@ -822,16 +665,197 @@ class InstrumentPanel(tk.Frame):
             #self.controlFrame.config(bg=COLOR_SCHEME['panel_bg'])
             self.statusLabel.config(text='')
 
+    def loopUpdate(self, variable):
+        self.instrument.toggle_loop(int(variable.get()))
+
+    def remove(self, event):
+        self.instrument.delete()
+
+    def toggle_playback(self):
+        self.instrument.toggle_paused()
+
+    def continuous(self):
+        self.instrument.toggle_continuous()
+
+    def getMetaParams(self):
+        return None
+
+    def updateMetaParams(self, params):
+        return
+
+
+class InstrumentPanel(InstrumentPanelBase):
+    def __init__(self, master, instrument, name='Instrument', **options):
+        InstrumentPanelBase.__init__(self, master, instrument, name, **options)
+
+        # ------ Player Parameter Knobs 
+        self.playerParamFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
+        # Controls for:
+        # - span
+        # - center
+        # - chord density
+        # - chord depth
+        # - average interval (jump)
+        # - rhythmic density
+
+        self.spanVar = tk.DoubleVar()
+        self.centVar = tk.DoubleVar()
+        self.cDenVar = tk.DoubleVar()
+        self.cDepVar = tk.DoubleVar()
+        self.jumpVar = tk.DoubleVar()
+        self.rDenVar = tk.DoubleVar()
+        self.sPosVar = tk.DoubleVar()
+
+        self.spanVar.trace('w', self.updateSpan)
+        self.centVar.trace('w', self.updateCent)
+        self.cDenVar.trace('w', self.updateCDen)
+        self.cDepVar.trace('w', self.updateCDep)
+        self.jumpVar.trace('w', self.updateJump)
+        self.rDenVar.trace('w', self.updateRDen)
+        self.sPosVar.trace('w', self.updateSPos)
+
+        self.spanKnob = Knob(self.playerParamFrame, 10, self.spanVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='span', min_=1, max_=60, default=20)
+        self.centKnob = Knob(self.playerParamFrame, 10, self.centVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='cent', min_=30, max_=90, default=60)
+        self.cDenKnob = Knob(self.playerParamFrame, 10, self.cDenVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='cDen', min_=0, max_=1, default=0)
+        self.cDepKnob = Knob(self.playerParamFrame, 10, self.cDepVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='cDep', min_=1, max_=6, default=1)
+        self.jumpKnob = Knob(self.playerParamFrame, 10, self.jumpVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='jump', min_=0.1, max_=6.0, default=3.0)
+        self.rDenKnob = Knob(self.playerParamFrame, 10, self.rDenVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='rDen', min_=0, max_=4, default=1)
+        self.sPosKnob = Knob(self.playerParamFrame, 10, self.sPosVar, bg=COLOR_SCHEME['panel_bg'],
+                             name='sPos', min_=0, max_=1, default=0)
+
+        self.spanKnob.grid(row=0, column=0, sticky='ew')
+        self.centKnob.grid(row=0, column=1, sticky='ew')
+        self.cDenKnob.grid(row=0, column=2, sticky='ew')
+        self.cDepKnob.grid(row=0, column=3, sticky='ew')
+        self.jumpKnob.grid(row=0, column=4, sticky='ew')
+        self.rDenKnob.grid(row=0, column=5, sticky='ew')
+        self.sPosKnob.grid(row=0, column=6, sticky='ew')
+
+        # ------ Mode selection...
+        self.lead_mode = tk.IntVar()
+        self.lead_mode_select = ModeSelect(self.controlFrame, self.lead_mode,
+                                           'lead:', ['none', 'both', 'melody'],
+                                           default=0,
+                                           bg=self.controlFrame.cget('bg'))
+
+        self.sample_mode = tk.IntVar()
+        self.sample_mode_select = ModeSelect(self.controlFrame, self.sample_mode,
+                                           'sample:', ['top', 'dist', 'best'],
+                                           default=1,
+                                           bg=self.controlFrame.cget('bg'))
+
+        self.context_mode = tk.IntVar()
+        self.context_mode_select = ModeSelect(self.controlFrame, self.context_mode,
+                                           'context:', ['none', 'top', 'real', 'inject'],
+                                           default=3,
+                                           bg=self.controlFrame.cget('bg'))
+
+        # ------ Bar injection configuration...
+        self.injectionFrame = tk.Frame(self.controlFrame, bg=self.controlFrame.cget('bg'))
+        self.rhythmInjLabel = tk.Label(self.injectionFrame, bg=self.controlFrame.cget('bg'),
+                                       fg=COLOR_SCHEME['text_light'], text='beats:')
+        self.injectionVars = {
+            'qb': (tk.BooleanVar(), 'quar'),
+            'eb': (tk.BooleanVar(), 'egth'),
+            'fb': (tk.BooleanVar(), 'fast'),
+            'lb': (tk.BooleanVar(), 'long'),
+            'tb': (tk.BooleanVar(), 'trip')
+        }
+
+        self.scale = tk.IntVar()
+        self.scale_select = ModeSelect(self.injectionFrame, self.scale,
+                                       'scale:', ['maj', 'min', 'pen', '5th'],
+                                       bg=self.controlFrame.cget('bg'))
+        self.injectionButtons = dict([(k, SimpleButton(self.injectionFrame, variable=v[0], label=v[1]))
+                                      for k, v in self.injectionVars.items()])
+
+        self.injectionVars['qb'][0].set(True)
+
+        # ------ Redundant controls for now...
+        self.continuousVar = tk.IntVar(self.controlFrame)
+        self.continuousVar.set(1)
+        self.continuousButton = tk.Checkbutton(self.controlFrame,
+                                               var=self.continuousVar,
+                                               command=self.continuous)
+
+        self.confidence = tk.IntVar(self.controlFrame)
+        self.confidenceOption = tk.OptionMenu(self.controlFrame,
+                                              self.confidence, 0, 1, 2, 3, 4,
+                                              command=self.confidenceUpdate)
+        self.transposeVar = tk.IntVar(self.controlFrame)
+        self.transposeVar.set(0)
+        self.transpose = tk.OptionMenu(self.controlFrame, self.transposeVar,
+                                       -2, -1, 0, 1, 2,
+                                       command=self.transUpdate)
+
+        # ------ Grid selection panels
+
+        self.repeatVar = tk.StringVar(self.controlFrame)
+        self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
+                                          4, [1, 2, 4, 8], self.loopUpdate,
+                                          'loop:', colour='orange', bg=self.controlFrame.cget('bg'))
+        self.repeatVar.trace('w', self.repeatVarUpdate)
+
+        self.chordVar = tk.StringVar(self.controlFrame)
+        self.chordSelect = SelectionGrid(self.controlFrame, self.chordVar, 1, 4,
+                                         [1, 2, 3, 4], None,
+                                         'chrd:', colour='orange', bg=self.controlFrame.cget('bg'))
+        #self.recVar.trace('w', self.recVarUpdate)
+
+        self.rhythmVar = tk.StringVar(self.controlFrame)
+        self.rhythmSelect = SelectionGrid(self.controlFrame, self.rhythmVar, 1,
+                                          4, [1, 2, 3, 4], self.rhythmUpdate,
+                                          'rhythm:', colour='orange', bg=self.controlFrame.cget('bg'))
+        self.rhythmVar.trace('w', self.rhythmVarUpdate)
+
+        # ------ Controls
+        self.hold = tk.BooleanVar()
+        self.holdButton = SimpleButton(self.controlFrame, variable=self.hold, label='hold')
+
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause',
+                                    activebackground='orange', activeforeground='black')
+        self.pauseButton['command'] = self.instrument.toggle_paused
+
+        self.lengthVar = tk.DoubleVar(self.controlFrame)
+        self.lengthVar.trace('w', self.lengthUpdate)
+        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1, bg=self.controlFrame.cget('bg'),
+                                     orient=tk.HORIZONTAL, resolution=0.1, activebackground='orange',
+                                     showvalue=False, variable=self.lengthVar,
+                                     troughcolor=COLOR_SCHEME['panel_bg'])
+
+        # ------ Pack all the elements...
+        self.playerParamFrame.grid(row=1, column=1, columnspan=4, sticky='ew')
+        #self.confidenceOption.grid(row=1, column=1)
+        #self.transpose.grid(row=1, column=2)
+        #self.continuousButton.grid(row=1, column=3)
+        self.repeatSelect.grid(row=2, column=1, columnspan=2)
+        self.chordSelect.grid(row=3, column=1, columnspan=2)
+        self.rhythmSelect.grid(row=2, column=4)
+        self.holdButton.grid(row=2, column=3, sticky='ew')
+        self.pauseButton.grid(row=3, column=3, sticky='ew')
+        self.lengthSlider.grid(row=3, column=4, sticky='ew')
+
+        self.lead_mode_select.grid(row=4, column=1, columnspan=2, sticky='ew')
+        self.sample_mode_select.grid(row=4, column=3, columnspan=1, sticky='ew')
+        self.context_mode_select.grid(row=4, column=4, columnspan=2, sticky='ew')
+
+        self.injectionFrame.grid(row=5, column=1, columnspan=5)
+        self.rhythmInjLabel.grid(row=0, column=1)
+        self.scale_select.grid(row=0, column=0)
+        for i, button in enumerate(self.injectionButtons.values()):
+            button.grid(row=0, column=i+2, sticky='ew')
+
+
     def repeatVarUpdate(self, *args):
         val = self.repeatVar.get()
         x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
         self.ins_manager.send_touchOSC_message('/{}/loopBars'.format(self.instrument.ins_id+1), (1, x, 1))
-
-    #def recVarUpdate(self, *args):
-    #    val = self.recVar.get()
-    #    x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
-    #    self.ins_manager.send_touchOSC_message('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
-    #    print('/{}/recBars'.format(self.instrument.ins_id+1), (1, x, 1))
 
     def rhythmVarUpdate(self, *args):
         val = self.rhythmVar.get()
@@ -864,9 +888,6 @@ class InstrumentPanel(tk.Frame):
 
     def confidenceUpdate(self, event):
         self.instrument.confidence = self.confidence.get()
-
-    def loopUpdate(self, variable):
-        self.instrument.toggle_loop(int(variable.get()))
 
     def recUpdate(self, variable):
         num = int(variable.get())
@@ -937,4 +958,52 @@ class InstrumentPanel(tk.Frame):
         if 'pos' in params:
             self.sPosKnob.val = params['pos']
             self.sPosKnob.update_line()
+
+
+class DataReaderPanel(InstrumentPanelBase):
+    def __init__(self, master, instrument, name='Instrument', **options):
+        InstrumentPanelBase.__init__(self, master, instrument, name, **options)
+
+        self.label = tk.Label(self.controlFrame, bg=self.controlFrame.cget('bg'),
+                              fg=COLOR_SCHEME['text_light'], text='DATA READER')
+
+        self.pauseButton = tk.Button(self.controlFrame, bg=self.controlFrame.cget('bg'), fg=COLOR_SCHEME['text_light'], text='pause',
+                                    activebackground='orange', activeforeground='black')
+        self.pauseButton['command'] = self.instrument.toggle_paused
+
+        self.repeatVar = tk.StringVar(self.controlFrame)
+        self.repeatSelect = SelectionGrid(self.controlFrame, self.repeatVar, 1,
+                                          4, [1, 2, 4, 8], self.loopUpdate,
+                                          'loop:', colour='orange', bg=self.controlFrame.cget('bg'))
+        self.repeatVar.trace('w', self.repeatVarUpdate)
+        
+        self.fileVar = tk.StringVar(self.controlFrame)
+        options = os.listdir('./userContexts/')
+        if len(options) == 0:
+            options.append('None')
+        print(options)
+        self.fileVar.set(options[0])
+        self.loadBox = tk.OptionMenu(self.controlFrame, self.fileVar, *options)
+        self.fileVar.trace('w', self.instrument.load_file)
+
+
+        # ------ Pack all the elements...
+        self.label.grid(row=2, column=2)
+        self.repeatSelect.grid(row=2, column=1, columnspan=2)
+        self.pauseButton.grid(row=2, column=3, sticky='ew')
+        self.loadBox.grid(row=3, column=1, columnspan=3, sticky='ew')
+
+
+
+    def repeatVarUpdate(self, *args):
+        val = self.repeatVar.get()
+        x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
+        self.ins_manager.send_touchOSC_message('/{}/loopBars'.format(self.instrument.ins_id+1), (1, x, 1))
+
+
+
+
+
+
+
 

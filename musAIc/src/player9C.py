@@ -310,7 +310,7 @@ class NNPlayer9C(Player):
             # do not update contexts
             pass
 
-        print('lead_mode:', lead_mode, ' sample_mode:', sample_mode, ' update_mode:', update_mode)
+        #print('lead_mode:', lead_mode, ' sample_mode:', sample_mode, ' update_mode:', update_mode)
 
         #print(sampled_rhythm)
         #print(sampled_melody)
@@ -321,7 +321,6 @@ class NNPlayer9C(Player):
             # use chord generator network
             melody = []
             for n in sampled_melody[0]:
-                print(n, end=', ')
                 if n >= 12:
                     chord_outputs = self.chord_net.predict(
                         x=[np.array([[n]]), self.melody_contexts[:, -1:, :], self.unembeddedMetaData]
@@ -331,17 +330,12 @@ class NNPlayer9C(Player):
                     elif sample_mode == 'dist' or sample_mode == 'top':
                         chord = rand.choice(len(chord_outputs[0]), p=chord_outputs[0])
 
-                    print('CHORD:\n', chord_outputs, '\n', chord_outputs.shape)
-                    print('Selected chord:', chord, self.indexChordDict[chord])
-
                     intervals = self.indexChordDict[chord]
                     #intervals = [0, 4, 7]
                     melody.append([n + i - 12 for i in intervals])
 
                 else:
                     melody.append(n)
-
-            print()
 
         elif chord_num == 1:
             # no chords, just melody

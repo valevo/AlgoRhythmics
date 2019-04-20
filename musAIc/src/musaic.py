@@ -10,7 +10,7 @@ import time
 from copy import deepcopy
 from collections import deque, defaultdict
 
-from guielements import COLOR_SCHEME, VScrollFrame, InstrumentPanel, PlayerControls, Knob
+from guielements import COLOR_SCHEME, VScrollFrame, InstrumentPanel, PlayerControls, Knob, DataReaderPanel
 import utils
 from simpleDialog import Dialog
 from networkEngine import NetworkManager
@@ -280,13 +280,14 @@ PLAYING = 1         # currently playing
 
 
 class Instrument():
-    def __init__(self, chan, ins_id, ins_manager, request_queue, network_queue):
+    def __init__(self, chan, ins_id, ins_manager, request_queue, network_queue, player_type='network'):
         self.chan = chan
         self.ins_id = ins_id
         self.ins_manager = ins_manager
         self.ins_panel = None
         self.request_queue = request_queue   # queue to send new bar requests
         self.network_queue = network_queue   # queue to recieve new bars
+        self.player_type = player_type
 
         self.transpose = 0                # number of octaves to shift output
         self.confidence = 0               # the rank of which note to play
@@ -331,7 +332,8 @@ class Instrument():
 
     def set_ins_panel(self, ins_panel):
         self.ins_panel = ins_panel
-        self.update_params(self.ins_panel.getMetaParams())
+        if self.player_type == 'network':
+            self.update_params(self.ins_panel.getMetaParams())
 
     def delete(self):
         '''Deletes this instrument'''
@@ -418,11 +420,16 @@ class Instrument():
     def mute_all_notes(self):
         self.ins_manager.send_message('/allOff', self.chan)
 
-    def request_new_bar(self, lead_bar=None):
-        if self.ins_panel:
+    def request_new_bar(self, lead_bar=None, file=None):
+        if self.ins_panel and self.player_type == 'network':
             r_sel = set([k for k,v in self.ins_panel.injectionVars.items() if v[0].get()])
             scale = {0: 'maj', 1: 'min', 2: 'pen', 3: '5th'}[self.ins_panel.scale.get()]
             inj_params = (r_sel, scale)
+
+            #if not self.userContexts:
+            #    if self.ins_panel.context_mode.get() == 4:
+            #        self.load_user_contexts()
+
             msg = {
                 'confidence':       self.confidence,
                 'loopRhythm':       self.rhythmLoopLevel,
@@ -433,6 +440,7 @@ class Instrument():
                 'um':               self.ins_panel.context_mode.get(),
                 'chord':            int(self.ins_panel.chordVar.get()),
                 'injection_params': inj_params,
+                'load_file':        file,
             }
         else:
             msg = {
@@ -440,6 +448,7 @@ class Instrument():
                 'loopRhythm':       self.rhythmLoopLevel,
                 'hold':             False,
                 'lead_bar':         lead_bar,
+                'load_file':        file,
             }
 
         self.request_queue.put((1, self.ins_id, msg))
@@ -453,6 +462,9 @@ class Instrument():
 
                 if 'init_contexts' in msg:
                     rhythm_contexts, melody_contexts = msg['init_contexts']
+                    if not rhythm_contexts:
+                        continue
+
                     self.context_size = len(rhythm_contexts)
 
                     for i in range(self.context_size):
@@ -526,7 +538,7 @@ class Instrument():
         self.mute_all_notes()
         self.bar_num = -1
         self.ins_panel.bar = self.bar_num
-        self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
+        #self.next_note = self.stream.getNextNotePlaying(self.bar_num, 0)
         self.load_bar()
 
     def init_record(self, start, num):
@@ -548,31 +560,27 @@ class Instrument():
 
         print(self.record_bars)
 
-    def load_user_contexts(self):
-        directory = './userContexts/'
-        try:
-            userContext = directory + os.listdir(directory)[-1]
-        except IndexError:
-            return
-
-        if userContexts[-4:] != '.pkl':
-            print('Not a pkl file...')
-            return
-
-        with open(userContext, 'rb') as f:
-            self.userContexts = pkl.load(f)
-
     def get_contexts(self, diff):
         ''' Returns the contexts needed to generate the future DIFF bar '''
         req_bar = self.bar_num + diff
+
+        if self.loopLevel > 0:
+            while req_bar > self.loopEnd:
+                req_bar -= self.loopLevel
+
         #print('requested bar:', req_bar)
         #print(self.context_stream)
+        #if self.user_context:
+        #    # use user contexts if they exist
+        #    stream = self.context_stream
+        #else:
+        stream = self.context_stream
 
-        if len(self.context_stream) < diff:
+        if len(stream) < diff:
             print('Not enough context information... (diff = {})'.format(diff))
             return None
 
-        if req_bar not in self.context_stream:
+        if req_bar not in stream:
             print('Requested a bar too far in the future (diff = {})'.format(diff))
             return None
 
@@ -581,11 +589,11 @@ class Instrument():
             for i in range(req_bar - self.context_size, req_bar+1):
                 try:
                     #print('Context updated for bar {}'.format(i))
-                    c = self.context_stream[i]
+                    c = stream[i]
                 except KeyError:
                     print('Unknown bar index {}, using latest'.format(i))
-                    key = max(self.context_stream.keys())
-                    c = self.context_stream[key]
+                    key = max(stream.keys())
+                    c = stream[key]
 
                 result.append(c)
 
@@ -596,6 +604,28 @@ class Instrument():
         for p, v in parameters.items():
             self.ins_manager.send_touchOSC_message('/{}/{}'.format(self.ins_id+1, p), (v))
             #print('/{}/{}'.format(self.ins_id, p), (v))
+
+    def load_file(self, *args):
+        # reset position
+        print('load_file()')
+        self.mute_all_notes()
+        self.bar_num = -1
+
+        self.ins_panel.bar = self.bar_num
+
+        # delete whole stream
+        self.stream = utils.Stream()
+        self.ins_panel.clear_canvas(0)
+        self.context_stream = {}
+        self.context_stream = dict()      # the bar in 'context' form
+        self.last_requested_bar = -1
+
+        # request new bar
+        new_dir = self.ins_panel.fileVar.get()
+        print(new_dir)
+        self.request_new_bar(file='./userContexts/'+new_dir)
+
+
 
     def toggle_paused(self):
         if self.status == PAUSED or self.status == PAUSE_WAIT:
@@ -662,28 +692,50 @@ class InstrumentManager():
         self.touchOSCClient = touchOSCClient
 
 
-    def addInstrument(self):
-        print('adding instrument {}...'.format(self.ins_counter))
+    def addInstrument(self, player='network'):
+        print('adding {} player {}...'.format(player, self.ins_counter))
         # create the new return queue 
         return_queue = self.queue_manager.Queue()
-        self.request_queue.put((0, self.ins_counter, return_queue))
-        instrument = Instrument(chan=self.ins_counter+1,
-                                ins_id=self.ins_counter, ins_manager=self,
-                                network_queue=return_queue,
-                                request_queue=self.request_queue)
 
-        insPanel = InstrumentPanel(self.ins_box.frame, instrument, bg=self.ins_box.frame.cget('bg'))
-        instrument.set_ins_panel(insPanel)
+        if player == 'network':
+            self.request_queue.put((0, self.ins_counter, return_queue, 0))
+            instrument = Instrument(chan=self.ins_counter+1,
+                                    ins_id=self.ins_counter, ins_manager=self,
+                                    network_queue=return_queue,
+                                    request_queue=self.request_queue,
+                                    player_type='network')
 
-        self.instrumentPanels[self.ins_counter] = insPanel
-        self.instruments[self.ins_counter] = instrument
-        self.ins_counter += 1
-        insPanel.pack(side='bottom', fill='x', expand=True, pady=5)
-        #self.ins_box.onFrameConfigure()
+            insPanel = InstrumentPanel(self.ins_box.frame, instrument, bg=self.ins_box.frame.cget('bg'))
+            instrument.set_ins_panel(insPanel)
 
-        self.set_selected_instrument(instrument)
-        if not self.lead_ins:
+            self.instrumentPanels[self.ins_counter] = insPanel
+            self.instruments[self.ins_counter] = instrument
+            self.ins_counter += 1
+            insPanel.pack(side='bottom', fill='x', expand=True, pady=5)
+            #self.ins_box.onFrameConfigure()
+
+            self.set_selected_instrument(instrument)
+            if not self.lead_ins:
+                self.set_lead_instrument(instrument)
+
+        elif player == 'reader':
+            self.request_queue.put((0, self.ins_counter, return_queue, 1))
+            instrument = Instrument(chan=self.ins_counter+1,
+                                    ins_id=self.ins_counter, ins_manager=self,
+                                    network_queue=return_queue,
+                                    request_queue=self.request_queue,
+                                    player_type='reader')
+            insPanel = DataReaderPanel(self.ins_box.frame, instrument, bg=self.ins_box.frame.cget('bg'))
+            instrument.set_ins_panel(insPanel)
+
+            self.instrumentPanels[self.ins_counter] = insPanel
+            self.instruments[self.ins_counter] = instrument
+            self.ins_counter += 1
+            insPanel.pack(side='bottom', fill='x', expand=True, pady=5)
+            #self.ins_box.onFrameConfigure()
             self.set_lead_instrument(instrument)
+
+
 
     def removeInstrument(self, ins_id):
         if self.selected_ins.ins_id == ins_id:
@@ -942,7 +994,7 @@ class MusaicApp():
                                              self.queue_manager,
                                              self.clockVar,
                                              self.touchOSCClient)
-        self.ins_manager.addInstrument()
+        #self.ins_manager.addInstrument()
 
         # add engine...
         #self.engine = Engine(self, self.ins_manager, self.BPM, touchOSCClient=self.touchOSCClient)
