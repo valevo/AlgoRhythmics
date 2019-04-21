@@ -741,7 +741,7 @@ class InstrumentPanel(InstrumentPanelBase):
         self.lead_mode = tk.IntVar()
         self.lead_mode_select = ModeSelect(self.controlFrame, self.lead_mode,
                                            'lead:', ['none', 'both', 'melody'],
-                                           default=0,
+                                           default=1,
                                            bg=self.controlFrame.cget('bg'))
 
         self.sample_mode = tk.IntVar()

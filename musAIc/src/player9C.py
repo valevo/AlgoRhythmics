@@ -194,11 +194,14 @@ class NNPlayer9C(Player):
             lead_m_context = kwargs['lead_bar'][1]
 
 
+        #print(lead_r_context, lead_m_context)
         output = self.comb_net.predict(x=[*self.rhythm_contexts,
                                              self.melody_contexts,
                                              self.embeddedMetaData,
                                              lead_r_context,
                                              lead_m_context])
+
+        #print(output[1][0])
 
         # write output distribution to file for analysis
         with open(self.outputFile, 'a') as f:
@@ -280,8 +283,7 @@ class NNPlayer9C(Player):
         update_mode = {0: 'none',
                        1: 'top',
                        2: 'sampled',
-                       3: 'inject',
-                       4: 'user'}[um]
+                       3: 'inject'}[um]
 
 
         if 'hold' in kwargs:
@@ -327,7 +329,7 @@ class NNPlayer9C(Player):
                     )
                     if sample_mode == 'argmax':
                         chord = np.argmax(chord_outputs[0], axis=-1)
-                    elif sample_mode == 'dist' or sample_mode == 'top':
+                    elif sample_mode == 'dist' or sample_mode == 'top_dist':
                         chord = rand.choice(len(chord_outputs[0]), p=chord_outputs[0])
 
                     intervals = self.indexChordDict[chord]
@@ -349,6 +351,7 @@ class NNPlayer9C(Player):
 
         bar = parseBarData(melody, octave, rhythm)
 
+        #print('sampled_melody shape:', sampled_melody.shape)
         return bar, (sampled_rhythm, np.array([sampled_melody]))
 
     def get_contexts(self):

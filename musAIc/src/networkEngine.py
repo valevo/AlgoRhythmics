@@ -124,8 +124,12 @@ class DataReader(Player):
             bar = parseBarData(self.notes[self.current_bar],
                                 self.octaves[self.current_bar],
                                 self.rhythm[self.current_bar])
-            context = (self.rhythm[self.current_bar], np.array([self.notes[self.current_bar]]))
+            #context = (np.array(self.rhythm[self.current_bar]), np.array([[self.notes[self.current_bar]]]))
+            context = (self.rhythm_contexts[self.current_bar], np.array([[self.melody_contexts[0, self.current_bar, :]]]))
         except IndexError:
+            print('[DataReader]: Index error in generate_bar():')
+            print(self.current_bar)
+            print(list(map(len, [self.notes, self.octaves, self.rhythm])))
             bar = None
             context = None
 
@@ -151,8 +155,33 @@ class DataReader(Player):
         self.octaves    = self.music_data[0]['melody']['octaves']
         self.rhythm     = self.music_data[0]['rhythm']
 
-        self.rhythm_contexts = np.array(self.rhythm)
+        #self.rhythm_contexts = np.array(self.rhythm)
+
+        trainings_dir = './v9/Trainings/first_with_lead/'
+        with open(trainings_dir + 'DataGenerator.conversion_params', 'rb') as f:
+            conversion_params = pkl.load(f)
+            rhythmDict = conversion_params['rhythm']
+
+        rc = []
+        for bar in self.rhythm:
+            rc.append([rhythmDict[r] for r in bar])
+        self.rhythm_contexts = np.array(rc)
+
         self.melody_contexts = np.array([self.notes])
+        for bar in self.melody_contexts[0]:
+            pool = list(set([x for x in bar if x]))
+            if len(pool) == 0:
+                pool = [1]
+            for i, n in enumerate(bar):
+                if not n:
+                    bar[i] = rand.choice(pool)
+
+            print(bar)
+
+        #print(self.melody_contexts[0][0])
+        
+        print('Rhythm contexts shape:', self.rhythm_contexts.shape)
+        print('Melody contexts shape:', self.melody_contexts.shape)
 
 class NetworkManager(multiprocessing.Process):
     def __init__(self, request_queue):

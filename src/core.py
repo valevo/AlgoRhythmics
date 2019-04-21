@@ -356,6 +356,7 @@ def parseMelodyData(part, verbose=False):
             idx = round(RES*(n.offset/duration))
 
             p, o, c = get_note_data(n)
+            if verbose: print(p, o, c)
 
             if p: notePool.add(p)
             if o: octavePool.add(o)
@@ -374,6 +375,7 @@ def parseMelodyData(part, verbose=False):
 
         #        m_octaves[i] = random.sample(octavePool, 1)[0]
 
+        if verbose: print(m_notes)
         notes.append(tuple(m_notes))
         octaves.append(tuple(m_octaves))
         chords.append(m_chords)
