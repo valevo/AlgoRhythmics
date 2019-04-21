@@ -190,12 +190,12 @@ def cleanScore(score, quantise=True, expandRepeats=True, verbose=False):
 
                 new_m.append(element)
 
-            if len(new_m.notesAndRests) == len(new_m.getElementsByClass(m21.note.Rest)):
-                if verbose: print('rest bar found')
-                new_m = m21.stream.Measure(quarterLength=m.quarterLength)
-                new_m.insert(0.0, m21.note.Rest(m.barDuration))
-                new_part.append(new_m)
-                continue
+            #if len(new_m.notesAndRests) == len(new_m.getElementsByClass(m21.note.Rest)):
+            #    if verbose: print('rest bar found')
+            #    new_m = m21.stream.Measure(quarterLength=m.quarterLength)
+            #    new_m.insert(0.0, m21.note.Rest(m.barDuration))
+            #    new_part.append(new_m)
+            #    continue
 
             if new_m.duration.quarterLength < new_m.barDuration.quarterLength:
                 if verbose: print('padding ', m.number)
