@@ -982,16 +982,24 @@ class DataReaderPanel(InstrumentPanelBase):
         if len(options) == 0:
             options.append('None')
         print(options)
-        self.fileVar.set(options[0])
+        self.fileVar.set('')
         self.loadBox = tk.OptionMenu(self.controlFrame, self.fileVar, *options)
         self.fileVar.trace('w', self.instrument.load_file)
+
+        self.lengthVar = tk.DoubleVar(self.controlFrame)
+        self.lengthVar.trace('w', self.lengthUpdate)
+        self.lengthSlider = tk.Scale(self.controlFrame, from_=0, to_=1, bg=self.controlFrame.cget('bg'),
+                                     orient=tk.HORIZONTAL, resolution=0.1, activebackground='orange',
+                                     showvalue=False, variable=self.lengthVar,
+                                     troughcolor=COLOR_SCHEME['panel_bg'])
 
 
         # ------ Pack all the elements...
         self.label.grid(row=2, column=2)
         self.repeatSelect.grid(row=2, column=1, columnspan=2)
         self.pauseButton.grid(row=2, column=3, sticky='ew')
-        self.loadBox.grid(row=3, column=1, columnspan=3, sticky='ew')
+        self.lengthSlider.grid(row=2, column=4, columnspan=1, sticky='ew')
+        self.loadBox.grid(row=3, column=2, columnspan=3, sticky='ew')
 
 
 
@@ -1000,7 +1008,8 @@ class DataReaderPanel(InstrumentPanelBase):
         x = {'0':1, '1':2, '2':3, '4':4, '8':5}[val]
         self.ins_manager.send_touchOSC_message('/{}/loopBars'.format(self.instrument.ins_id+1), (1, x, 1))
 
-
+    def lengthUpdate(self, *args):
+        self.instrument.offMode = self.lengthVar.get()
 
 
 

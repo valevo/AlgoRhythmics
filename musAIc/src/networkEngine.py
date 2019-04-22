@@ -96,16 +96,14 @@ class DataReader(Player):
     def __init__(self, _id):
         super().__init__(_id)
 
-        self.notes      = None 
-        self.octaves    = None 
-        self.rhythm     = None 
+        self.notes      = None
+        self.octaves    = None
+        self.rhythm     = None
 
         self.rhythm_contexts = None
         self.melody_contexts = None
 
         self.current_bar = 0
-
-        #self.open_data('./testData.pkl')
 
         print('DataReader initialised')
 
@@ -139,7 +137,7 @@ class DataReader(Player):
 
     def get_contexts(self):
         return (self.rhythm_contexts, self.melody_contexts)
-    
+
     def open_data(self, dir):
         #'./testData.pkl'
         print('open_data', dir)
@@ -164,7 +162,7 @@ class DataReader(Player):
 
         rc = []
         for bar in self.rhythm:
-            rc.append([rhythmDict[r] for r in bar])
+            rc.append([[rhythmDict[r] for r in bar]])
         self.rhythm_contexts = np.array(rc)
 
         self.melody_contexts = np.array([self.notes])
@@ -176,10 +174,9 @@ class DataReader(Player):
                 if not n:
                     bar[i] = rand.choice(pool)
 
-            print(bar)
+            #print(bar)
 
         #print(self.melody_contexts[0][0])
-        
         print('Rhythm contexts shape:', self.rhythm_contexts.shape)
         print('Melody contexts shape:', self.melody_contexts.shape)
 

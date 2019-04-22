@@ -22,9 +22,9 @@ import numpy as np
 # ON WINDOWS:
 #   - run ipconfig in command prompt for Address (Wireless Adapter WiFi)
 #   - run NetAddr.localAddr; in SuperCollider to get port number
-CLIENT_ADDR = '192.168.1.14'
+#CLIENT_ADDR = '192.168.1.14'
 #CLIENT_ADDR = '146.50.249.176'
-#CLIENT_ADDR = '192.168.0.36'
+CLIENT_ADDR = '192.168.0.32'
 #CLIENT_ADDR = '145.109.28.188'
 #CLIENT_ADDR = '100.75.0.230'
 #CLIENT_ADDR = '127.0.0.1'
@@ -345,6 +345,11 @@ class Instrument():
         else:
             self.bar_num += 1
 
+            if self.player_type == 'reader':
+                if self.bar_num > len(self.stream) -1:
+                    print('loping from beginning')
+                    self.bar_num = 0
+
     def load_bar(self):
         '''Loads the current bar into memory to be played, called at start of bar'''
         #if self.status == PAUSED or self.status == PAUSE_WAIT:
@@ -506,7 +511,11 @@ class Instrument():
             self.status = PAUSED
 
         if self.bar_num == len(self.stream) - 1 and not self.continuous:
-            self.status = PAUSED
+            if not self.continuous:
+                self.status = PAUSED
+            
+            if self.player_type == 'reader':
+                self.bar_num = 0
 
         if self.recording:
             print('close bar, self.recording=True')
